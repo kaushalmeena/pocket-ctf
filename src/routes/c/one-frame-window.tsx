@@ -13,9 +13,14 @@ export const Route = createFileRoute("/c/one-frame-window")({
 });
 
 const challenge = getChallenge("one-frame-window");
-const { sealed } = payloads["one-frame-window"];
+const { sealed, maskLength } = payloads["one-frame-window"];
 
-const MASK = "████████████████████████████";
+/**
+ * Exactly as many blocks as the flag has characters, so swapping one for the
+ * other changes nothing about the element's size. A mask that was shorter than
+ * the flag meant the reveal visibly grew the box and spilled past the bar.
+ */
+const MASK = "\u2588".repeat(maskLength);
 
 function OneFrameWindow() {
   const { noteEngagement } = useProgress();
@@ -108,7 +113,10 @@ function OneFrameWindow() {
               imperatively, and a reactive binding would fight it. */}
           <p
             ref={target}
-            class="pt-2 font-mono text-lg break-all text-zinc-900 dark:text-zinc-100"
+            // `break-all` keeps a narrow viewport wrapping inside the card
+            // instead of overflowing it; both states wrap identically because
+            // they are the same length.
+            class="min-h-7 pt-2 font-mono text-lg break-all text-zinc-900 dark:text-zinc-100"
             aria-live="off"
           >
             {MASK}

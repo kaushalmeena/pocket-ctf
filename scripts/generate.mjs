@@ -492,6 +492,18 @@ payloads["the-repeat-offender"] = buildRepeatOffender(
 // skill -- pausing the runtime.
 payloads["one-frame-window"] = {
   sealed: await publicSeal("one-frame-window", normalizeFlag(flags["one-frame-window"])),
+  /*
+   * How many blocks to mask with, so the placeholder is exactly as wide as the
+   * flag that replaces it. Without this the reveal changed the element's width,
+   * which is both a visual jolt and a tell -- and the flag ran past where the
+   * bar had ended.
+   *
+   * Yes, this publishes a length. It is the one challenge where that costs
+   * nothing: it renders the whole flag on screen by design, and its decryption
+   * key ships with the page. The registry-wide `length` field was removed
+   * precisely because it had no such justification.
+   */
+  maskLength: normalizeFlag(flags["one-frame-window"]).length,
 };
 
 // Keyed by the URL you can only reach by reading robots.txt. The unlisted page
