@@ -20,8 +20,19 @@ export const Route = createRootRoute({
           "Eleven offline capture-the-flag puzzles that run entirely in your browser. No server, no accounts, no plaintext flags.",
       },
       { name: "robots", content: "noindex" },
+      { name: "theme-color", content: "#10b981" },
+      { name: "apple-mobile-web-app-title", content: "Pocket CTF" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      // SVG first for browsers that take it; the PNGs are the fallback chain.
+      // All of it comes from `pnpm icons` -- see scripts/icon.mjs.
+      { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { rel: "icon", href: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
+    ],
   }),
   shellComponent: RootDocument,
 });

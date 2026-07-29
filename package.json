@@ -16,7 +16,8 @@
     "gen": "node scripts/generate.mjs",
     "selftest": "node scripts/selftest.mjs",
     "verify:flags": "node scripts/verify-no-flags.mjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm verify:flags && pnpm selftest"
+    "check": "pnpm lint && pnpm typecheck && pnpm verify:flags && pnpm selftest",
+    "icons": "node scripts/icon.mjs"
   },
   "dependencies": {
     "@tanstack/solid-router": "^1.170.18",

@@ -1,3 +1,4 @@
+import { Moon, Sun } from "lucide-solid";
 import { useTheme } from "~/lib/theme";
 
 /**
@@ -28,20 +29,18 @@ export function ThemeToggle() {
           dark:bg-zinc-950"
         classList={{ "translate-x-5": dark() }}
       >
-        {/* Both glyphs are always mounted and cross-faded, so the swap has
-            something to animate between. */}
-        <span
-          class="absolute transition-opacity duration-200"
+        {/* Both icons stay mounted and cross-fade, so the swap has something to
+            animate between rather than popping. */}
+        <Sun
+          size={13}
+          class="absolute text-amber-500 transition-opacity duration-200"
           classList={{ "opacity-0": dark(), "opacity-100": !dark() }}
-        >
-          ☀
-        </span>
-        <span
+        />
+        <Moon
+          size={13}
           class="absolute text-accent-400 transition-opacity duration-200"
           classList={{ "opacity-100": dark(), "opacity-0": !dark() }}
-        >
-          ☾
-        </span>
+        />
       </span>
     </button>
   );
