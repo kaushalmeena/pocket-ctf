@@ -142,6 +142,24 @@
     transition-delay: 0s !important;
   }
 
+  /*
+   * The override above replaces the entire `transition` shorthand, which would
+   * cancel the theme switch's own knob slide and icon cross-fade for exactly as
+   * long as the switch is being used. Exempt it.
+   */
+  .theme-transition [data-theme-switch],
+  .theme-transition [data-theme-switch] * {
+    transition:
+      /* `translate`, not just `transform`: Tailwind v4 implements
+         `translate-x-*` with the standalone `translate` property, so listing
+         only `transform` here left the knob jumping instead of sliding. */
+      translate 0.3s ease-out,
+      transform 0.3s ease-out,
+      opacity 0.2s ease,
+      background-color 0.28s ease,
+      border-color 0.28s ease !important;
+  }
+
   ::selection {
     @apply bg-accent-200 text-zinc-900;
   }
@@ -154,7 +172,7 @@
 @layer components {
   /* Puzzle text that must survive copy-paste byte for byte. */
   .carrier {
-    @apply font-mono text-[0.9rem] leading-7 whitespace-pre-wrap break-words;
+    @apply font-mono text-[0.9rem] leading-7 whitespace-pre-wrap wrap-break-word;
     -webkit-user-select: text;
     user-select: text;
   }

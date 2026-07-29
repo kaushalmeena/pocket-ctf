@@ -46,9 +46,22 @@ export function ThemeProvider(props: { children: JSX.Element }) {
   };
 
   onMount(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-
+    /*
+     * Sync the signal to what the bootstrap script already painted.
+     *
+     * This has to be a real state change rather than a smarter initial value:
+     * hydration only writes an attribute when it sees the value differ from the
+     * server's, so initialising to "dark" here would leave the SSR'd
+     * aria-checked="false" in place forever. The switch's *appearance* does not
+     * depend on this -- it is CSS, driven by the class on <html> -- so the
+     * correction is invisible.
+     *
+     * Deliberately not via apply(): that adds .theme-transition, which would
+     * make an ordinary page load cross-fade its colours as though someone had
+     * hit the switch.
+     */
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     setFollowsSystem(stored === null);
     setTheme(stored ?? (mq.matches ? "dark" : "light"));
 
