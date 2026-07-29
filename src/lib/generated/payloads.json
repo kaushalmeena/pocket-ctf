@@ -1,6 +1,7 @@
 {
   "$generated": "pnpm gen -- do not edit by hand",
   "$note": "Contains no plaintext flags. See README.md#anti-cheat.",
+  "$flag": "pctf{th4ts_a_decoy_friend}",
   "first-light": {
     "shards": [
       {
@@ -441,23 +442,23 @@
   },
   "one-frame-window": {
     "sealed": {
-      "salt": "b0abfc309848b9d2c9142d5c59b3f80f",
-      "iv": "6dae3561e8caf6ddfb3ad280",
-      "ct": "4a2b6a019c8749608df1a657d0fc41057e1c56a5b141b62bdbb71834f7e5e7b6d72a5d67f32478aa80da3e"
+      "salt": "09f902e82eb1f58942c07dba41796ac8",
+      "iv": "4537e680d2ba6464b8499ccd",
+      "ct": "53042bde0cbdf9008e15f0da74c63fcbdbd4918052f7a923d9d36b33558790b0aa8f756a470d23653d445c"
     }
   },
   "nowhere-to-be-found": {
     "sealed": {
-      "salt": "17d54a4732ae4c9fa412089d0de9c420",
-      "iv": "64f64565c81120d4e51d310b",
-      "ct": "da49083090ff2f54c17406d1d7d113b1dbdbaac91e19d3a8fd2fbccdacf5801fadb69e73056c0238"
+      "salt": "f801119d7b5055058aa265888cdcf553",
+      "iv": "9ac5a37e21f0d2f0bbd506cd",
+      "ct": "070d69513e8dba658130be86543cb95d6fa93388e62b70081547b6dc3f988a4279925841599b46a7"
     }
   },
   "the-meta-key": {
     "recipe": {
-      "salt": "7531aaea3fbeb067f0db4437a07fcf40",
-      "iv": "f2b1d61f9aa146e1cbe67974",
-      "ct": "4883e1e42eafb7286ed6764604835f6d2fff84e3c80478ff92adf86e46bad6a148c3f875a23969be430a9caa66b851cfdbb860f3e0b49df640b0de91d33ad68860d1026215774b056b55a2d6942f1a7744c60be296d6e3abaf3b09ee42e61f2f3379e791b48d8216c828d446109248dce90da78087d2766e40040addea7d31bd1d2f60d45fe1f0b49a70ad64436203"
+      "salt": "617e45b6c6189ce8efc0b538bd4efbdf",
+      "iv": "04a9a4c8772b9a847768c953",
+      "ct": "a77648de6b9e98fd6967c56c2098eac43c6d4810ee065a870ee3d8ebbf6cc756873829e290a66e58c38c47b28b62d9d94f6f8e6a5d9dd153815055ecc2fe6069d700133ace754fe90d7400915318d3935ab0da8f60bbb40ae8841d0dad284c9f19f6dbbb3a92bc11ada0863021ce82686227500b35d36363f580b5ce127aa1d6e8ed1a1268d8d9c1a81cded92fb8a2"
     },
     "requires": [
       "first-light",

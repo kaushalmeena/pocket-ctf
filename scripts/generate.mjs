@@ -411,7 +411,12 @@ payloads[metaSlug] = {
   requires: order.slice(0, order.indexOf(metaSlug)),
 };
 
-/** Decoys. These are the only readable `pctf{...}` strings in the project. */
+/**
+ * Decoys. These are the only readable `pctf{...}` strings in the project, and
+ * they are planted where a shortcut-taker looks first: painted on a page, in a
+ * source comment, in a payload file, in the registry. Submitting one is
+ * recorded, because it says something specific about how you got there.
+ */
 const honeypots = [];
 for (const [decoy, message] of Object.entries(key.honeypots ?? {})) {
   const salt = rand(16);
@@ -422,6 +427,9 @@ for (const [decoy, message] of Object.entries(key.honeypots ?? {})) {
   });
 }
 
+/** Pick a decoy by the substring of its message, so the pairing stays legible. */
+const decoyNamed = (needle) => Object.keys(key.honeypots ?? {}).find((d) => d.includes(needle));
+
 const banner = {
   $generated: "pnpm gen -- do not edit by hand",
   $note: "Contains no plaintext flags. See README.md#anti-cheat.",
@@ -429,11 +437,22 @@ const banner = {
 
 writeFileSync(
   join(OUT_DIR, "registry.json"),
-  `${JSON.stringify({ ...banner, version: 1, order, challenges: registry, honeypots }, null, 2)}\n`,
+  `${JSON.stringify(
+    {
+      ...banner,
+      $flag: decoyNamed("read_the_registry"),
+      version: 1,
+      order,
+      challenges: registry,
+      honeypots,
+    },
+    null,
+    2,
+  )}\n`,
 );
 writeFileSync(
   join(OUT_DIR, "payloads.json"),
-  `${JSON.stringify({ ...banner, ...payloads }, null, 2)}\n`,
+  `${JSON.stringify({ ...banner, $flag: decoyNamed("decoy_friend"), ...payloads }, null, 2)}\n`,
 );
 
 console.log(`✔ ${order.length} challenges, ${honeypots.length} decoys`);

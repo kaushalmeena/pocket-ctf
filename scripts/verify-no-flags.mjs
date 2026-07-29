@@ -1,44 +1,54 @@
 #!/usr/bin/env node
 /**
- * Fail the build if a readable flag is anywhere it shouldn't be.
+ * Fail the build if a real flag is readable anywhere outside the answer key.
  *
- * Scans the source tree and, when present, the production output for anything
- * matching `pctf{...}`. Every hit must be a declared honeypot -- those are
- * *supposed* to be greppable, since punishing the shortcut is the point.
+ * Scans the source tree, `public/`, and -- when present -- the production
+ * output in `dist/`, which is the artifact players actually receive. Every
+ * flag-shaped string found is classified against the answer key:
  *
- * This is the guard rail behind the whole design: challenge content is derived
- * from the flags at build time, so a regression that leaks one is a silent
- * failure unless something actively looks for it.
+ *   leak         matches a real flag           -> build fails
+ *   decoy        a declared honeypot           -> expected, reported
+ *   illustration neither                       -> a format example, reported
+ *
+ * Checking against the real values rather than an allowlist of exceptions
+ * means the invariant is enforced directly ("no flag is readable") and format
+ * examples like `pctf{something}` in prose never need to be registered.
+ *
+ * Run `pnpm build && pnpm verify:flags` for the check that counts.
  */
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { normalizeFlag } from "../src/lib/kdf.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
 /**
  * Deliberately matches the *flag grammar* rather than "anything in braces", so
  * regex literals (`pctf{[a-z0-9_]+}`) and template strings (`pctf{${x}}`) in
- * the tooling aren't reported as leaks. Flags are normalised to this alphabet
- * before hashing, so a real flag can never fall outside it.
+ * the tooling aren't reported. Flags are normalised to this alphabet before
+ * hashing, so a real flag can never fall outside it.
  */
 const FLAG_RE = /pctf\{[a-z0-9_]{2,64}\}/g;
 
-const SKIP_DIRS = new Set(["node_modules", ".git", ".vinxi", "dist"]);
-/** Files allowed to hold plaintext flags. */
+const SKIP_DIRS = new Set(["node_modules", ".git"]);
+/** The answer key itself, and its template, are allowed to hold flags. */
 const ALLOWLIST = new Set(["flags.secret.json", "flags.example.json"]);
 
-/** Honeypots are declared decoys; if the key is missing, fall back to none. */
-let declaredDecoys = new Set();
-try {
-  const key = JSON.parse(readFileSync(join(ROOT, "flags.secret.json"), "utf8"));
-  declaredDecoys = new Set(Object.keys(key.honeypots ?? {}));
-} catch {
-  console.warn("! flags.secret.json not found -- decoys cannot be distinguished from leaks");
+/**
+ * Prerendered HTML carries `pctf&#123;…&#125;` where the page renders
+ * `pctf{…}` -- JSX entities survive into the markup and are decoded by the
+ * browser's parser. Normalising braces before matching means an accidentally
+ * escaped leak is still caught instead of hiding behind its own encoding.
+ */
+function decodeBraces(text) {
+  return text
+    .replace(/&#(?:123|x7b);/gi, "{")
+    .replace(/&#(?:125|x7d);/gi, "}")
+    .replace(/&lbrace;/gi, "{")
+    .replace(/&rbrace;/gi, "}");
 }
-
-const targets = ["src", "scripts", "public", "README.md", "app.config.ts"];
-if (statSyncSafe(join(ROOT, ".output"))) targets.push(".output");
 
 function statSyncSafe(p) {
   try {
@@ -63,8 +73,29 @@ function walk(abs, acc) {
   return acc;
 }
 
+/* --- load the answer key ------------------------------------------ */
+
+let realFlags = new Set();
+let decoys = new Set();
+let haveKey = false;
+try {
+  const key = JSON.parse(readFileSync(join(ROOT, "flags.secret.json"), "utf8"));
+  realFlags = new Set(Object.values(key.flags ?? {}).map(normalizeFlag));
+  decoys = new Set(Object.keys(key.honeypots ?? {}).map(normalizeFlag));
+  haveKey = true;
+} catch {
+  console.warn(
+    "! flags.secret.json not found -- every flag-shaped string will be treated as suspect",
+  );
+}
+
+/* --- scan --------------------------------------------------------- */
+
+const targets = ["src", "scripts", "public", "README.md", "vite.config.ts"];
+if (statSyncSafe(join(ROOT, "dist"))) targets.push("dist");
+
 const files = targets.flatMap((t) => walk(join(ROOT, t), []));
-/** @type {{ file: string; flag: string; decoy: boolean }[]} */
+/** @type {{ file: string; flag: string; kind: "leak" | "decoy" | "illustration" }[]} */
 const hits = [];
 
 for (const file of files) {
@@ -76,25 +107,42 @@ for (const file of files) {
   } catch {
     continue;
   }
-  for (const match of text.matchAll(FLAG_RE)) {
-    hits.push({ file: rel, flag: match[0], decoy: declaredDecoys.has(match[0]) });
+  for (const match of decodeBraces(text).matchAll(FLAG_RE)) {
+    const flag = match[0];
+    const kind = !haveKey
+      ? "leak"
+      : realFlags.has(flag)
+        ? "leak"
+        : decoys.has(flag)
+          ? "decoy"
+          : "illustration";
+    hits.push({ file: rel, flag, kind });
   }
 }
 
-const leaks = hits.filter((h) => !h.decoy);
-const decoys = hits.filter((h) => h.decoy);
+const group = (kind) => hits.filter((h) => h.kind === kind);
+const unique = (rows) => [...new Set(rows.map((r) => r.flag))];
 
 console.log(`scanned ${files.length} files in ${targets.join(", ")}`);
-if (decoys.length > 0) {
-  console.log(`  ${decoys.length} honeypot occurrence(s) -- expected:`);
-  for (const d of decoys) console.log(`    ${d.flag}  ${d.file}`);
+
+const decoyHits = group("decoy");
+if (decoyHits.length > 0) {
+  console.log(
+    `  decoys: ${unique(decoyHits).length} distinct, ${decoyHits.length} occurrence(s) -- planted on purpose`,
+  );
 }
 
+const illustrations = group("illustration");
+if (illustrations.length > 0) {
+  console.log(`  format examples (not real flags): ${unique(illustrations).join(", ")}`);
+}
+
+const leaks = group("leak");
 if (leaks.length > 0) {
-  console.error(`\n✘ ${leaks.length} plaintext flag(s) leaked:`);
+  console.error(`\n✘ ${leaks.length} readable flag(s):`);
   for (const l of leaks) console.error(`    ${l.flag}  ${l.file}`);
-  console.error("\nDerive challenge content from the flag at build time instead.");
+  console.error("\nDerive the challenge's content from the flag at build time instead.");
   process.exit(1);
 }
 
-console.log("\n✔ no plaintext flags outside the answer key");
+console.log("\n✔ no real flag is readable outside the answer key");
