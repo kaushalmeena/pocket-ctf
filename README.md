@@ -154,6 +154,24 @@ honest one, and that nothing is unlocked by editing a value.
 
 Commit the generated files in `src/lib/generated/`. They contain no answers.
 
+### Regenerating without resetting everyone
+
+Players store `PBKDF2(flag, tokenSalt)` as their proof of solve, so a new
+`tokenSalt` silently invalidates their progress. `pnpm gen` therefore **reuses
+each challenge's existing salts** whenever that challenge's flag is unchanged —
+fixing a typo in one writeup no longer wipes the scoreboard. A flag that *does*
+change gets fresh salts, because its old hash would no longer match anything.
+
+The AES-GCM IV is always regenerated, even when the salts are kept. Encrypting
+new plaintext under the same key and nonce is a genuine break, and the writeup is
+exactly what tends to change between runs.
+
+To deliberately invalidate every saved solve:
+
+```bash
+pnpm gen --rotate
+```
+
 ## Scripts
 
 | Command             | What it does                                                        |

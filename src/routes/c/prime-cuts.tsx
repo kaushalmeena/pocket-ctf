@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
-import { createSignal, Show } from "solid-js";
+import { createSignal } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
@@ -67,25 +67,23 @@ function PrimeCuts() {
           alphabet.
         </p>
 
-        <Show when={true}>
-          <details class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <summary class="cursor-pointer text-sm font-medium text-zinc-800 dark:text-zinc-200">
-              Trial division, if it has been a while
-            </summary>
-            <div class="prose-mini pt-3">
-              <pre>
-                <code>{`let n = BigInt("…"), out = [];
+        <details class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <summary class="cursor-pointer text-sm font-medium text-zinc-800 dark:text-zinc-200">
+            Trial division, if it has been a while
+          </summary>
+          <div class="prose-mini pt-3">
+            <pre>
+              <code>{`let n = BigInt("…"), out = [];
 for (let p = 2n; p * p <= n; p++)
   while (n % p === 0n) { out.push(p); n /= p; }
 if (n > 1n) out.push(n);   // whatever is left is prime`}</code>
-              </pre>
-              <p>
-                That loop is already in ascending order, which saves you a sort and is not an
-                accident of how the puzzle was built.
-              </p>
-            </div>
-          </details>
-        </Show>
+            </pre>
+            <p>
+              That loop is already in ascending order, which saves you a sort and is not an
+              accident of how the puzzle was built.
+            </p>
+          </div>
+        </details>
       </div>
     </ChallengeShell>
   );

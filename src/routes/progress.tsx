@@ -55,6 +55,27 @@ function ProgressPage() {
       </header>
 
       <Show when={ready()} fallback={<p class="text-sm text-zinc-400">Verifying solves…</p>}>
+        <Show when={stats().solved === stats().total}>
+          <section class="animate-rise rounded-xl border border-accent-200 bg-accent-50/60 p-6 dark:border-accent-900 dark:bg-accent-950/40">
+            <p class="font-mono text-xs tracking-widest text-accent-700 uppercase dark:text-accent-300">
+              All eleven
+            </p>
+            <h2 class="pt-2 text-xl font-semibold text-accent-900 dark:text-accent-50">
+              You finished it.
+            </h2>
+            <p class="prose-mini pt-2 text-accent-800 dark:text-accent-100/80">
+              {stats().score} of {stats().maxScore} points,{" "}
+              {stats().hintsUsed === 0
+                ? "with no hints at all"
+                : `with ${stats().hintsUsed} hint${stats().hintsUsed === 1 ? "" : "s"}`}
+              , and {stats().totalTries} wrong submission
+              {stats().totalTries === 1 ? "" : "s"} along the way. Every writeup on the site is
+              now decryptable — if you skipped any, they are worth reading, because the
+              interesting part of a puzzle is usually the bit you didn't need.
+            </p>
+          </section>
+        </Show>
+
         <section class="space-y-4">
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Solved" value={`${stats().solved}/${stats().total}`} />

@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, Show } from "solid-js";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import type { Challenge } from "~/lib/challenges";
 import { lockoutRemaining } from "~/lib/progress";
 import { useProgress } from "~/lib/store";
@@ -30,6 +30,27 @@ export function FlagForm(props: { challenge: Challenge }) {
   // Drives the lockout countdown. One second is plenty; nothing here is precise.
   const ticker = setInterval(() => setNow(Date.now()), 500);
   onCleanup(() => clearInterval(ticker));
+
+  onMount(() => {
+    // "/" jumps to the flag box, as long as you aren't already typing
+    // somewhere -- the puzzles involve a lot of switching between the page and
+    // devtools, and hunting for the input every time gets old.
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const active = document.activeElement;
+      if (
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        (active instanceof HTMLElement && active.isContentEditable)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      inputRef?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    onCleanup(() => document.removeEventListener("keydown", onKey));
+  });
 
   const solved = () => Boolean(state().solves[props.challenge.slug]);
   const lockedMs = () => lockoutRemaining(state(), props.challenge.slug, now());
@@ -95,9 +116,12 @@ export function FlagForm(props: { challenge: Challenge }) {
       <form onSubmit={onSubmit} class="space-y-2.5">
         <label
           for={`flag-${props.challenge.slug}`}
-          class="block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+          class="flex items-center gap-2 text-sm font-medium text-zinc-800 dark:text-zinc-200"
         >
           Submit flag
+          <kbd class="rounded border border-zinc-300 px-1.5 font-mono text-[0.65rem] font-normal text-zinc-400 dark:border-zinc-700 dark:text-zinc-600">
+            /
+          </kbd>
         </label>
         <div class="flex gap-2" classList={{ "animate-shake": shaking() }}>
           <input

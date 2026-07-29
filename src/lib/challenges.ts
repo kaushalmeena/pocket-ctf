@@ -52,12 +52,6 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   meta: "Meta",
 };
 
-export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  easy: "Easy",
-  medium: "Medium",
-  hard: "Hard",
-};
-
 export const CHALLENGES: Challenge[] = [
   {
     slug: "first-light",
@@ -254,15 +248,27 @@ export function pointsAfterHints(challenge: Challenge, hintsUsed: number) {
 }
 
 /**
- * Cross-check the hand-written list against the generated registry. A slug
- * present in one and not the other means an unsolvable page or an orphaned
- * hash, and it should be loud rather than subtle.
+ * Cross-check the hand-written list against the generated registry.
+ *
+ * A slug in one and not the other means either a challenge page with no hash to
+ * check submissions against, or an orphaned hash with no page. Both are silent
+ * failures at runtime, so this runs at module scope: prerendering imports every
+ * route, which turns a mismatch into a failed build instead of a broken page.
  */
-export function auditRegistry() {
-  const generated = new Set(registry.order);
+function auditRegistry() {
+  const generated = new Set<string>(registry.order);
   const declared = new Set(CHALLENGES.map((c) => c.slug));
-  return {
-    missingPayload: [...declared].filter((s) => !generated.has(s)),
-    missingMetadata: [...generated].filter((s) => !declared.has(s)),
-  };
+  const missingPayload = [...declared].filter((s) => !generated.has(s));
+  const missingMetadata = [...generated].filter((s) => !declared.has(s));
+
+  if (missingPayload.length > 0) {
+    throw new Error(
+      `challenges without generated data (run pnpm gen): ${missingPayload.join(", ")}`,
+    );
+  }
+  if (missingMetadata.length > 0) {
+    throw new Error(`generated data without a challenge page: ${missingMetadata.join(", ")}`);
+  }
 }
+
+auditRegistry();

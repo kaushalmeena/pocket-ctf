@@ -18,7 +18,15 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
-import { derive, normalizeFlag, PURPOSE, seal, sha256Hex, toHex } from "../src/lib/kdf.js";
+import {
+  derive,
+  fromHex,
+  normalizeFlag,
+  PURPOSE,
+  seal,
+  sha256Hex,
+  toHex,
+} from "../src/lib/kdf.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = join(ROOT, "src", "lib", "generated");
@@ -337,12 +345,61 @@ const key = JSON.parse(readFileSync(join(ROOT, "flags.secret.json"), "utf8"));
 const flags = key.flags;
 const order = Object.keys(flags);
 
+/** `--rotate` forces fresh salts, invalidating every player's saved progress. */
+const rotate = process.argv.includes("--rotate");
+
+/**
+ * Salts from the last run, keyed by slug.
+ *
+ * Reusing them matters more than it looks. Players store PBKDF2(flag,
+ * tokenSalt) as their proof of solve, so minting a new tokenSalt silently
+ * invalidates everyone's progress -- editing a single typo in one writeup would
+ * reset the whole scoreboard. Salts are therefore kept whenever the flag they
+ * belong to is unchanged, and only rotated on request.
+ */
+let previous = {};
+if (!rotate) {
+  try {
+    previous = JSON.parse(readFileSync(join(OUT_DIR, "registry.json"), "utf8")).challenges;
+  } catch {
+    previous = {};
+  }
+}
+
+/**
+ * The salts to use for a challenge: the previous ones if they still describe
+ * this flag, otherwise fresh. A changed flag must not keep its old salts -- the
+ * old verifyHash would no longer match and the entry would be dead weight.
+ */
+async function saltsFor(slug, flag) {
+  const old = previous?.[slug];
+  if (old?.verifySalt && old?.tokenSalt && old?.sealSalt) {
+    const stillValid =
+      toHex(await derive(flag, PURPOSE.verify, fromHex(old.verifySalt))) === old.verifyHash;
+    if (stillValid) {
+      return {
+        verifySalt: fromHex(old.verifySalt),
+        tokenSalt: fromHex(old.tokenSalt),
+        sealSalt: fromHex(old.sealSalt),
+        reused: true,
+      };
+    }
+  }
+  return {
+    verifySalt: rand(16),
+    tokenSalt: rand(16),
+    sealSalt: rand(16),
+    reused: false,
+  };
+}
+
 /** @type {Record<string, unknown>} */
 const registry = {};
 /** @type {Record<string, unknown>} */
 const payloads = {};
 /** @type {string[]} */
 const tokens = [];
+let reusedCount = 0;
 
 for (const slug of order) {
   const flag = normalizeFlag(flags[slug]);
@@ -350,9 +407,12 @@ for (const slug of order) {
     throw new Error(`${slug}: flag must match pctf{[a-z0-9_]+} -- got "${flag}"`);
   }
 
-  const verifySalt = rand(16);
-  const tokenSalt = rand(16);
-  const sealSalt = rand(16);
+  const { verifySalt, tokenSalt, sealSalt, reused } = await saltsFor(slug, flag);
+  if (reused) reusedCount++;
+
+  // The IV is always fresh, even when the salts are reused. Encrypting
+  // different plaintext under the same AES-GCM key and nonce is a real break,
+  // not a style preference, and the writeup is exactly what changes between runs.
   const sealIv = rand(12);
 
   const token = toHex(await derive(flag, PURPOSE.token, tokenSalt));
@@ -455,6 +515,11 @@ writeFileSync(
   `${JSON.stringify({ ...banner, $flag: decoyNamed("decoy_friend"), ...payloads }, null, 2)}\n`,
 );
 
-console.log(`✔ ${order.length} challenges, ${honeypots.length} decoys`);
+console.log(
+  `✔ ${order.length} challenges, ${honeypots.length} decoys` +
+    (rotate
+      ? " -- salts ROTATED, all saved progress is now invalid"
+      : `, ${reusedCount} salt set(s) reused so existing progress still verifies`),
+);
 console.log(`  src/lib/generated/registry.json`);
 console.log(`  src/lib/generated/payloads.json`);
