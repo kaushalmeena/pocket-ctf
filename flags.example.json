@@ -1,0 +1,22 @@
+{
+  "$comment": "Template for flags.secret.json (which is gitignored). Fill in a flag for every slug in src/lib/challenges.ts, then run `pnpm gen`. The generator hashes, encrypts and encodes everything into src/lib/generated/ -- the committed site never contains a plaintext flag, so this file is the only place the answers exist.",
+  "flags": {
+    "first-light": "pctf{...}",
+    "invisible-ink": "pctf{...}",
+    "russian-dolls": "pctf{...}",
+    "knights-and-knaves": "pctf{...}",
+    "chromatic-aberration": "pctf{...}",
+    "dots-and-dashes": "pctf{...}",
+    "one-frame-window": "pctf{...}",
+    "nowhere-to-be-found": "pctf{...}",
+    "prime-cuts": "pctf{...}",
+    "the-repeat-offender": "pctf{...}",
+    "the-meta-key": "pctf{...}"
+  },
+  "writeups": {
+    "first-light": "Markdown-ish explanation of the intended solve. Sealed with AES-GCM under a key derived from the flag, so it is unreadable until the challenge is solved."
+  },
+  "honeypots": {
+    "pctf{looks_real_isnt}": "Message shown when someone submits this decoy. Decoys are planted in plain sight so that grepping the bundle is punished rather than rewarded."
+  }
+}
