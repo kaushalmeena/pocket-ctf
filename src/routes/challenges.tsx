@@ -3,11 +3,20 @@ import { Check, Lock, TriangleAlert } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { CategoryPill, DifficultyPill } from "~/components/Pill";
 import { CHALLENGES, type Challenge, TOTAL_POINTS } from "~/lib/challenges";
+import { pageSeo } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/challenges")({
   component: ChallengeIndex,
-  head: () => ({ meta: [{ title: "Challenges — Pocket CTF" }] }),
+  head: () =>
+    pageSeo({
+      title: "All eleven challenges",
+      description:
+        "Browse the eleven Pocket CTF challenges: steganography, ciphers, " +
+        "recon, logic, audio, maths and browser devtools, from easy to hard. " +
+        "Every puzzle runs offline in your browser.",
+      path: "/challenges",
+    }),
 });
 
 function ChallengeIndex() {

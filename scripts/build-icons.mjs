@@ -19,7 +19,7 @@
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { encodeRgba } from "./png-write.mjs";
+import { encodeRaw, encodeRgba } from "./png-write.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "public");
@@ -132,6 +132,59 @@ function svg() {
  * Emit
  * ------------------------------------------------------------------ */
 
+/**
+ * The social card. 1200x630 is what Open Graph consumers crop to.
+ *
+ * Deliberately just the mark on the dark page background: rasterising text
+ * would need a font engine, and a wrong-looking wordmark is worse than none.
+ * The card's job is to be recognisable in a link preview, which a large logo on
+ * brand-coloured ground does.
+ */
+function renderOgCard() {
+  const W = 1200;
+  const H = 630;
+  const BG = [9, 9, 11]; // zinc-950, matching the dark theme
+  const SIZE = 320; // mark's edge length, centred
+  const ox = (W - SIZE) / 2;
+  const oy = (H - SIZE) / 2;
+
+  const raw = Buffer.alloc(H * (W * 4 + 1));
+  let o = 0;
+  for (let y = 0; y < H; y++) {
+    raw[o++] = 0; // filter: none
+    for (let x = 0; x < W; x++) {
+      let tile = 0;
+      let ink = 0;
+      for (let sy = 0; sy < SS; sy++) {
+        for (let sx = 0; sx < SS; sx++) {
+          const u = (x + (sx + 0.5) / SS - ox) / SIZE;
+          const v = (y + (sy + 0.5) / SS - oy) / SIZE;
+          if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+          if (!inTile(u, v)) continue;
+          tile++;
+          if (inMark(u, v)) ink++;
+        }
+      }
+      const samples = SS * SS;
+      if (tile === 0) {
+        raw[o++] = BG[0];
+        raw[o++] = BG[1];
+        raw[o++] = BG[2];
+        raw[o++] = 255;
+        continue;
+      }
+      const inkRatio = ink / tile;
+      const cover = tile / samples;
+      for (let i = 0; i < 3; i++) {
+        const mark = ACCENT[i] * (1 - inkRatio) + INK[i] * inkRatio;
+        raw[o++] = Math.round(mark * cover + BG[i] * (1 - cover));
+      }
+      raw[o++] = 255;
+    }
+  }
+  return { width: W, height: H, raw };
+}
+
 const PNGS = [
   ["favicon-16.png", 16],
   ["favicon-32.png", 32],
@@ -142,6 +195,9 @@ const PNGS = [
 
 writeFileSync(join(OUT, "icon.svg"), svg());
 for (const [name, size] of PNGS) writeFileSync(join(OUT, name), render(size));
+
+const og = renderOgCard();
+writeFileSync(join(OUT, "og.png"), encodeRaw(og.width, og.height, 6, og.raw));
 
 writeFileSync(
   join(OUT, "site.webmanifest"),
@@ -166,4 +222,4 @@ writeFileSync(
   )}\n`,
 );
 
-console.log("✔ icon.svg, site.webmanifest, and 5 PNGs written to public/");
+console.log(`✔ icon.svg, og.png, site.webmanifest and ${PNGS.length} icon PNGs -> public/`);

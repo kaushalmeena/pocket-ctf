@@ -5,11 +5,12 @@ import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
 import { unsealPublic } from "~/lib/progress";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/one-frame-window")({
   component: OneFrameWindow,
-  head: () => ({ meta: [{ title: "One Frame Window — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "One Frame Window — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("one-frame-window");

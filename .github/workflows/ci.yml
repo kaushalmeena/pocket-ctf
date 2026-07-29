@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # `postinstall` runs scripts/bootstrap.mjs, which seeds src/lib/generated/
+      # from the committed sample set. CI therefore has challenge data to build
+      # against without ever being given a real answer key.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+      - run: pnpm lint:icons
+      - run: pnpm typecheck
+
+      # The one that matters: solves all eleven challenges from shipped data.
+      - run: pnpm selftest
+
+      - run: pnpm build
+
+      # Runs against dist/ as well as src/, so it checks the artifact players
+      # would actually receive.
+      - run: pnpm verify:flags

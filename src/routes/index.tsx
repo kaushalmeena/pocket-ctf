@@ -1,12 +1,79 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { ArrowRight } from "lucide-solid";
+import { ArrowRight, ChevronRight } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { CHALLENGES, TOTAL_POINTS } from "~/lib/challenges";
+import { pageSeo, SITE_DESCRIPTION, structuredData } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
+
+/**
+ * Questions a newcomer actually arrives with, answered in prose.
+ *
+ * Doubles as FAQPage structured data, so the same words serve the reader and
+ * the crawler -- there is no hidden keyword block anywhere on this page, and
+ * nothing here is written for a machine that a person would not want to read.
+ */
+const FAQ = [
+  {
+    q: "What is a capture-the-flag challenge?",
+    a:
+      "A CTF is a security puzzle that hides a short marker string — the flag — " +
+      "somewhere you have to work to find. You submit the flag to prove you got " +
+      "there. Real competitions run for teams over a weekend; these eleven are " +
+      "single-player and take a few minutes each.",
+  },
+  {
+    q: "Do I need to install anything?",
+    a:
+      "No. Pocket CTF is a static website that runs entirely in your browser, " +
+      "with no account, no server and no network calls. Browser devtools are the " +
+      "only tool several puzzles need, and every browser already ships them.",
+  },
+  {
+    q: "Is it suitable for beginners?",
+    a:
+      "Yes. The first three challenges teach inspecting the DOM, spotting " +
+      "invisible Unicode and recognising an encoding by its shape. Each " +
+      "challenge has three progressive hints, and solving one unlocks a writeup " +
+      "explaining the technique and why it works.",
+  },
+  {
+    q: "What skills do the challenges cover?",
+    a:
+      "Browser devtools and recon, zero-width Unicode and image steganography, " +
+      "layered encodings, Morse audio, propositional logic, prime factorisation, " +
+      "and breaking repeating-key XOR by frequency analysis.",
+  },
+  {
+    q: "Can I cheat by reading the source code?",
+    a:
+      "Not usefully. No flag exists in plaintext anywhere in the site — each one " +
+      "is stored as a salted PBKDF2 hash, and every puzzle's content is derived " +
+      "from its flag at build time. Four decoy flags are planted where a " +
+      "shortcut-taker looks first.",
+  },
+  {
+    q: "Is Pocket CTF free and open source?",
+    a:
+      "Yes, MIT licensed. You can clone it, write your own answer key and deploy " +
+      "your own instance, whose flags will differ from every other instance.",
+  },
+];
 
 export const Route = createFileRoute("/")({
   component: Home,
-  head: () => ({ meta: [{ title: "Pocket CTF — offline puzzles for your browser" }] }),
+  head: () => ({
+    ...pageSeo({
+      title: "Learn security by solving puzzles in your browser",
+      description: SITE_DESCRIPTION,
+      path: "/",
+    }),
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(structuredData(FAQ)),
+      },
+    ],
+  }),
 });
 
 function Home() {
@@ -124,6 +191,26 @@ function Home() {
           {TOTAL_POINTS} points available. The eleventh needs the other ten first, and it means
           it — its instructions are encrypted with the proof you earned solving them.
         </p>
+      </Section>
+
+      <Section title="Questions">
+        <div class="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 dark:divide-zinc-900 dark:border-zinc-800">
+          <For each={FAQ}>
+            {(item) => (
+              <details class="group">
+                <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                  {item.q}
+                  <ChevronRight
+                    aria-hidden="true"
+                    size={15}
+                    class="ml-auto shrink-0 text-zinc-400 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-600"
+                  />
+                </summary>
+                <p class="prose-mini px-4 pb-4">{item.a}</p>
+              </details>
+            )}
+          </For>
+        </div>
       </Section>
 
       <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-5 dark:border-zinc-800 dark:bg-zinc-900/40">

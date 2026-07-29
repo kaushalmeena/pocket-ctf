@@ -25,7 +25,7 @@
  * disagree about what the answer is.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 /** Suffix alphabet, kept inside the `[a-z0-9_]` flag grammar. */
@@ -65,8 +65,30 @@ export function innerOf(flag) {
   return flag.slice(flag.indexOf("{") + 1, flag.lastIndexOf("}"));
 }
 
+/**
+ * Environment fallbacks, for building where the gitignored files cannot exist.
+ *
+ * A hosted build clones the repo, so `flags.secret.json` and
+ * `deployment.secret.json` are simply absent. Supplying the same JSON through
+ * environment variables is what lets a *real* instance deploy without the
+ * answers ever being committed -- see docs/architecture.md.
+ */
+export const KEY_ENV = "POCKET_CTF_FLAGS";
+export const DEPLOYMENT_ENV = "POCKET_CTF_DEPLOYMENT";
+
+/** Prefer the environment, fall back to the file. */
+function readJson(path, envVar) {
+  const fromEnv = process.env[envVar];
+  return fromEnv ? JSON.parse(fromEnv) : JSON.parse(readFileSync(path, "utf8"));
+}
+
 export function readKey(root) {
-  return JSON.parse(readFileSync(join(root, SECRET_KEY_FILE), "utf8"));
+  return readJson(join(root, SECRET_KEY_FILE), KEY_ENV);
+}
+
+/** Whether a real answer key is reachable at all, from either source. */
+export function hasKey(root) {
+  return Boolean(process.env[KEY_ENV]) || existsSync(join(root, SECRET_KEY_FILE));
 }
 
 /** The committed demo key. Public by design; see flags.sample.json. */
@@ -76,7 +98,7 @@ export function readSampleKey(root) {
 
 export function readDeployment(root) {
   try {
-    return JSON.parse(readFileSync(join(root, DEPLOYMENT_FILE), "utf8"));
+    return readJson(join(root, DEPLOYMENT_FILE), DEPLOYMENT_ENV);
   } catch {
     return null;
   }

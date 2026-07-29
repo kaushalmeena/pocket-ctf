@@ -43,6 +43,10 @@ function chunk(type, data) {
  * @param {2 | 6} colourType 2 = RGB, 6 = RGBA
  * @param {Buffer} raw scanlines, each already prefixed with its filter byte
  */
+export function encodeRaw(width, height, colourType, raw) {
+  return assemble(width, height, colourType, raw);
+}
+
 function assemble(width, height, colourType, raw) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(width, 0);

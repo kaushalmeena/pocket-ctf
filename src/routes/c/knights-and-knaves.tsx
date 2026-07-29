@@ -4,10 +4,11 @@ import { ChallengeShell } from "~/components/ChallengeShell";
 import { DerivedUnlock } from "~/components/DerivedUnlock";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 
 export const Route = createFileRoute("/c/knights-and-knaves")({
   component: KnightsAndKnaves,
-  head: () => ({ meta: [{ title: "Knights and Knaves — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Knights and Knaves — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("knights-and-knaves");

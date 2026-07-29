@@ -17,11 +17,12 @@ import {
   CHALLENGES,
   REQUIRES_INTERACTION,
 } from "~/lib/challenges";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/progress")({
   component: ProgressPage,
-  head: () => ({ meta: [{ title: "Progress — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Progress | Pocket CTF" }, NO_INDEX] }),
 });
 
 function ProgressPage() {

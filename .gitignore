@@ -22,5 +22,7 @@ ANSWERS.secret.md
 src/lib/generated/registry.json
 src/lib/generated/payloads.json
 
-# Names the per-deployment unlisted path, so it is generated too.
+# Both name the per-deployment unlisted path or the site URL, so they are
+# generated rather than committed.
 public/robots.txt
+public/sitemap.xml

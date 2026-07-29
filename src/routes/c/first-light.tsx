@@ -3,11 +3,12 @@ import { For } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/first-light")({
   component: FirstLight,
-  head: () => ({ meta: [{ title: "First Light — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "First Light — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("first-light");

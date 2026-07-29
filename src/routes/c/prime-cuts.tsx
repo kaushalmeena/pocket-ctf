@@ -4,11 +4,12 @@ import { createSignal, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/prime-cuts")({
   component: PrimeCuts,
-  head: () => ({ meta: [{ title: "Prime Cuts — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Prime Cuts — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("prime-cuts");

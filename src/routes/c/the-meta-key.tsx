@@ -5,11 +5,12 @@ import { ChallengeShell } from "~/components/ChallengeShell";
 import { CHALLENGE_BY_SLUG, getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
 import { chainSecret, unsealPublic } from "~/lib/progress";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/the-meta-key")({
   component: TheMetaKey,
-  head: () => ({ meta: [{ title: "The Meta Key — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "The Meta Key — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("the-meta-key");

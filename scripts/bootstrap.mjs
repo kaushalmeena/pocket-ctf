@@ -14,9 +14,11 @@
  * for a real deployment is always the last word.
  */
 
+import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { hasKey, KEY_ENV } from "./answers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const GENERATED = join(ROOT, "src", "lib", "generated");
@@ -27,6 +29,25 @@ const PAIRS = [
   [join(GENERATED, "registry.json"), join(SAMPLE, "registry.json")],
   [join(GENERATED, "payloads.json"), join(SAMPLE, "payloads.json")],
 ];
+
+/*
+ * A real answer key beats the sample every time.
+ *
+ * This is what makes `pnpm build` do the right thing everywhere without a
+ * second command: locally the key is a file, on Vercel it is an environment
+ * variable, and either way the build generates this deployment's own data
+ * rather than shipping the public demo flags. With no key at all -- a fresh
+ * clone, or CI -- it falls through to the sample below.
+ */
+if (hasKey(ROOT)) {
+  console.log(`✔ answer key found; generating this deployment's challenge data`);
+  execFileSync(process.execPath, [join(ROOT, "scripts/generate.mjs")], {
+    stdio: "inherit",
+  });
+  process.exit(0);
+}
+
+console.log(`! no answer key (no flags.secret.json, no ${KEY_ENV}) -- using the demo set`);
 
 const copied = [];
 for (const [live, sample] of PAIRS) {
@@ -70,6 +91,24 @@ Disallow: /c/
 `,
   );
   copied.push(robots);
+}
+
+const sitemap = join(ROOT, "public", "sitemap.xml");
+if (!existsSync(sitemap)) {
+  const site = (process.env.VITE_SITE_URL ?? "https://pocket-ctf.vercel.app").replace(
+    /\/$/,
+    "",
+  );
+  writeFileSync(
+    sitemap,
+    `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${site}/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>${site}/challenges</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>
+`,
+  );
+  copied.push(sitemap);
 }
 
 if (copied.length > 0) {

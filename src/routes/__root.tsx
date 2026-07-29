@@ -20,7 +20,10 @@ export const Route = createRootRoute({
         content:
           "Eleven offline capture-the-flag puzzles that run entirely in your browser. No server, no accounts, no plaintext flags.",
       },
-      { name: "robots", content: "noindex" },
+      // Deliberately no blanket `noindex` here. Indexing is decided per route
+      // (see src/lib/seo.ts): the landing page and the challenge index opt in,
+      // everything whose content is a spoiler opts out.
+      { name: "og:locale", content: "en" },
       { name: "theme-color", content: "#10b981" },
       { name: "apple-mobile-web-app-title", content: "Pocket CTF" },
     ],

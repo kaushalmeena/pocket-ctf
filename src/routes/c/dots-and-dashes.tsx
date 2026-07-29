@@ -4,11 +4,12 @@ import { createSignal, onCleanup, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/dots-and-dashes")({
   component: DotsAndDashes,
-  head: () => ({ meta: [{ title: "Dots and Dashes — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Dots and Dashes — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("dots-and-dashes");

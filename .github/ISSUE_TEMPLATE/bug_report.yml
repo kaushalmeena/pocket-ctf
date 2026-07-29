@@ -1,0 +1,38 @@
+name: Bug report
+description: Something behaves incorrectly.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include the challenge slug if it is specific to one.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open /c/…
+        2. …
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser and OS
+      placeholder: Firefox 145 on Fedora 41
+  - type: checkboxes
+    id: no-spoilers
+    attributes:
+      label: Spoilers
+      options:
+        - label: I have not pasted a flag or a full solution into this report.
+          required: true

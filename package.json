@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "serve": "vite preview",
+    "preview": "vite preview",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "lint:icons": "node scripts/icon-lint.mjs",
@@ -20,6 +20,8 @@
     "selftest": "node scripts/selftest.mjs",
     "verify:flags": "node scripts/leak-scan.mjs",
     "check": "pnpm lint && pnpm lint:icons && pnpm typecheck && pnpm verify:flags && pnpm selftest",
+    "deploy:preview": "pnpm dlx vercel deploy",
+    "deploy": "pnpm dlx vercel deploy --prod",
     "postinstall": "node scripts/bootstrap.mjs",
     "predev": "node scripts/bootstrap.mjs",
     "prebuild": "node scripts/bootstrap.mjs"

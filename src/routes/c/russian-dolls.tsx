@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 
 export const Route = createFileRoute("/c/russian-dolls")({
   component: RussianDolls,
-  head: () => ({ meta: [{ title: "Russian Dolls — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Russian Dolls — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("russian-dolls");

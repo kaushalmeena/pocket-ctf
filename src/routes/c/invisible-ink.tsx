@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/invisible-ink")({
   component: InvisibleInk,
-  head: () => ({ meta: [{ title: "Invisible Ink — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Invisible Ink — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("invisible-ink");

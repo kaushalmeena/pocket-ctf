@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
+import { NO_INDEX } from "~/lib/seo";
 
 export const Route = createFileRoute("/c/nowhere-to-be-found")({
   component: NowhereToBeFound,
-  head: () => ({ meta: [{ title: "Nowhere To Be Found — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "Nowhere To Be Found — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("nowhere-to-be-found");

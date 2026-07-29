@@ -3,11 +3,12 @@ import { createMemo, createSignal, For } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { NO_INDEX } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/the-repeat-offender")({
   component: TheRepeatOffender,
-  head: () => ({ meta: [{ title: "The Repeat Offender — Pocket CTF" }] }),
+  head: () => ({ meta: [{ title: "The Repeat Offender — Pocket CTF" }, NO_INDEX] }),
 });
 
 const challenge = getChallenge("the-repeat-offender");
