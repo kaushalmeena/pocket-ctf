@@ -27,6 +27,13 @@
   html {
     scroll-behavior: smooth;
     color-scheme: light;
+    /*
+     * No rubber-band overscroll and no pull-to-refresh. A challenge page can
+     * involve a lot of scrolling between the puzzle and the submission box, and
+     * an accidental bounce that reloads the page mid-solve is worse than
+     * annoying -- `one-frame-window` fires its reveal on load.
+     */
+    overscroll-behavior: none;
   }
 
   html.dark {
@@ -36,10 +43,57 @@
   body {
     @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-200;
     font-feature-settings: "cv05", "ss01";
+    overscroll-behavior: none;
   }
 
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent-500;
+    transition: outline-offset 0.15s ease;
+  }
+
+  /*
+   * Interactive things move smoothly by default, so individual components
+   * don't each have to remember `transition-colors`. Deliberately a short
+   * list of properties -- transitioning `all` would animate layout and cost
+   * far more than it looks.
+   */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  label,
+  kbd,
+  [role="switch"] {
+    transition-property: color, background-color, border-color, outline-color, opacity,
+      box-shadow, transform;
+    transition-duration: 0.18s;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Buttons give a little under the press. */
+  button:not(:disabled):active,
+  a[href]:active {
+    transform: scale(0.985);
+  }
+
+  /*
+   * Applied to <html> for one beat when the theme flips, so every surface
+   * cross-fades instead of snapping. A permanent global transition would make
+   * ordinary hovers and route changes sluggish, hence the temporary class.
+   */
+  .theme-transition,
+  .theme-transition *,
+  .theme-transition *::before,
+  .theme-transition *::after {
+    transition:
+      background-color 0.28s ease,
+      border-color 0.28s ease,
+      color 0.28s ease,
+      fill 0.28s ease,
+      stroke 0.28s ease !important;
+    transition-delay: 0s !important;
   }
 
   ::selection {
@@ -125,12 +179,56 @@
   animation: shake 0.34s ease-in-out;
 }
 
+/*
+ * Cross-fade between routes. The router drives this via
+ * `defaultViewTransition` in src/router.tsx; browsers without the View
+ * Transitions API simply navigate as before, which is a fine outcome.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: vt-out 0.16s ease-in both;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-in 0.24s ease-out both;
+  }
+}
+
+/* A straight cross-fade. No movement: route changes swap the whole page, and
+   sliding content while the reader's eye is already tracking text is worse
+   than a plain dissolve. */
+@keyframes vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+
   .animate-rise,
   .animate-shake {
     animation: none;
+  }
+
+  /* Keep hover/press feedback instant rather than merely faster. */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+  button:not(:disabled):active,
+  a[href]:active {
+    transform: none;
   }
 }

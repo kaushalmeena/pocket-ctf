@@ -6,6 +6,10 @@ export function getRouter() {
     routeTree,
     scrollRestoration: true,
     defaultPreload: "intent",
+    // Cross-fade route changes where the browser supports it; the animation
+    // itself lives in app.css. Browsers without the View Transitions API just
+    // navigate normally.
+    defaultViewTransition: true,
   });
 }
 

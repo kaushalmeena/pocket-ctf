@@ -3,64 +3,71 @@ import {
   createContext,
   createSignal,
   type JSX,
+  onCleanup,
   onMount,
   useContext,
 } from "solid-js";
-import { isServer } from "solid-js/web";
 
-export type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "pctf:theme";
 
 /**
  * Inlined into <head> so the correct theme is on <html> before first paint.
  * Without this, a dark-mode user gets a white flash on every navigation.
+ *
+ * Absence of a stored value means "follow the OS", which is the state a first
+ * visit is in. Once the toggle is used the choice is explicit and sticks.
  */
-export const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}")||"system";var d=t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme:dark)").matches);document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
+export const THEME_BOOTSTRAP = `(function(){try{var s=localStorage.getItem("${STORAGE_KEY}");var d=s?s==="dark":matchMedia("(prefers-color-scheme:dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
 
 type ThemeContext = {
+  /** The theme currently on screen. */
   theme: Accessor<Theme>;
-  resolved: Accessor<"light" | "dark">;
-  setTheme: (t: Theme) => void;
+  /** True while no explicit choice has been made and the OS is in charge. */
+  followsSystem: Accessor<boolean>;
+  toggle: () => void;
 };
 
 const Ctx = createContext<ThemeContext>();
 
-function systemPrefersDark() {
-  return !isServer && window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
 export function ThemeProvider(props: { children: JSX.Element }) {
-  const [theme, setThemeSignal] = createSignal<Theme>("system");
-  const [resolved, setResolved] = createSignal<"light" | "dark">("light");
+  const [theme, setTheme] = createSignal<Theme>("light");
+  const [followsSystem, setFollowsSystem] = createSignal(true);
 
   const apply = (next: Theme) => {
-    const dark = next === "dark" || (next === "system" && systemPrefersDark());
-    document.documentElement.classList.toggle("dark", dark);
-    setResolved(dark ? "dark" : "light");
+    const root = document.documentElement;
+    // Colour transitions are opt-in for one beat, so the switch fades instead
+    // of snapping -- but nothing else on the page pays for it permanently.
+    root.classList.add("theme-transition");
+    root.classList.toggle("dark", next === "dark");
+    setTheme(next);
+    window.setTimeout(() => root.classList.remove("theme-transition"), 300);
   };
 
   onMount(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const initial = stored ?? "system";
-    setThemeSignal(initial);
-    apply(initial);
-
-    // Follow the OS while the preference is "system".
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
+
+    setFollowsSystem(stored === null);
+    setTheme(stored ?? (mq.matches ? "dark" : "light"));
+
+    // Track the OS only until the visitor states a preference.
     const onChange = () => {
-      if (theme() === "system") apply("system");
+      if (followsSystem()) apply(mq.matches ? "dark" : "light");
     };
     mq.addEventListener("change", onChange);
+    onCleanup(() => mq.removeEventListener("change", onChange));
   });
 
-  const setTheme = (next: Theme) => {
-    setThemeSignal(next);
+  const toggle = () => {
+    const next: Theme = theme() === "dark" ? "light" : "dark";
     localStorage.setItem(STORAGE_KEY, next);
+    setFollowsSystem(false);
     apply(next);
   };
 
-  return <Ctx.Provider value={{ theme, resolved, setTheme }}>{props.children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ theme, followsSystem, toggle }}>{props.children}</Ctx.Provider>;
 }
 
 export function useTheme() {
