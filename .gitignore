@@ -1,0 +1,12 @@
+node_modules
+.vinxi
+.output
+dist
+*.local
+.DS_Store
+.env
+.env.*
+
+# The plaintext answer key. Never commit this -- everything the site needs is
+# derived from it at build time and lands in src/lib/generated/.
+flags.secret.json
