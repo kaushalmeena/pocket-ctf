@@ -153,6 +153,8 @@ function ProgressPage() {
                     >
                       {hide() ? "?" : achievement.icon}
                     </span>
+                    {/* Earned state is otherwise conveyed by colour alone. */}
+                    <span class="sr-only">{has() ? "Earned:" : "Not yet earned:"}</span>
                     <span>
                       <span
                         class="block text-sm font-medium"
@@ -162,6 +164,14 @@ function ProgressPage() {
                         }}
                       >
                         {hide() ? "Hidden badge" : achievement.title}
+                        <Show when={has()}>
+                          <span
+                            aria-hidden="true"
+                            class="pl-1.5 text-accent-600 dark:text-accent-400"
+                          >
+                            ✓
+                          </span>
+                        </Show>
                       </span>
                       <span class="block text-xs text-zinc-500 dark:text-zinc-500">
                         {hide()
