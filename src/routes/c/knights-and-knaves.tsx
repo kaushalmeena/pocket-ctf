@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import { For } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
+import { DerivedUnlock } from "~/components/DerivedUnlock";
 import { getChallenge } from "~/lib/challenges";
+import payloads from "~/lib/generated/payloads.json";
 
 export const Route = createFileRoute("/c/knights-and-knaves")({
   component: KnightsAndKnaves,
@@ -9,11 +11,15 @@ export const Route = createFileRoute("/c/knights-and-knaves")({
 });
 
 const challenge = getChallenge("knights-and-knaves");
+const { verdictSeal, verdictLength } = payloads["knights-and-knaves"];
 
 /**
  * Hand-authored, and verified by scripts/selftest.mjs to admit exactly one
- * consistent assignment. The flag is that assignment, so a second solution
- * would make the challenge unanswerable rather than merely easier.
+ * consistent assignment -- a second solution would make the challenge
+ * unanswerable rather than merely easier.
+ *
+ * The verdicts are the *key* to the flag rather than the flag itself, which is
+ * what keeps a 256-string answer space from being farmed at the submit box.
  */
 const ISLANDERS: { name: string; says: string }[] = [
   { name: "A", says: "B is a knave." },
@@ -53,20 +59,27 @@ function KnightsAndKnaves() {
         </ul>
 
         <div class="rounded-xl border border-zinc-200 bg-zinc-50/60 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-          <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Flag format</p>
+          <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Answer format</p>
           <p class="prose-mini pt-1.5">
-            Eight characters, one per islander in order A through H: <code>k</code> for knight,{" "}
-            <code>n</code> for knave. Wrap it in the usual braces — so if all eight were knights
-            you would submit <code class="whitespace-nowrap">pctf&#123;kkkkkkkk&#125;</code>.
+            {verdictLength} characters, one per islander in order A through H: <code>k</code>{" "}
+            for knight, <code>n</code> for knave. If they were all knights you would enter{" "}
+            <code>kkkkkkkk</code>.
           </p>
         </div>
 
         <p class="prose-mini">
-          Exactly one assignment of the eight is consistent with all eight statements at once.
+          Exactly one assignment is consistent with all {verdictLength} statements at once.
           There is no ambiguity to resolve and no guessing to do — but there is a single
           observation that turns this from eight puzzles into one, and finding it is the whole
           exercise.
         </p>
+
+        <DerivedUnlock
+          label="eight verdicts"
+          placeholder="knknknkn"
+          expectedLength={verdictLength}
+          sealed={verdictSeal}
+        />
       </div>
     </ChallengeShell>
   );

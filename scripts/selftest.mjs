@@ -11,11 +11,24 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { derive, fromHex, normalizeFlag, PURPOSE, toHex, unseal } from "../src/lib/kdf.js";
+import { innerOf, readDeployment, readKey, resolveFlags } from "./answers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
 
-const key = read("flags.secret.json");
+const baseKey = readKey(ROOT);
+const deployment = readDeployment(ROOT);
+if (!deployment) {
+  console.error("deployment.secret.json missing -- run pnpm gen first");
+  process.exit(1);
+}
+
+/**
+ * The flags for *this* deployment: authored base plus random suffix. Every
+ * assertion below is against these, so the test proves the shipped payloads
+ * encode the real answers rather than the base ones.
+ */
+const key = { ...baseKey, flags: resolveFlags(baseKey, deployment.suffixes) };
 const registry = read("src/lib/generated/registry.json");
 const payloads = read("src/lib/generated/payloads.json");
 
@@ -105,7 +118,17 @@ check(
     failures++;
     console.log(`✘ knights-and-knaves    ${solutions.length} solutions, expected exactly 1`);
   } else {
-    check("knights-and-knaves", key.flags["knights-and-knaves"], `pctf{${solutions[0]}}`);
+    // The verdicts alone are no longer the flag -- they are the key that
+    // unseals it, which is what makes the 256-string answer space unfarmable.
+    const s = payloads["knights-and-knaves"].verdictSeal;
+    const flag = await unseal(solutions[0], fromHex(s.salt), s.ct, fromHex(s.iv));
+    check("knights-and-knaves", key.flags["knights-and-knaves"], flag);
+
+    const wrong = await unseal("kkkkkkkk", fromHex(s.salt), s.ct, fromHex(s.iv));
+    if (wrong) {
+      failures++;
+      console.log("✘ knights-and-knaves    a wrong verdict string unsealed the flag");
+    }
   }
 }
 
@@ -167,6 +190,18 @@ check(
     "-..-": "x",
     "-.--": "y",
     "--..": "z",
+    // Digits: flags carry a random alphanumeric suffix, so the decoder needs
+    // the full ITU alphabet, not just the letters.
+    "-----": "0",
+    ".----": "1",
+    "..---": "2",
+    "...--": "3",
+    "....-": "4",
+    ".....": "5",
+    "-....": "6",
+    "--...": "7",
+    "---..": "8",
+    "----.": "9",
   };
   const { timeline, unitMs } = payloads["dots-and-dashes"];
   let symbols = "";
@@ -266,8 +301,19 @@ check(
     failures++;
     console.log("✘ the-meta-key          recipe would not decrypt from the token chain");
   } else {
-    const inner = required.map((slug) => normalizeFlag(key.flags[slug]).charAt(5)).join("");
-    check("the-meta-key", key.flags["the-meta-key"], `pctf{${inner}}`);
+    // First character of each flag's inner text, in challenge order.
+    const letters = required
+      .map((slug) => innerOf(normalizeFlag(key.flags[slug])).charAt(0))
+      .join("");
+    const tag = deployment.suffixes["the-meta-key"];
+
+    // The suffix is not derivable from the other ten flags, so the recipe has
+    // to hand it over -- otherwise this challenge is unsolvable by design.
+    if (!recipe.includes(tag)) {
+      failures++;
+      console.log("✘ the-meta-key          recipe does not disclose the deployment tag");
+    }
+    check("the-meta-key", key.flags["the-meta-key"], `pctf{${letters}_${tag}}`);
   }
   if (order.length !== required.length + 1) {
     failures++;

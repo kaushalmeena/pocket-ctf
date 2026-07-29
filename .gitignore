@@ -10,3 +10,7 @@ dist
 # The plaintext answer key. Never commit this -- everything the site needs is
 # derived from it at build time and lands in src/lib/generated/.
 flags.secret.json
+
+# Per-deployment flag suffixes, and the resolved answers derived from them.
+deployment.secret.json
+ANSWERS.secret.md

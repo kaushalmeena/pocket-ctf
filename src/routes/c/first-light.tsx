@@ -34,13 +34,13 @@ function FirstLight() {
 
         <p class="prose-mini">
           When that doesn't work — and it won't — the real one is on this page too. It is just
-          not <em>painted</em> on this page. Twenty-nine fragments are sitting in the document
-          with zero width and zero height, each one carrying a character and the position that
-          character belongs in.
+          not <em>painted</em> on this page. {shards.length} fragments are sitting in the
+          document with zero width and zero height, each one carrying a character and the
+          position that character belongs in.
         </p>
 
         {/*
-          The flag exists only as 29 disconnected characters in shuffled document
+          The flag exists only as disconnected characters in shuffled document
           order. There is no substring anywhere in this file, or in the shipped
           bundle, that spells it out -- see scripts/verify-no-flags.mjs.
         */}

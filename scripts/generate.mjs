@@ -27,6 +27,15 @@ import {
   sha256Hex,
   toHex,
 } from "../src/lib/kdf.js";
+import {
+  DEPLOYMENT_FILE,
+  innerOf,
+  readDeployment,
+  readKey,
+  resolveFlags,
+  resolveSuffixes,
+  writeDeployment,
+} from "./answers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = join(ROOT, "src", "lib", "generated");
@@ -240,6 +249,17 @@ const MORSE = {
   x: "-..-",
   y: "-.--",
   z: "--..",
+  // Digits are needed now that flags carry a random alphanumeric suffix.
+  0: "-----",
+  1: ".----",
+  2: "..---",
+  3: "...--",
+  4: "....-",
+  5: ".....",
+  6: "-....",
+  7: "--...",
+  8: "---..",
+  9: "----.",
 };
 
 /**
@@ -247,7 +267,7 @@ const MORSE = {
  * bundle holds a list of integers, so you decode it by ear or by arithmetic.
  */
 function buildDotsAndDashes(flag) {
-  const inner = flag.slice(flag.indexOf("{") + 1, flag.lastIndexOf("}"));
+  const inner = innerOf(flag);
   const UNIT = 90;
   /** @type {{ on: boolean; ms: number }[]} */
   const timeline = [];
@@ -311,15 +331,34 @@ function buildPrimeCuts(flag) {
   };
 }
 
-const XOR_PLAINTEXT = `Every cipher that repeats eventually confesses. A key that is shorter than the message it protects does not hide one secret; it hides the same small secret over and over, and repetition is the loudest sound a ciphertext can make. Line the bytes up in columns the width of the key and each column becomes a single shift applied to ordinary English, which is not ordinary at all once you count the letters. The letter e will out itself. The space will out itself faster. Patience is the only tool required, and patience is cheap.`;
+/**
+ * The plaintext has to be long enough that every key column still holds enough
+ * English to be recognisable. Per-column frequency analysis needs roughly
+ * thirty samples before the letter distribution separates from noise, so this
+ * is sized against the longest key a suffixed flag can produce rather than
+ * against the shortest -- `buildRepeatOffender` asserts the margin.
+ */
+const XOR_PLAINTEXT = `Every cipher that repeats eventually confesses. A key that is shorter than the message it protects does not hide one secret; it hides the same small secret over and over, and repetition is the loudest sound a ciphertext can make. Line the bytes up in columns the width of the key and each column becomes a single shift applied to ordinary English, which is not ordinary at all once you count the letters. The letter e will out itself. The space will out itself faster. Patience is the only tool required, and patience is cheap. Consider what a column actually is: every twenty-something byte of a long and perfectly normal paragraph, lifted out and stacked. Nothing about the underlying text has changed. The spaces still fall where spaces fall, the vowels still outnumber the consonants they sit between, and the whole apparatus of ordinary written language is still present, merely thinned. A single byte of key stands between that column and plain reading, and a single byte has only two hundred and fifty six possible values. You do not need to be clever about which one it is. You need only to try them all and notice which result stops looking like an accident.`;
 
 /** Repeating-key XOR. The key is the flag's inner text. */
 function buildRepeatOffender(flag) {
-  const key = Buffer.from(flag.slice(flag.indexOf("{") + 1, flag.lastIndexOf("}")), "utf8");
+  const key = Buffer.from(innerOf(flag), "utf8");
   const pt = Buffer.from(XOR_PLAINTEXT, "utf8");
+  const perColumn = Math.floor(pt.length / key.length);
+  if (perColumn < 30) {
+    throw new Error(
+      `repeat-offender: key of ${key.length} bytes leaves only ${perColumn} samples per ` +
+        "column -- lengthen XOR_PLAINTEXT or frequency analysis becomes unreliable",
+    );
+  }
   const ct = Buffer.alloc(pt.length);
   for (let i = 0; i < pt.length; i++) ct[i] = pt[i] ^ key[i % key.length];
-  return { ciphertextHex: ct.toString("hex"), keyLength: key.length, bytes: ct.length };
+  return {
+    ciphertextHex: ct.toString("hex"),
+    keyLength: key.length,
+    bytes: ct.length,
+    perColumn,
+  };
 }
 
 /**
@@ -341,12 +380,32 @@ async function publicSeal(secret, plaintext) {
  * Main
  * ------------------------------------------------------------------ */
 
-const key = JSON.parse(readFileSync(join(ROOT, "flags.secret.json"), "utf8"));
-const flags = key.flags;
+/**
+ * `--rotate` mints fresh per-deployment suffixes *and* fresh salts. That is
+ * what you want when standing up a new instance; it invalidates every existing
+ * flag and every saved solve.
+ */
+const rotate = process.argv.includes("--rotate");
+
+const key = readKey(ROOT);
+const existingDeployment = readDeployment(ROOT);
+const { suffixes, minted } = resolveSuffixes(key, existingDeployment, rotate);
+
+/**
+ * The flags players actually submit: authored base plus this deployment's
+ * random suffix. See scripts/answers.mjs for why.
+ */
+const flags = resolveFlags(key, suffixes);
 const order = Object.keys(flags);
 
-/** `--rotate` forces fresh salts, invalidating every player's saved progress. */
-const rotate = process.argv.includes("--rotate");
+if (minted > 0 || rotate) {
+  writeDeployment(ROOT, {
+    $comment:
+      "Per-deployment flag suffixes. Gitignored, and the only thing separating this " +
+      "instance's flags from any other's. Regenerate with `pnpm gen --rotate`.",
+    suffixes,
+  });
+}
 
 /**
  * Salts from the last run, keyed by slug.
@@ -459,6 +518,24 @@ payloads["nowhere-to-be-found"] = {
   sealed: await publicSeal("/vault/omega", normalizeFlag(flags["nowhere-to-be-found"])),
 };
 
+/*
+ * Two challenges are "derive-type": the answer is reasoned out rather than
+ * extracted from shipped data. A random suffix is undiscoverable for those, so
+ * each gets the suffix sealed under the answer it expects you to produce.
+ *
+ * This is not a consolation prize. The logic puzzle's answer space is 256
+ * strings, small enough to grind out through the submission box; now a correct
+ * answer is required *before* a flag exists to submit at all.
+ */
+payloads["knights-and-knaves"] = {
+  // Keyed by the eight verdicts, which is exactly what solving produces.
+  verdictSeal: await publicSeal(
+    innerOf(normalizeFlag(key.flags["knights-and-knaves"])),
+    normalizeFlag(flags["knights-and-knaves"]),
+  ),
+  verdictLength: innerOf(normalizeFlag(key.flags["knights-and-knaves"])).length,
+};
+
 // The meta challenge's instructions are locked behind every other solve: the
 // secret is all ten proof-of-solve tokens concatenated in challenge order.
 const metaSlug = "the-meta-key";
@@ -466,7 +543,7 @@ const chainSecret = tokens.slice(0, order.indexOf(metaSlug)).join("");
 payloads[metaSlug] = {
   recipe: await publicSeal(
     chainSecret,
-    "Take the first character of the inner text of each flag you have collected, in challenge order, and wrap the result in pctf{ }.",
+    `Take the first character of the inner text of each flag you have collected, in challenge order. That gives you ${order.indexOf(metaSlug)} letters.\n\nThen add an underscore and this deployment's tag for this challenge — ${suffixes[metaSlug]} — and wrap the whole thing in pctf{ }. The tag is random per installation, so it could not have been guessed, and it is not written anywhere you could have read before now.`,
   ),
   requires: order.slice(0, order.indexOf(metaSlug)),
 };
@@ -515,11 +592,38 @@ writeFileSync(
   `${JSON.stringify({ ...banner, $flag: decoyNamed("decoy_friend"), ...payloads }, null, 2)}\n`,
 );
 
+/*
+ * The resolved answers, written where the author can find them. Suffixes are
+ * random, so without this the person running the CTF would not know their own
+ * flags -- and there is no way to recover them from the committed output, which
+ * is rather the point.
+ */
+const answersFile = "ANSWERS.secret.md";
+writeFileSync(
+  join(ROOT, answersFile),
+  [
+    "# Answers",
+    "",
+    "Generated by `pnpm gen`. Gitignored, and the only readable copy of this",
+    "deployment's flags. Suffixes come from `deployment.secret.json`; changing",
+    "that file (or running `pnpm gen --rotate`) changes every flag below.",
+    "",
+    "| # | Challenge | Flag |",
+    "| - | --------- | ---- |",
+    ...order.map((slug, i) => `| ${i + 1} | ${slug} | \`${flags[slug]}\` |`),
+    "",
+  ].join("\n"),
+);
+
 console.log(
   `✔ ${order.length} challenges, ${honeypots.length} decoys` +
     (rotate
-      ? " -- salts ROTATED, all saved progress is now invalid"
+      ? " -- suffixes and salts ROTATED: every flag changed, all saved progress invalid"
       : `, ${reusedCount} salt set(s) reused so existing progress still verifies`),
 );
-console.log(`  src/lib/generated/registry.json`);
-console.log(`  src/lib/generated/payloads.json`);
+if (minted > 0 && !rotate) {
+  console.log(`  minted ${minted} new deployment suffix(es) -> ${DEPLOYMENT_FILE}`);
+}
+console.log("  src/lib/generated/registry.json");
+console.log("  src/lib/generated/payloads.json");
+console.log(`  ${answersFile}  <- this deployment's flags, gitignored`);

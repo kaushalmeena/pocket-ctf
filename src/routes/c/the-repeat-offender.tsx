@@ -84,7 +84,7 @@ function TheRepeatOffender() {
             Try all 256 of them. For each candidate, XOR the whole column and ask how much the
             result looks like English — spaces are the most common character in prose by a wide
             margin, then <code>e t a o i n</code>. Score it, keep the winner, move to the next
-            column. Nineteen small brute-forces, none of which can fail.
+            column. {keyLength} small brute-forces, none of which can fail.
           </p>
         </div>
 

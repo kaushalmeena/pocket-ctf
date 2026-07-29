@@ -64,7 +64,7 @@ export const CHALLENGES: Challenge[] = [
     hints: [
       "The flag on the page is the wrong flag. Ignore what is painted; ask what is present.",
       "Right-click. Inspect. Then look for elements that occupy no space at all.",
-      "There are 29 of them, each carrying one character and one number. The number is not decoration — it is an index.",
+      "Each one carries a character and a number. The number is not decoration — it is an index, and the characters are shuffled without it.",
     ],
   },
   {
@@ -106,7 +106,7 @@ export const CHALLENGES: Challenge[] = [
     hints: [
       "Knights only say true things; knaves only say false things. So an islander is a knight *exactly when* their statement is true. Write that as an equation and the puzzle solves itself.",
       "Start with B and C — they form a loop you can close by contradiction. Then note that two of the remaining statements are direct contradictions, which pins the total.",
-      "The flag is the eight verdicts in order, A through H, as `k` and `n`, wrapped in the usual braces. Brute-forcing all 256 assignments is a perfectly honest solve.",
+      "Enter the verdicts in order, A through H, as `k` and `n` — the flag is encrypted with them as the key, so a wrong answer yields nothing at all. Brute-forcing all 256 assignments is a perfectly honest solve.",
     ],
   },
   {
@@ -175,7 +175,7 @@ export const CHALLENGES: Challenge[] = [
     points: 200,
     hints: [
       "There is precisely one way to break a whole number into primes. That uniqueness is the encoding, not an obstacle to it.",
-      "Trial division is enough — no factor is above twenty thousand. Sort what falls out, ascending.",
+      "Trial division is enough — every factor is small enough to reach in well under a second. Sort what falls out, ascending.",
       "Reduce each prime modulo 127 and read the results as ASCII. (Why 127 and not 128? Try 128 and watch half the alphabet become unreachable.)",
     ],
   },
@@ -189,7 +189,7 @@ export const CHALLENGES: Challenge[] = [
     points: 200,
     hints: [
       "XOR with a repeating key. The key length is given to you, which is the hard half of the problem removed.",
-      "Bytes at positions 0, 19, 38, … were all XORed with the same single byte. So were 1, 20, 39, …. That is nineteen separate, tiny problems.",
+      "Take the key length as K. Bytes at positions 0, K, 2K, … were all XORed with the same single byte; so were 1, K+1, 2K+1, …. That is K separate, tiny problems instead of one impossible one.",
       "For each column try all 256 bytes and score the result on how English it looks — spaces and `etaoin shrdlu` are worth the most. The best-scoring byte is almost always right.",
     ],
   },
@@ -216,7 +216,7 @@ export const CHALLENGES: Challenge[] = [
     hints: [
       "Everything you need is in the ten flags you already have. Lay them out in challenge order.",
       "You are looking at the inner text of each flag — what sits between the braces.",
-      "First character of each, in order. Wrap in `pctf{ }`.",
+      "First character of each, in order. The unlocked instructions also give you a random tag for this installation, which you could not have derived — append it, then wrap the lot in `pctf{ }`.",
     ],
   },
 ];

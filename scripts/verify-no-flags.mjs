@@ -21,6 +21,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeFlag } from "../src/lib/kdf.js";
+import { readDeployment, readKey, resolveFlags } from "./answers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -34,7 +35,12 @@ const FLAG_RE = /pctf\{[a-z0-9_]{2,64}\}/g;
 
 const SKIP_DIRS = new Set(["node_modules", ".git"]);
 /** The answer key itself, and its template, are allowed to hold flags. */
-const ALLOWLIST = new Set(["flags.secret.json", "flags.example.json"]);
+const ALLOWLIST = new Set([
+  "flags.secret.json",
+  "flags.example.json",
+  "deployment.secret.json",
+  "ANSWERS.secret.md",
+]);
 
 /**
  * Prerendered HTML carries `pctf&#123;…&#125;` where the page renders
@@ -79,13 +85,19 @@ let realFlags = new Set();
 let decoys = new Set();
 let haveKey = false;
 try {
-  const key = JSON.parse(readFileSync(join(ROOT, "flags.secret.json"), "utf8"));
-  realFlags = new Set(Object.values(key.flags ?? {}).map(normalizeFlag));
+  const key = readKey(ROOT);
+  const deployment = readDeployment(ROOT);
   decoys = new Set(Object.keys(key.honeypots ?? {}).map(normalizeFlag));
+  // Check against the *resolved* flags -- base + this deployment's suffix --
+  // since those are what a leak would actually expose. The bases are also
+  // included: a stray base flag in the bundle would hand over most of the
+  // answer even though it would not validate on its own.
+  const resolved = deployment ? Object.values(resolveFlags(key, deployment.suffixes)) : [];
+  realFlags = new Set([...Object.values(key.flags ?? {}), ...resolved].map(normalizeFlag));
   haveKey = true;
 } catch {
   console.warn(
-    "! flags.secret.json not found -- every flag-shaped string will be treated as suspect",
+    "! answer key not readable -- every flag-shaped string will be treated as suspect",
   );
 }
 

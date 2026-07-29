@@ -5,6 +5,9 @@ accounts, no network. Each challenge is its own page, you submit a flag into a
 box, and the site checks it without ever having stored what the answer looks
 like.
 
+Flags look like `pctf{some_words_x7fq2p}`. That trailing noise is random and
+minted per installation, so no two deployments share a flag.
+
 Built with [TanStack Start](https://tanstack.com/start) (Solid), Tailwind v4 and
 Biome, on pnpm. Every route is prerendered to static HTML, so the finished thing
 is a folder of files that any file server can host — or that you can copy onto a
@@ -121,6 +124,25 @@ Each has its own message when submitted, and tripping one earns a badge you
 won't enjoy. They are the only readable `pctf{...}` strings in the project,
 which is what makes grepping a trap rather than a shortcut.
 
+### 6. Every deployment has different flags
+
+The answer key holds *base* flags — `pctf{some_words}`. `pnpm gen` mints a random
+six-character suffix per challenge into `deployment.secret.json` and splices it
+in, so the flag players actually submit is `pctf{some_words_x7fq2p}`.
+
+This closes two holes. A flag was previously only as strong as its own
+semantics: a writeup, a screenshot, or a friend running another copy of the site
+handed over a working answer. And some were outright guessable — the logic
+puzzle's answer space is 256 strings, grindable through the submission box
+alone. Six random characters take that to roughly two billion.
+
+Most challenges encode the flag into shipped data, so the suffix falls out of
+solving for free. Two challenges are *derive-type*, where you reason to an answer
+rather than extract it, and no amount of reasoning produces six random
+characters. Those seal the flag under the answer itself: enter the answer, get
+the flag. A wrong answer decrypts to nothing, which is stricter than merely
+checking it would have been.
+
 ### What this does not stop
 
 Being honest about the boundary:
@@ -138,9 +160,10 @@ honest one, and that nothing is unlocked by editing a value.
 
 ## Authoring your own
 
-1. Copy `flags.example.json` to `flags.secret.json` and write your flags.
-   They must match `pctf{[a-z0-9_]+}` — submissions are normalised the same way
-   the key is, so case and stray whitespace are forgiving.
+1. Copy `flags.example.json` to `flags.secret.json` and write your *base*
+   flags. They must match `pctf{[a-z0-9_]+}` — submissions are normalised the
+   same way the key is, so case and stray whitespace are forgiving. `pnpm gen`
+   appends this deployment's random suffix; you never write that part.
 2. Add metadata (title, tagline, category, points, three hints) to
    `CHALLENGES` in [`src/lib/challenges.ts`](src/lib/challenges.ts).
 3. If the puzzle needs baked data, add a builder to
@@ -150,7 +173,12 @@ honest one, and that nothing is unlocked by editing a value.
    `<ChallengeShell>`. The shell handles the timer, hints, submission,
    prerequisite gating and the sealed writeup.
 5. Add a solver to [`scripts/selftest.mjs`](scripts/selftest.mjs).
-6. `pnpm gen && pnpm check`.
+6. `pnpm gen && pnpm check`. The resolved flags land in `ANSWERS.secret.md`.
+
+If the answer is *reasoned* rather than extracted, seal the flag under that
+answer and drop a `<DerivedUnlock>` on the page — see
+`src/routes/c/knights-and-knaves.tsx`. Otherwise the random suffix would make
+your challenge unsolvable.
 
 Commit the generated files in `src/lib/generated/`. They contain no answers.
 
@@ -196,7 +224,11 @@ output is what players actually receive.
 ## Project layout
 
 ```
-flags.secret.json         the answer key (gitignored)
+flags.secret.json         base flags you author (gitignored)
+deployment.secret.json    this install's random suffixes (gitignored, generated)
+ANSWERS.secret.md         resolved flags, for whoever runs the CTF (gitignored)
+scripts/answers.mjs       splices base + suffix; the one source of truth for
+                          what a flag actually is
 scripts/generate.mjs      answer key -> hashes, ciphertext, puzzle payloads
 scripts/selftest.mjs      solves every challenge from shipped data
 scripts/verify-no-flags.mjs   leak scanner
@@ -212,8 +244,13 @@ src/routes/vault/omega    the unlisted page
 
 ## Notes
 
-- Light, dark and system themes; the class is set before first paint so
-  navigating in dark mode never flashes white.
+- A single dark-mode switch, defaulting to your OS preference until you touch
+  it. The class is set before first paint, so navigating in dark mode never
+  flashes white, and the whole palette cross-fades on toggle.
+- Routes cross-fade via the View Transitions API where available. Hover, press
+  and focus are all transitioned; overscroll bounce and pull-to-refresh are
+  disabled, since an accidental reload mid-solve is worse than annoying.
+- Icons are [Lucide](https://lucide.dev) (`lucide-solid`), inlined as SVG.
 - Hints cost 15% of a challenge's points each, floored at a quarter. Take them.
 - Ten badges, one of them hidden and unflattering.
 - Progress exports to a file and imports with the same verification a page load
