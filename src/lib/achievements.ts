@@ -11,7 +11,7 @@ import {
   Cat,
   Crosshair,
   Droplet,
-  Fingerprint,
+  FingerprintPattern,
   Gem,
   Hammer,
   Moon,
@@ -100,7 +100,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: "hands-on",
-    icon: Fingerprint,
+    icon: FingerprintPattern,
     title: "Hands On",
     description: "Finish everything, having genuinely worked the puzzles that can prove it.",
     earned: (_, stats) => stats.solved === CHALLENGES.length && stats.unengaged === 0,

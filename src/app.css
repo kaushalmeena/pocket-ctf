@@ -79,9 +79,15 @@
   }
 
   /*
-   * Applied to <html> for one beat when the theme flips, so every surface
-   * cross-fades instead of snapping. A permanent global transition would make
-   * ordinary hovers and route changes sluggish, hence the temporary class.
+   * Applied to <html> for one beat when the theme flips, so surfaces cross-fade
+   * instead of snapping. A permanent global transition would make ordinary
+   * hovers and route changes sluggish, hence the temporary class.
+   *
+   * Surfaces only -- `color` is deliberately excluded. Animating text colour
+   * looks fine on body copy and wrong on anything large: the wordmark and the
+   * page heading visibly trailed the background, reading as lag rather than as
+   * a transition. Text now flips instantly, which nobody notices, while the
+   * backgrounds and borders it sits on still fade.
    */
   .theme-transition,
   .theme-transition *,
@@ -89,10 +95,7 @@
   .theme-transition *::after {
     transition:
       background-color 0.28s ease,
-      border-color 0.28s ease,
-      color 0.28s ease,
-      fill 0.28s ease,
-      stroke 0.28s ease !important;
+      border-color 0.28s ease !important;
     transition-delay: 0s !important;
   }
 

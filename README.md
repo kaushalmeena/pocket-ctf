@@ -301,7 +301,8 @@ pnpm gen --rotate
 | `pnpm icons`        | Redraw the app icon and favicons from `scripts/build-icons.mjs`     |
 | `pnpm selftest`     | **Solve every challenge** from shipped data and check the answers   |
 | `pnpm verify:flags` | Fail if a real flag is readable anywhere outside the answer key      |
-| `pnpm check`        | lint + typecheck + verify:flags + selftest                          |
+| `pnpm lint:icons`   | Fail if any imported Lucide icon is a deprecated alias              |
+| `pnpm check`        | lint + icon lint + typecheck + verify:flags + selftest              |
 
 `pnpm selftest` is the one that matters. It doesn't test that the code runs — it
 plays the game: peels the five encodings, reads the zero-width bits, extracts
@@ -347,6 +348,9 @@ src/routes/vault/omega    the unlisted page
   and focus are all transitioned; overscroll bounce and pull-to-refresh are
   disabled, since an accidental reload mid-solve is worse than annoying.
 - Icons are [Lucide](https://lucide.dev) (`lucide-solid`), inlined as SVG.
+  `pnpm lint:icons` reads the `@deprecated` annotations out of the installed
+  package and fails if any renamed alias is still imported — those keep working
+  and never warn, so they rot silently otherwise.
 - Hints cost 15% of a challenge's points each, floored at a quarter. Take them.
 - Ten badges, one of them hidden and unflattering.
 - Progress exports to a file and imports with the same verification a page load
