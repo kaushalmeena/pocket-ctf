@@ -5,6 +5,7 @@ import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
 import { unsealPublic } from "~/lib/progress";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/one-frame-window")({
   component: OneFrameWindow,
@@ -17,6 +18,7 @@ const { sealed } = payloads["one-frame-window"];
 const MASK = "████████████████████████████";
 
 function OneFrameWindow() {
+  const { noteEngagement } = useProgress();
   const [armed, setArmed] = createSignal(false);
   const [failed, setFailed] = createSignal(false);
   const [reveals, setReveals] = createSignal(0);
@@ -122,7 +124,10 @@ function OneFrameWindow() {
         <div class="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            onClick={flash}
+            onClick={() => {
+              noteEngagement(challenge.slug, "replayed-reveal");
+              void flash();
+            }}
             disabled={armed()}
             class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
           >

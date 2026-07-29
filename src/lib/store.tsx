@@ -31,6 +31,8 @@ type Store = {
   submit: (slug: string, input: string) => Promise<SubmitResult>;
   revealHint: (slug: string) => void;
   markOpened: (slug: string) => void;
+  /** Record that the player actually interacted with a puzzle. */
+  noteEngagement: (slug: string, signal: string) => void;
   writeup: (slug: string) => Promise<string | null>;
   unlocked: (challenge: Challenge) => boolean;
   reset: () => void;
@@ -110,6 +112,18 @@ export function ProgressProvider(props: { children: JSX.Element }) {
     });
   };
 
+  /**
+   * Deduplicated, and a no-op once solved -- the point is what happened *before*
+   * the answer went in.
+   */
+  const noteEngagement = (slug: string, signal: string) => {
+    const current = state();
+    if (current.solves[slug]) return;
+    const seen = current.engaged[slug] ?? [];
+    if (seen.includes(signal)) return;
+    commit({ ...current, engaged: { ...current.engaged, [slug]: [...seen, signal] } });
+  };
+
   const markOpened = (slug: string) => {
     const current = state();
     if (current.openedAt[slug]) return; // the clock starts once
@@ -155,6 +169,7 @@ export function ProgressProvider(props: { children: JSX.Element }) {
     submit,
     revealHint,
     markOpened,
+    noteEngagement,
     writeup: (slug) => revealWriteup(state(), slug),
     unlocked: (challenge) => isUnlocked(state(), challenge),
     reset,

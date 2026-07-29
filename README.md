@@ -178,13 +178,56 @@ the challenge intends you to find it.
 Also dropped: a `length` field in the registry that quietly published each
 flag's character count.
 
+### 8. Player-to-player sharing: what is and isn't possible
+
+Two people on the *same* deployment share the same flags, so one can simply tell
+the other. That cannot be fixed client-side, and it is worth being precise about
+why rather than hand-waving.
+
+Whether a submission is correct is decided by `verifyHash` and `verifySalt`,
+which are baked into the bundle at build time. Every browser that loads the site
+gets the same two values, so every browser accepts the same flag. A per-player
+flag would need per-player check material — and any material the client can
+derive, the sharer's client can derive too, and hand over along with the flag.
+Worse, if the client could *compute* its own flag, the flag would exist in the
+client, which destroys the one property the whole design rests on.
+
+Two things that genuinely help, and one that doesn't:
+
+- **Doesn't help: a per-browser identity.** Anything in localStorage is
+  transferable, so binding a flag to a browser id just means sharing the id too.
+- **Helps a little: shipping N variants of each challenge** and picking one per
+  browser. A borrowed flag then fails unless both players drew the same variant.
+  It is an N-fold speed bump rather than a wall — the variant index lives in
+  localStorage and can be edited — and it multiplies the payload budget and the
+  authoring work. Not implemented; it is the obvious next step if you need it.
+- **Implemented: recording proof of engagement.** Two challenges cannot yield
+  their flag without an interaction this app can observe — exchanging the
+  verdicts for the logic puzzle, and loading the unlisted page. Solving either
+  with no interaction recorded is the signature of a flag from elsewhere, and the
+  progress page labels it *hands off*. It also gates the **Hands On** badge.
+
+That last one is a fingerprint, not a lock: it makes a borrowed run visibly
+different from a solved one without pretending to prevent anything. Only the two
+unambiguous challenges are judged. The morse timings can legitimately be read
+instead of heard, and the one-frame reveal can be breakpointed on first load
+without ever pressing replay, so treating a missing interaction as suspicious
+there would libel honest players.
+
+**If you need sharing actually prevented, you need a server.** It can issue
+per-player flags, hold the check server-side where the client cannot see it,
+rate-limit centrally, and notice the same flag arriving from thirty browsers in
+four minutes. None of that is available to a static site, which is the trade this
+project made on purpose.
+
 ### What this does not stop
 
 Being honest about the boundary:
 
-- **Someone who solved it can hand you their exported progress file.** The
-  tokens are real, so they verify. That is sharing answers, and no client-side
-  scheme can prevent it.
+- **Someone who solved it can hand you their exported progress file, or just
+  tell you the flag.** The tokens are real, so they verify; the flag is
+  deployment-wide, so it validates. See §8 for why, and for what is recorded
+  instead.
 - **Someone with the repo can read `flags.secret.json`** if you give them the
   file. Don't.
 - **Someone determined can read the bundle and reimplement a challenge's

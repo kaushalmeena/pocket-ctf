@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/invisible-ink")({
   component: InvisibleInk,
@@ -12,6 +13,8 @@ const challenge = getChallenge("invisible-ink");
 const { poem, carrierLength } = payloads["invisible-ink"];
 
 function InvisibleInk() {
+  const { noteEngagement } = useProgress();
+
   return (
     <ChallengeShell challenge={challenge}>
       <div class="space-y-5">
@@ -25,7 +28,10 @@ function InvisibleInk() {
           interleaved as zero and one. Rendered as a JSX text node so the exact
           code points survive to the DOM and to the clipboard.
         */}
-        <blockquote class="carrier rounded-xl border border-zinc-200 bg-zinc-50/60 p-5 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+        <blockquote
+          onCopy={() => noteEngagement(challenge.slug, "copied-carrier")}
+          class="carrier rounded-xl border border-zinc-200 bg-zinc-50/60 p-5 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300"
+        >
           {poem}
         </blockquote>
 

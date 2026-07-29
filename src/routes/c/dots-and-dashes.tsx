@@ -4,6 +4,7 @@ import { createSignal, onCleanup, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/dots-and-dashes")({
   component: DotsAndDashes,
@@ -16,6 +17,7 @@ const { timeline, unitMs, toneHz } = payloads["dots-and-dashes"];
 const totalMs = timeline.reduce((sum, step) => sum + step.ms, 0);
 
 function DotsAndDashes() {
+  const { noteEngagement } = useProgress();
   const [playing, setPlaying] = createSignal(false);
   const [rate, setRate] = createSignal(1);
   const [elapsed, setElapsed] = createSignal(0);
@@ -43,6 +45,7 @@ function DotsAndDashes() {
    */
   const play = () => {
     stop();
+    noteEngagement(challenge.slug, "played-audio");
     const audio = new AudioContext();
     ctx = audio;
     const speed = rate();

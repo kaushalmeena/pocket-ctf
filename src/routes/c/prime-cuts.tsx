@@ -4,6 +4,7 @@ import { createSignal, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/prime-cuts")({
   component: PrimeCuts,
@@ -14,10 +15,12 @@ const challenge = getChallenge("prime-cuts");
 const { n, factorCount } = payloads["prime-cuts"];
 
 function PrimeCuts() {
+  const { noteEngagement } = useProgress();
   const [copied, setCopied] = createSignal(false);
 
   const copy = async () => {
     await navigator.clipboard.writeText(n);
+    noteEngagement(challenge.slug, "copied-composite");
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };

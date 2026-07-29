@@ -1,6 +1,7 @@
 import { KeyRound, LockOpen } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
 import { unsealPublic } from "~/lib/progress";
+import { useProgress } from "~/lib/store";
 
 /**
  * Trades a derived answer for the flag it unseals.
@@ -15,6 +16,8 @@ import { unsealPublic } from "~/lib/progress";
  * for the logic puzzle) from being ground out through the submission box.
  */
 export function DerivedUnlock(props: {
+  /** Slug this unlock belongs to, for recording engagement. */
+  slug: string;
   /** What to call the thing being entered, e.g. "eight verdicts". */
   label: string;
   placeholder: string;
@@ -22,6 +25,7 @@ export function DerivedUnlock(props: {
   expectedLength?: number;
   sealed: { salt: string; iv: string; ct: string };
 }) {
+  const { noteEngagement } = useProgress();
   const [value, setValue] = createSignal("");
   const [busy, setBusy] = createSignal(false);
   const [flag, setFlag] = createSignal<string | null>(null);
@@ -42,8 +46,11 @@ export function DerivedUnlock(props: {
     const opened = await unsealPublic(answer, props.sealed);
     setBusy(false);
 
-    if (opened) setFlag(opened);
-    else setError("That answer does not open it. No partial credit, no hints from the error.");
+    if (opened) {
+      noteEngagement(props.slug, "derived-answer");
+      setFlag(opened);
+    } else
+      setError("That answer does not open it. No partial credit, no hints from the error.");
   };
 
   return (

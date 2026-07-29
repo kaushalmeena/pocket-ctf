@@ -75,6 +75,7 @@ function KnightsAndKnaves() {
         </p>
 
         <DerivedUnlock
+          slug={challenge.slug}
           label="eight verdicts"
           placeholder="knknknkn"
           expectedLength={verdictLength}

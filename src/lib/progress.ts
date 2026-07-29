@@ -12,7 +12,13 @@
  * around doesn't hand the answer back.
  */
 
-import { CHALLENGE_BY_SLUG, CHALLENGES, type Challenge, pointsAfterHints } from "./challenges";
+import {
+  CHALLENGE_BY_SLUG,
+  CHALLENGES,
+  type Challenge,
+  pointsAfterHints,
+  REQUIRES_INTERACTION,
+} from "./challenges";
 import registry from "./generated/registry.json";
 import { derive, fromHex, normalizeFlag, PURPOSE, sha256Hex, toHex, unseal } from "./kdf.js";
 
@@ -31,6 +37,18 @@ export type SolveRecord = {
   hintsUsed: number;
   /** Time from first visit to solve, in ms. */
   elapsedMs: number;
+  /**
+   * Interactions with the puzzle observed before solving -- pressing play on the
+   * morse audio, copying the poem, and so on.
+   *
+   * Not a security control. Two browsers on the same deployment necessarily
+   * accept the same flag (see README), so a flag passed from one player to
+   * another cannot be rejected. What it can do is record that the second player
+   * never touched the puzzle, which makes a borrowed run visibly different from
+   * a solved one. Absent on records written before this existed, which is why it
+   * is optional rather than defaulted to empty.
+   */
+  signals?: string[];
 };
 
 export type ProgressState = {
@@ -42,6 +60,8 @@ export type ProgressState = {
   openedAt: Record<string, number>;
   /** Wrong-answer bookkeeping, for the submission throttle. */
   attempts: Record<string, { wrong: number; lastAt: number }>;
+  /** Puzzle interactions seen per challenge, deduplicated. */
+  engaged: Record<string, string[]>;
   /** Honeypot flags submitted. Presence of any is its own little badge. */
   decoysTripped: number;
   createdAt: number;
@@ -54,6 +74,7 @@ export function emptyProgress(): ProgressState {
     hints: {},
     openedAt: {},
     attempts: {},
+    engaged: {},
     decoysTripped: 0,
     createdAt: Date.now(),
   };
@@ -191,6 +212,7 @@ export async function checkFlag(
       tries: state.attempts[slug]?.wrong ?? 0,
       hintsUsed,
       elapsedMs: Math.max(0, Date.now() - openedAt),
+      signals: state.engaged[slug] ?? [],
     };
     return { status: "solved", record, points: pointsAfterHints(challenge, hintsUsed) };
   }
@@ -275,6 +297,11 @@ export type Stats = {
   hintsUsed: number;
   fastestMs: number | null;
   totalTries: number;
+  /**
+   * Solves of a challenge in {@link REQUIRES_INTERACTION} that recorded no
+   * interaction at all -- the fingerprint of a flag that arrived from elsewhere.
+   */
+  unengaged: number;
   byCategory: Record<string, { solved: number; total: number }>;
 };
 
@@ -283,6 +310,7 @@ export function computeStats(state: ProgressState): Stats {
   let score = 0;
   let hintsUsed = 0;
   let totalTries = 0;
+  let unengaged = 0;
   let fastestMs: number | null = null;
 
   for (const challenge of CHALLENGES) {
@@ -295,6 +323,7 @@ export function computeStats(state: ProgressState): Stats {
     score += pointsAfterHints(challenge, record.hintsUsed);
     hintsUsed += record.hintsUsed;
     totalTries += record.tries;
+    if (REQUIRES_INTERACTION.has(challenge.slug) && record.signals?.length === 0) unengaged++;
     if (record.elapsedMs > 0 && (fastestMs === null || record.elapsedMs < fastestMs)) {
       fastestMs = record.elapsedMs;
     }
@@ -308,6 +337,7 @@ export function computeStats(state: ProgressState): Stats {
     hintsUsed,
     fastestMs,
     totalTries,
+    unengaged,
     byCategory,
   };
 }

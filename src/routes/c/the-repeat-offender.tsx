@@ -3,6 +3,7 @@ import { createMemo, createSignal, For } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/the-repeat-offender")({
   component: TheRepeatOffender,
@@ -13,6 +14,7 @@ const challenge = getChallenge("the-repeat-offender");
 const { ciphertextHex, keyLength, bytes } = payloads["the-repeat-offender"];
 
 function TheRepeatOffender() {
+  const { noteEngagement } = useProgress();
   const [column, setColumn] = createSignal(0);
 
   /**
@@ -57,7 +59,10 @@ function TheRepeatOffender() {
               {(i) => (
                 <button
                   type="button"
-                  onClick={() => setColumn(i)}
+                  onClick={() => {
+                    setColumn(i);
+                    noteEngagement(challenge.slug, "inspected-column");
+                  }}
                   aria-pressed={column() === i}
                   class="size-7 rounded-md font-mono text-xs transition-colors aria-pressed:bg-zinc-900 aria-pressed:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
                 >

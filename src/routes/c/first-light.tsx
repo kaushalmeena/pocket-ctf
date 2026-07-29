@@ -3,6 +3,7 @@ import { For } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/c/first-light")({
   component: FirstLight,
@@ -13,6 +14,8 @@ const challenge = getChallenge("first-light");
 const { shards } = payloads["first-light"];
 
 function FirstLight() {
+  const { noteEngagement } = useProgress();
+
   return (
     <ChallengeShell challenge={challenge}>
       <div class="space-y-5">
@@ -48,7 +51,10 @@ function FirstLight() {
           <For each={shards}>{(shard) => <i data-k={shard.k} data-v={shard.v} />}</For>
         </div>
 
-        <details class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+        <details
+          onToggle={() => noteEngagement(challenge.slug, "opened-devtools-help")}
+          class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800"
+        >
           <summary class="cursor-pointer text-sm font-medium text-zinc-800 dark:text-zinc-200">
             Never opened devtools before?
           </summary>

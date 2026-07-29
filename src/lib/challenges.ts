@@ -37,6 +37,22 @@ export type Challenge = {
   requires?: string[];
 };
 
+/**
+ * Challenges whose flag is *impossible* to obtain without an interaction this
+ * app can observe.
+ *
+ * Deliberately short. Most puzzles have several legitimate solve routes -- the
+ * morse timings can be read instead of heard, the reveal can be breakpointed on
+ * first load without ever pressing replay -- so treating a missing interaction
+ * as suspicious there would libel honest players. These two have no such
+ * ambiguity: the logic puzzle's flag only exists once you exchange the verdicts
+ * for it, and the unlisted page's flag only renders on that page.
+ */
+export const REQUIRES_INTERACTION: ReadonlySet<string> = new Set([
+  "knights-and-knaves",
+  "nowhere-to-be-found",
+]);
+
 /** Each revealed hint forfeits this fraction of the challenge's points. */
 export const HINT_COST_RATIO = 0.15;
 

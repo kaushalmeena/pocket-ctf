@@ -3,6 +3,7 @@ import { ArrowLeft, EyeOff, KeyRound } from "lucide-solid";
 import { createSignal, onMount, Show } from "solid-js";
 import payloads from "~/lib/generated/payloads.json";
 import { unsealPublic } from "~/lib/progress";
+import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/vault/$key")({
   component: Vault,
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/vault/$key")({
 const { sealed } = payloads["nowhere-to-be-found"];
 
 function Vault() {
+  const { noteEngagement } = useProgress();
   const [flag, setFlag] = createSignal<string | null>(null);
   const [failed, setFailed] = createSignal(false);
 
@@ -26,8 +28,11 @@ function Vault() {
      */
     const path = window.location.pathname.replace(/\/+$/, "") || "/";
     const opened = await unsealPublic(path, sealed);
-    if (opened) setFlag(opened);
-    else setFailed(true);
+    if (opened) {
+      // Reaching this page is the challenge; nothing else can produce the flag.
+      noteEngagement("nowhere-to-be-found", "visited-unlisted-page");
+      setFlag(opened);
+    } else setFailed(true);
   });
 
   return (

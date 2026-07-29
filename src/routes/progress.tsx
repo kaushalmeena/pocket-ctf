@@ -1,9 +1,22 @@
 import { createFileRoute } from "@tanstack/solid-router";
-import { Check, Download, HelpCircle, PartyPopper, RotateCcw, Upload } from "lucide-solid";
+import {
+  Check,
+  CircleQuestionMark,
+  CircleSlash,
+  Download,
+  PartyPopper,
+  RotateCcw,
+  Upload,
+} from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
 import { Pill } from "~/components/Pill";
 import { ACHIEVEMENTS, earnedAchievements } from "~/lib/achievements";
-import { CATEGORY_LABELS, type Category, CHALLENGES } from "~/lib/challenges";
+import {
+  CATEGORY_LABELS,
+  type Category,
+  CHALLENGES,
+  REQUIRES_INTERACTION,
+} from "~/lib/challenges";
 import { useProgress } from "~/lib/store";
 
 export const Route = createFileRoute("/progress")({
@@ -82,7 +95,11 @@ function ProgressPage() {
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Solved" value={`${stats().solved}/${stats().total}`} />
             <Stat label="Score" value={`${stats().score}`} sub={`of ${stats().maxScore}`} />
-            <Stat label="Hints used" value={`${stats().hintsUsed}`} />
+            <Stat
+              label="Hands off"
+              value={`${stats().unengaged}`}
+              sub={stats().unengaged > 0 ? "solved untouched" : undefined}
+            />
             <Stat
               label="Fastest solve"
               value={
@@ -153,7 +170,7 @@ function ProgressPage() {
                         "text-zinc-300 dark:text-zinc-700": !has(),
                       }}
                     >
-                      <Show when={!hide()} fallback={<HelpCircle size={16} />}>
+                      <Show when={!hide()} fallback={<CircleQuestionMark size={16} />}>
                         {/* The icon is a component on the achievement itself. */}
                         {(() => {
                           const Icon = achievement.icon;
@@ -221,6 +238,22 @@ function ProgressPage() {
                       <Show when={record.hintsUsed > 0}>
                         <Pill title="Hints revealed">
                           {`${record.hintsUsed} hint${record.hintsUsed === 1 ? "" : "s"}`}
+                        </Pill>
+                      </Show>
+                      <Show
+                        when={
+                          REQUIRES_INTERACTION.has(challenge.slug) &&
+                          record.signals?.length === 0
+                        }
+                      >
+                        <Pill
+                          class="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+                          title="Solved without touching the puzzle on this page. Consistent with a flag from somewhere else."
+                        >
+                          <span class="inline-flex items-center gap-1">
+                            <CircleSlash aria-hidden="true" size={10} />
+                            hands off
+                          </span>
                         </Pill>
                       </Show>
                       <Show when={record.elapsedMs > 0}>
@@ -292,6 +325,14 @@ function ProgressPage() {
           <Show when={notice()}>
             <p class="animate-rise pt-2 text-sm text-zinc-600 dark:text-zinc-400">{notice()}</p>
           </Show>
+          <p class="prose-mini pt-2">
+            <strong>&ldquo;Hands off&rdquo;</strong> appears on the two challenges whose flag
+            cannot be obtained without an interaction this page can see — exchanging the
+            verdicts, or loading the unlisted page. Solving one of those with no interaction
+            recorded means the flag came from somewhere else. Two browsers on the same site
+            necessarily accept the same flag, so sharing can't be <em>blocked</em>; this only
+            makes it visible. It is a fingerprint, not a lock.
+          </p>
           <p class="prose-mini pt-2">
             An exported file contains proof-of-solve tokens, not flags. Importing someone else's
             file works, because they did solve it — that's sharing answers, and no offline
