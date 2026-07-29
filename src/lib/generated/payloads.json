@@ -442,23 +442,23 @@
   },
   "one-frame-window": {
     "sealed": {
-      "salt": "09f902e82eb1f58942c07dba41796ac8",
-      "iv": "4537e680d2ba6464b8499ccd",
-      "ct": "53042bde0cbdf9008e15f0da74c63fcbdbd4918052f7a923d9d36b33558790b0aa8f756a470d23653d445c"
+      "salt": "0c8c337d8621ba097ceed088da38dc7b",
+      "iv": "f809293d9a33006fdb721e62",
+      "ct": "3460245cc86d00123f61eee0923b84df46edc7cb7d1d51c7675604bfac865a2ef870840d43eed15d0285d4"
     }
   },
   "nowhere-to-be-found": {
     "sealed": {
-      "salt": "f801119d7b5055058aa265888cdcf553",
-      "iv": "9ac5a37e21f0d2f0bbd506cd",
-      "ct": "070d69513e8dba658130be86543cb95d6fa93388e62b70081547b6dc3f988a4279925841599b46a7"
+      "salt": "32839114add8e4a50862ea85a4c10e00",
+      "iv": "72814f7dc68ffb0c4e9ef88f",
+      "ct": "5c217e5988918bffa71e5b9b079d43391812f53219e16bc1101c59a0dfce0e8f487932392ee407ae"
     }
   },
   "the-meta-key": {
     "recipe": {
-      "salt": "617e45b6c6189ce8efc0b538bd4efbdf",
-      "iv": "04a9a4c8772b9a847768c953",
-      "ct": "a77648de6b9e98fd6967c56c2098eac43c6d4810ee065a870ee3d8ebbf6cc756873829e290a66e58c38c47b28b62d9d94f6f8e6a5d9dd153815055ecc2fe6069d700133ace754fe90d7400915318d3935ab0da8f60bbb40ae8841d0dad284c9f19f6dbbb3a92bc11ada0863021ce82686227500b35d36363f580b5ce127aa1d6e8ed1a1268d8d9c1a81cded92fb8a2"
+      "salt": "ee742d6dd2c57331a610d3f6b48a0a6d",
+      "iv": "38e927cbee869aba8c5caaa5",
+      "ct": "b2930233eecebfa5d56ecd059b4b17d9d6dd4d3ba789bcd78080917debfb2658ee297a57c2e8896ee2e39eadfa811533fa1181c016291e0914e00584ec67a3ce0a55ba4dfedc28c3c6cec68025f08461b8c9361e12e3a602b82fd48efee876c37cf2b06f15a7d077ba243f9d7ae0993b6f06993453dc028dc983878091be85291b6905600a26a959195f0b22f358b9"
     },
     "requires": [
       "first-light",

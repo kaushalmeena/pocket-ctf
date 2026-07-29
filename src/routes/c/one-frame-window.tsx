@@ -16,11 +16,27 @@ const { sealed } = payloads["one-frame-window"];
 const MASK = "████████████████████████████";
 
 function OneFrameWindow() {
-  const [text, setText] = createSignal(MASK);
   const [armed, setArmed] = createSignal(false);
+  const [failed, setFailed] = createSignal(false);
   const [reveals, setReveals] = createSignal(0);
 
   let target: HTMLParagraphElement | undefined;
+
+  const mask = () => {
+    if (target) target.textContent = MASK;
+  };
+
+  /** Resolves the next time the document is actually on screen. */
+  const whenVisible = () =>
+    new Promise<void>((resolve) => {
+      if (document.visibilityState === "visible") return resolve();
+      const onChange = () => {
+        if (document.visibilityState !== "visible") return;
+        document.removeEventListener("visibilitychange", onChange);
+        resolve();
+      };
+      document.addEventListener("visibilitychange", onChange);
+    });
 
   /**
    * Put the plaintext in the DOM for exactly one animation frame.
@@ -32,25 +48,38 @@ function OneFrameWindow() {
    * and so does calling the decrypt yourself from the console.
    */
   const flash = async () => {
+    if (armed()) return;
     setArmed(true);
+
+    // Animation frames don't fire in a background tab. Revealing anyway would
+    // leave the plaintext painted until the tab came back -- handing the flag
+    // to anyone who merely switched away. Wait until a real frame is coming.
+    await whenVisible();
+
     const plaintext = await unsealPublic(challenge.slug, sealed);
-    if (!plaintext) {
-      setText("decryption failed");
+    if (!plaintext || !target) {
+      setFailed(true);
+      setArmed(false);
       return;
     }
 
-    // Write directly rather than through a signal: this has to be one paint,
-    // and a framework update is free to batch itself into a different one.
-    if (target) {
-      target.textContent = plaintext;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (target) target.textContent = MASK;
-          setReveals((n) => n + 1);
-          setArmed(false);
-        });
-      });
-    }
+    // Written directly rather than through a signal: this has to land in one
+    // paint, and a framework update is free to batch itself into another.
+    target.textContent = plaintext;
+
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      mask();
+      setReveals((n) => n + 1);
+      setArmed(false);
+    };
+
+    requestAnimationFrame(() => requestAnimationFrame(settle));
+    // Backstop. If frames stop being delivered mid-reveal -- throttling, a
+    // tab switch, a stalled renderer -- the plaintext still has to come down.
+    setTimeout(settle, 120);
   };
 
   onMount(() => {
@@ -72,14 +101,22 @@ function OneFrameWindow() {
           <p class="text-xs tracking-wider text-zinc-400 uppercase dark:text-zinc-600">
             Reveal target
           </p>
+          {/* Static child, not a signal: flash() owns this node's text
+              imperatively, and a reactive binding would fight it. */}
           <p
             ref={target}
             class="pt-2 font-mono text-lg break-all text-zinc-900 dark:text-zinc-100"
             aria-live="off"
           >
-            {text()}
+            {MASK}
           </p>
         </div>
+
+        <Show when={failed()}>
+          <p class="text-sm text-rose-600 dark:text-rose-400">
+            The payload would not decrypt. That is a bug on my side, not a puzzle.
+          </p>
+        </Show>
 
         <div class="flex flex-wrap items-center gap-3">
           <button

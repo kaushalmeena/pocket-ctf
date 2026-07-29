@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/solid-router";
-import { createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
 import { FlagForm } from "~/components/FlagForm";
 import { HintPanel } from "~/components/HintPanel";
 import { Markdown } from "~/components/Markdown";
@@ -29,8 +29,15 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
   const next = () => CHALLENGES[index() + 1];
   const record = () => state().solves[props.challenge.slug];
 
+  // Start the clock only once the store has finished re-verifying stored
+  // tokens. Writing on mount would race that async load and be overwritten by
+  // it, which quietly pinned every solve time to zero. markOpened is
+  // idempotent, so re-running the effect is harmless.
+  createEffect(() => {
+    if (ready()) markOpened(props.challenge.slug);
+  });
+
   onMount(() => {
-    markOpened(props.challenge.slug);
     const ticker = setInterval(() => setNow(Date.now()), 1000);
     onCleanup(() => clearInterval(ticker));
   });
