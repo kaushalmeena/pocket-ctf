@@ -98,7 +98,7 @@ function DotsAndDashes() {
             <button
               type="button"
               onClick={() => (playing() ? stop() : play())}
-              class="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              class="flex min-w-24 items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
               <Show
                 when={playing()}
@@ -134,12 +134,12 @@ function DotsAndDashes() {
             />
           </div>
 
-          <Show when={!playing() && elapsed() === 0}>
-            <p class="text-xs text-zinc-400 dark:text-zinc-600">
-              Slow it down if the long and short beeps blur together. Nobody decodes this at
-              full speed on the first pass.
-            </p>
-          </Show>
+          {/* Always visible. Hiding it the moment you pressed play removed the
+              advice exactly when it became relevant. */}
+          <p class="text-xs text-zinc-400 dark:text-zinc-600">
+            Slow it down if the long and short beeps blur together. Nobody decodes this at full
+            speed on the first pass.
+          </p>
         </div>
 
         <p class="prose-mini">

@@ -141,7 +141,7 @@ export function FlagForm(props: { challenge: Challenge }) {
           <button
             type="submit"
             disabled={busy() || lockedMs() > 0 || value().trim().length === 0}
-            class="shrink-0 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            class="flex min-w-28 shrink-0 items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
           >
             <Show
               when={busy()}

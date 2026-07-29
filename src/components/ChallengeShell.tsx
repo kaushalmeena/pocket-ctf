@@ -24,7 +24,6 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
   const { state, markOpened, writeup, unlocked, ready } = useProgress();
   const [now, setNow] = createSignal(Date.now());
   const [writeupText, setWriteupText] = createSignal<string | null>(null);
-  const [showWriteup, setShowWriteup] = createSignal(false);
 
   const index = () => CHALLENGES.findIndex((c) => c.slug === props.challenge.slug);
   const next = () => CHALLENGES[index() + 1];
@@ -50,8 +49,8 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
     return opened ? now() - opened : 0;
   };
 
+  /** Decrypt on first open; the <details> element owns the open/closed state. */
   const openWriteup = async () => {
-    setShowWriteup(true);
     if (writeupText() === null) setWriteupText(await writeup(props.challenge.slug));
   };
 
@@ -103,13 +102,19 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
           <HintPanel challenge={props.challenge} />
 
           <Show when={record()}>
-            <section class="rounded-xl border border-zinc-200 dark:border-zinc-800">
-              <button
-                type="button"
-                onClick={openWriteup}
-                class="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100"
-                aria-expanded={showWriteup()}
-              >
+            {/*
+              A real <details> rather than a button plus a conditional div: it is
+              a disclosure, so it should behave like one for assistive tech and
+              keyboard users, and it picks up the animated open/close from
+              app.css for free instead of needing its own height measuring.
+            */}
+            <details
+              class="group rounded-xl border border-zinc-200 dark:border-zinc-800"
+              onToggle={(e) => {
+                if (e.currentTarget.open) void openWriteup();
+              }}
+            >
+              <summary class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 <ScrollText
                   aria-hidden="true"
                   size={15}
@@ -122,21 +127,18 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
                 <ChevronRight
                   aria-hidden="true"
                   size={16}
-                  class="ml-auto text-zinc-400 transition-transform duration-200 dark:text-zinc-600"
-                  classList={{ "rotate-90": showWriteup() }}
+                  class="ml-auto text-zinc-400 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-600"
                 />
-              </button>
-              <Show when={showWriteup()}>
-                <div class="animate-rise border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
-                  <Show
-                    when={writeupText()}
-                    fallback={<p class="text-sm text-zinc-400">Decrypting…</p>}
-                  >
-                    {(text) => <Markdown source={text()} />}
-                  </Show>
-                </div>
-              </Show>
-            </section>
+              </summary>
+              <div class="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
+                <Show
+                  when={writeupText()}
+                  fallback={<p class="text-sm text-zinc-400">Decrypting…</p>}
+                >
+                  {(text) => <Markdown source={text()} />}
+                </Show>
+              </div>
+            </details>
 
             <Show when={next()}>
               {(n) => (

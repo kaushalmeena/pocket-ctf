@@ -347,6 +347,11 @@ src/routes/vault/omega    the unlisted page
 - Routes cross-fade via the View Transitions API where available. Hover, press
   and focus are all transitioned; overscroll bounce and pull-to-refresh are
   disabled, since an accidental reload mid-solve is worse than annoying.
+- Disclosures animate their height with `interpolate-size: allow-keywords` and
+  `::details-content`, so every `<details>` on the site opens smoothly without
+  any JavaScript measuring `scrollHeight`. Browsers without support snap open.
+  Anything whose label changes on click carries a `min-w-*` so the swap doesn't
+  shift what sits beside it.
 - Icons are [Lucide](https://lucide.dev) (`lucide-solid`), inlined as SVG.
   `pnpm lint:icons` reads the `@deprecated` annotations out of the installed
   package and fails if any renamed alias is still imported — those keep working

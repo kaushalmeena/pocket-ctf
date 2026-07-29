@@ -24,6 +24,14 @@
 }
 
 @layer base {
+  :root {
+    /*
+     * Lets `height`/`block-size` animate to and from `auto`, which is what makes
+     * the disclosure transitions below possible without JavaScript measuring.
+     */
+    interpolate-size: allow-keywords;
+  }
+
   html {
     scroll-behavior: smooth;
     color-scheme: light;
@@ -77,6 +85,41 @@
   a[href]:active {
     transform: scale(0.985);
   }
+
+  /*
+   * Animate disclosures open and closed.
+   *
+   * `height: auto` is not normally interpolable, which is why this usually needs
+   * JavaScript measuring scrollHeight. `interpolate-size: allow-keywords` lifts
+   * that restriction, and `::details-content` gives us the wrapper to animate --
+   * so all seven <details> on the site get this for free, with no per-component
+   * work and no measuring.
+   *
+   * `content-visibility` needs `allow-discrete` or the content would vanish on
+   * the first frame of closing and the height would animate against nothing.
+   * Browsers without support simply snap open, which is the behaviour we had.
+   */
+  details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      content-visibility 0.3s allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  /*
+   * Clicking a summary shouldn't leave its label highlighted. It is a control,
+   * and the selection flash reads as a rendering glitch rather than as intent.
+   */
+  details > summary {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
 
   /*
    * Applied to <html> for one beat when the theme flips, so surfaces cross-fade
@@ -233,5 +276,10 @@
   button:not(:disabled):active,
   a[href]:active {
     transform: none;
+  }
+
+  details::details-content,
+  details[open]::details-content {
+    transition: none;
   }
 }
