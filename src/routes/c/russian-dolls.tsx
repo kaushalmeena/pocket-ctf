@@ -1,0 +1,64 @@
+import { createFileRoute } from "@tanstack/solid-router";
+import { ChallengeShell } from "~/components/ChallengeShell";
+import { getChallenge } from "~/lib/challenges";
+import payloads from "~/lib/generated/payloads.json";
+
+export const Route = createFileRoute("/c/russian-dolls")({
+  component: RussianDolls,
+  head: () => ({ meta: [{ title: "Russian Dolls — Pocket CTF" }] }),
+});
+
+const challenge = getChallenge("russian-dolls");
+const { blob, layers } = payloads["russian-dolls"];
+
+// TODO(dev): remove before shipping -- pctf{grep_is_not_a_solution}
+// Left in deliberately. A comment is the first place a certain kind of player
+// looks, and it should cost them something to look there.
+
+function RussianDolls() {
+  return (
+    <ChallengeShell challenge={challenge}>
+      <div class="space-y-5">
+        <p class="prose-mini">
+          {layers} transformations, applied one after another. Each is something you have seen
+          before. Undo them in the right order and the flag falls out; undo them in the wrong
+          order and you get nothing that looks like progress.
+        </p>
+
+        <div class="blob">{blob}</div>
+
+        <p class="prose-mini">
+          No key, no password, nothing secret — every layer here is an <em>encoding</em>, which
+          means it is reversible by anyone who recognises it. The only skill on trial is
+          recognition: knowing what an encoding looks like from the outside, before you have
+          decoded any of it.
+        </p>
+
+        <details class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <summary class="cursor-pointer text-sm font-medium text-zinc-800 dark:text-zinc-200">
+            A field guide to silhouettes
+          </summary>
+          <div class="prose-mini space-y-2 pt-3">
+            <p>
+              <strong>base64</strong> — mixed case, digits, <code>+</code> and <code>/</code>,
+              length a multiple of four, sometimes padded with <code>=</code>. Expands data by a
+              third.
+            </p>
+            <p>
+              <strong>base32</strong> — uppercase letters and the digits 2 through 7 only. No 0,
+              1, 8 or 9, because they look like O, I, B and g. Heavily padded.
+            </p>
+            <p>
+              <strong>hex</strong> — only 0-9 and a-f, always an even length.
+            </p>
+            <p>
+              <strong>ROT13</strong> — still looks like words. Still pronounceable. Just wrong.
+              If a decoded layer reads like language but isn't, suspect a substitution cipher
+              rather than another encoding.
+            </p>
+          </div>
+        </details>
+      </div>
+    </ChallengeShell>
+  );
+}

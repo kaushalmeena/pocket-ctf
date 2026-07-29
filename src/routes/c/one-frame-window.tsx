@@ -1,0 +1,134 @@
+import { createFileRoute } from "@tanstack/solid-router";
+import { createSignal, onMount, Show } from "solid-js";
+import { ChallengeShell } from "~/components/ChallengeShell";
+import { getChallenge } from "~/lib/challenges";
+import payloads from "~/lib/generated/payloads.json";
+import { unsealPublic } from "~/lib/progress";
+
+export const Route = createFileRoute("/c/one-frame-window")({
+  component: OneFrameWindow,
+  head: () => ({ meta: [{ title: "One Frame Window — Pocket CTF" }] }),
+});
+
+const challenge = getChallenge("one-frame-window");
+const { sealed } = payloads["one-frame-window"];
+
+const MASK = "████████████████████████████";
+
+function OneFrameWindow() {
+  const [text, setText] = createSignal(MASK);
+  const [armed, setArmed] = createSignal(false);
+  const [reveals, setReveals] = createSignal(0);
+
+  let target: HTMLParagraphElement | undefined;
+
+  /**
+   * Put the plaintext in the DOM for exactly one animation frame.
+   *
+   * Nothing here is obfuscated on purpose: the ciphertext ships with the page
+   * and so does the key material, because the lesson isn't "secrets can be
+   * hidden in a client". It's the opposite. Anything the browser renders, the
+   * browser can be stopped on -- a DOM-mutation breakpoint catches this cold,
+   * and so does calling the decrypt yourself from the console.
+   */
+  const flash = async () => {
+    setArmed(true);
+    const plaintext = await unsealPublic(challenge.slug, sealed);
+    if (!plaintext) {
+      setText("decryption failed");
+      return;
+    }
+
+    // Write directly rather than through a signal: this has to be one paint,
+    // and a framework update is free to batch itself into a different one.
+    if (target) {
+      target.textContent = plaintext;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (target) target.textContent = MASK;
+          setReveals((n) => n + 1);
+          setArmed(false);
+        });
+      });
+    }
+  };
+
+  onMount(() => {
+    // Fires once on arrival, unprompted. You have already missed it.
+    void flash();
+  });
+
+  return (
+    <ChallengeShell challenge={challenge}>
+      <div class="space-y-5">
+        <p class="prose-mini">
+          The flag was displayed in the box below for one animation frame, about sixteen
+          milliseconds, immediately when this page loaded. It has already happened. Your
+          reaction time is roughly fifteen of those frames, so there was never a version of this
+          where you saw it.
+        </p>
+
+        <div class="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+          <p class="text-xs tracking-wider text-zinc-400 uppercase dark:text-zinc-600">
+            Reveal target
+          </p>
+          <p
+            ref={target}
+            class="pt-2 font-mono text-lg break-all text-zinc-900 dark:text-zinc-100"
+            aria-live="off"
+          >
+            {text()}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={flash}
+            disabled={armed()}
+            class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            Flash it again
+          </button>
+          <span class="font-mono text-xs text-zinc-400 dark:text-zinc-600">
+            {reveals()} reveal{reveals() === 1 ? "" : "s"} so far
+          </span>
+        </div>
+
+        <p class="prose-mini">
+          You may press that as many times as you like. It will be exactly as fast every time,
+          because the problem is not that the window is small — it is that you are trying to
+          solve a timing problem with timing. Change what the page is allowed to do instead.
+        </p>
+
+        <Show when={reveals() >= 4}>
+          <p class="animate-rise text-sm text-amber-700 dark:text-amber-400">
+            {reveals()} attempts. Consider that the browser ships with a tool whose entire
+            purpose is stopping JavaScript in the middle of doing something.
+          </p>
+        </Show>
+
+        <details class="rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <summary class="cursor-pointer text-sm font-medium text-zinc-800 dark:text-zinc-200">
+            Things that will not work
+          </summary>
+          <div class="prose-mini space-y-2 pt-3">
+            <p>
+              <strong>Reloading faster.</strong> The reveal is scheduled against the frame
+              clock, not the wall clock.
+            </p>
+            <p>
+              <strong>Searching the bundle for the flag.</strong> What ships is AES-GCM
+              ciphertext. Searching for <code>pctf&#123;</code> finds decoys.
+            </p>
+            <p>
+              <strong>Screenshotting at the right moment.</strong> Technically possible with a
+              screen recorder at 60fps, and honestly a fine solve if you pull it off. It is just
+              much harder than the easy way.
+            </p>
+          </div>
+        </details>
+      </div>
+    </ChallengeShell>
+  );
+}
