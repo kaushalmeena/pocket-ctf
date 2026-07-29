@@ -14,3 +14,13 @@ flags.secret.json
 # Per-deployment flag suffixes, and the resolved answers derived from them.
 deployment.secret.json
 ANSWERS.secret.md
+
+# This deployment's generated challenge data. Committing it would publish the
+# running instance's puzzle payloads and hash material -- a clone could then
+# recover working flags without visiting the site. The committed demo set lives
+# in src/lib/generated/sample/, and scripts/bootstrap.mjs seeds from it.
+src/lib/generated/registry.json
+src/lib/generated/payloads.json
+
+# Names the per-deployment unlisted path, so it is generated too.
+public/robots.txt

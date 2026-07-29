@@ -42,7 +42,7 @@ function FirstLight() {
         {/*
           The flag exists only as disconnected characters in shuffled document
           order. There is no substring anywhere in this file, or in the shipped
-          bundle, that spells it out -- see scripts/verify-no-flags.mjs.
+          bundle, that spells it out -- see scripts/leak-scan.mjs.
         */}
         <div class="sr-only" aria-hidden="true">
           <For each={shards}>{(shard) => <i data-k={shard.k} data-v={shard.v} />}</For>

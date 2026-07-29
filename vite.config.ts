@@ -1,8 +1,25 @@
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
 import { defineConfig } from "vite";
 import viteSolid from "vite-plugin-solid";
+
+/**
+ * The unlisted page's path is minted per deployment and lives in the generated
+ * payloads, which are gitignored. Reading it here keeps it out of the repo while
+ * still letting the crawler-invisible route be prerendered.
+ */
+function unlistedPath() {
+  try {
+    const payloads = JSON.parse(
+      readFileSync(new URL("./src/lib/generated/payloads.json", import.meta.url), "utf8"),
+    );
+    return payloads["nowhere-to-be-found"]?.path ?? "/vault/omega";
+  } catch {
+    return "/vault/omega";
+  }
+}
 
 export default defineConfig({
   server: { port: 3000 },
@@ -39,7 +56,7 @@ export default defineConfig({
       },
       // Unlisted pages are deliberately not linked from anywhere, so the
       // crawler can't find them. They still have to ship.
-      pages: [{ path: "/vault/omega", prerender: { enabled: true } }],
+      pages: [{ path: unlistedPath(), prerender: { enabled: true } }],
     }),
     viteSolid({ ssr: true }),
     tailwindcss(),

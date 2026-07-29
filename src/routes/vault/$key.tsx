@@ -4,7 +4,7 @@ import { createSignal, onMount, Show } from "solid-js";
 import payloads from "~/lib/generated/payloads.json";
 import { unsealPublic } from "~/lib/progress";
 
-export const Route = createFileRoute("/vault/omega")({
+export const Route = createFileRoute("/vault/$key")({
   component: Vault,
   head: () => ({
     meta: [{ title: "· · ·" }, { name: "robots", content: "noindex, nofollow" }],

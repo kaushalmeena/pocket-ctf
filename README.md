@@ -14,8 +14,16 @@ is a folder of files that any file server can host — or that you can copy onto
 USB stick.
 
 ```bash
-pnpm install
+pnpm install        # also seeds the demo challenge data
 pnpm dev            # http://localhost:3000
+```
+
+That runs the **demo** set, whose flags are public in `flags.sample.json`. For a
+real instance, write your own answer key and generate from it:
+
+```bash
+cp flags.example.json flags.secret.json   # then fill in your flags
+pnpm gen
 ```
 
 To build and play the static output with no dev server at all:
@@ -143,6 +151,33 @@ characters. Those seal the flag under the answer itself: enter the answer, get
 the flag. A wrong answer decrypts to nothing, which is stricter than merely
 checking it would have been.
 
+### 7. A public repository gives nothing away
+
+This one was a real hole, found by cloning the repo and checking. The generated
+files used to be committed, which meant they were *this deployment's* payloads —
+so a clone with no secret files at all could recover live flags:
+
+```
+$ git clone … && node -e "…solve payloads.json…"
+{ "first-light": "pctf{devtools_are_your_friend_zrzbft}", … }
+```
+
+So `src/lib/generated/{registry,payloads}.json` and `public/robots.txt` are now
+gitignored. A fresh clone is seeded from the committed demo set in
+`src/lib/generated/sample/`, whose answer key is the public
+`flags.sample.json`, and the UI says so in a banner across the top. Running
+`pnpm gen` with your own `flags.secret.json` replaces it, and that output is
+never committed.
+
+The unlisted page's path moved too. It used to be the literal
+`src/routes/vault/omega.tsx` — a public repo answered the recon challenge with
+`ls`. The route is now a dynamic segment and the real path is minted per
+deployment, appearing only in the generated `robots.txt`, which is exactly where
+the challenge intends you to find it.
+
+Also dropped: a `length` field in the registry that quietly published each
+flag's character count.
+
 ### What this does not stop
 
 Being honest about the boundary:
@@ -154,6 +189,18 @@ Being honest about the boundary:
   file. Don't.
 - **Someone determined can read the bundle and reimplement a challenge's
   decryption.** For `one-frame-window` that *is* the intended solve.
+- **Hints are still readable in `src/lib/challenges.ts`.** They cost points in
+  the app and nothing in the repo. Moving them into the answer key and shipping
+  them sealed would fix it; it is the largest remaining gap.
+- **`scripts/selftest.mjs` is a working solver for all eleven.** Publishing it
+  publishes the techniques. That is a spoiler rather than a hole now that the
+  live payloads aren't committed — the solvers need data only the deployed site
+  has — but read it and you have read the answers.
+- **The submission throttle is client-side.** Anyone willing to call the
+  derivation directly skips it. The 310,000 PBKDF2 rounds are the real cost;
+  the backoff only makes the lazy path slow. Offline, a derive-type challenge
+  like the logic puzzle can still be enumerated — 256 candidates at ~300 ms is
+  about a minute — which the writeup treats as a legitimate solve anyway.
 
 The goal was never unbreakable. It was that the lazy path is slower than the
 honest one, and that nothing is unlocked by editing a value.
@@ -207,6 +254,8 @@ pnpm gen --rotate
 | `pnpm dev`          | Dev server on :3000                                                 |
 | `pnpm build`        | Static site into `dist/client`, all 15 pages prerendered            |
 | `pnpm gen`          | Rebuild the registry and payloads from the answer key               |
+| `pnpm gen:sample`   | Rebuild the committed demo set from `flags.sample.json`             |
+| `pnpm icons`        | Redraw the app icon and favicons from `scripts/build-icons.mjs`     |
 | `pnpm selftest`     | **Solve every challenge** from shipped data and check the answers   |
 | `pnpm verify:flags` | Fail if a real flag is readable anywhere outside the answer key      |
 | `pnpm check`        | lint + typecheck + verify:flags + selftest                          |
@@ -224,19 +273,23 @@ output is what players actually receive.
 ## Project layout
 
 ```
+flags.sample.json         public demo key; what a fresh clone plays
 flags.secret.json         base flags you author (gitignored)
 deployment.secret.json    this install's random suffixes (gitignored, generated)
 ANSWERS.secret.md         resolved flags, for whoever runs the CTF (gitignored)
 scripts/answers.mjs       splices base + suffix; the one source of truth for
                           what a flag actually is
+scripts/bootstrap.mjs     seeds the sample set when live data is missing
+scripts/build-icons.mjs   one SVG geometry -> favicon, PNGs, manifest
 scripts/generate.mjs      answer key -> hashes, ciphertext, puzzle payloads
 scripts/selftest.mjs      solves every challenge from shipped data
-scripts/verify-no-flags.mjs   leak scanner
+scripts/leak-scan.mjs   leak scanner
 src/lib/kdf.js            KDF primitives, loaded verbatim by Node *and* the
                           browser so the two can never drift apart
 src/lib/challenges.ts     hand-written metadata: titles, points, hints
 src/lib/progress.ts       proof-of-solve tokens, throttling, honeypots, stats
-src/lib/generated/        committed build output; contains no answers
+src/lib/generated/        live data (gitignored)
+src/lib/generated/sample/ committed demo data; flags end in _sample
 src/components/           ChallengeShell and friends
 src/routes/c/*.tsx        one file per challenge
 src/routes/vault/omega    the unlisted page

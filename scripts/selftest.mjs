@@ -230,11 +230,17 @@ check(
   check("one-frame-window", key.flags["one-frame-window"], flag);
 }
 
-// 8. nowhere-to-be-found -- key is the hidden URL path
+// 8. nowhere-to-be-found -- key is the hidden URL path, minted per deployment
 {
-  const s = payloads["nowhere-to-be-found"].sealed;
-  const flag = await unseal("/vault/omega", fromHex(s.salt), s.ct, fromHex(s.iv));
+  const { sealed: s, path } = payloads["nowhere-to-be-found"];
+  const flag = await unseal(path, fromHex(s.salt), s.ct, fromHex(s.iv));
   check("nowhere-to-be-found", key.flags["nowhere-to-be-found"], flag);
+
+  // The path is the key, so a neighbouring path must not open it.
+  if (await unseal("/vault/omega2", fromHex(s.salt), s.ct, fromHex(s.iv))) {
+    failures++;
+    console.log("✘ nowhere-to-be-found   a wrong path unsealed the flag");
+  }
 }
 
 // 9. prime-cuts -- factor, sort, reduce mod 127

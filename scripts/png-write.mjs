@@ -5,7 +5,7 @@
  * saves.
  *
  * Truecolour, 8-bit, filter type 0 (none). Shared by scripts/generate.mjs
- * (opaque RGB pixel planes) and scripts/icon.mjs (RGBA, for rounded corners).
+ * (opaque RGB pixel planes) and scripts/build-icons.mjs (RGBA, for rounded corners).
  */
 
 import { deflateSync } from "node:zlib";

@@ -175,7 +175,7 @@ export async function checkFlag(
     return {
       status: "malformed",
       // Phrased rather than shown: a literal example here would be the only
-      // flag-shaped string in src/, and verify-no-flags.mjs would flag it.
+      // flag-shaped string in src/, and leak-scan.mjs would flag it.
       message: "Flags are pctf, then braces around lowercase words and underscores.",
     };
   }

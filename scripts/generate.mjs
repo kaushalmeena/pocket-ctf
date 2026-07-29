@@ -15,7 +15,7 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   derive,
@@ -29,16 +29,31 @@ import {
 import {
   DEPLOYMENT_FILE,
   innerOf,
+  mintSuffix,
   readDeployment,
   readKey,
+  readSampleKey,
   resolveFlags,
   resolveSuffixes,
   writeDeployment,
 } from "./answers.mjs";
-import { encodeRgb } from "./png.mjs";
+import { encodeRgb } from "./png-write.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const OUT_DIR = join(ROOT, "src", "lib", "generated");
+
+/**
+ * `--sample` builds the committed demo set instead of a real deployment.
+ *
+ * The live files are gitignored, because committing them publishes this
+ * installation's puzzle payloads and hash material -- a clone would then hand
+ * over working flags without anyone visiting the site. The sample set exists so
+ * that a fresh clone still builds, typechecks and plays; its flags all end in
+ * `_sample` and are public by design.
+ */
+const sample = process.argv.includes("--sample");
+const OUT_DIR = sample
+  ? join(ROOT, "src", "lib", "generated", "sample")
+  : join(ROOT, "src", "lib", "generated");
 
 const rand = (n) => crypto.getRandomValues(new Uint8Array(n));
 
@@ -329,9 +344,34 @@ async function publicSeal(secret, plaintext) {
  */
 const rotate = process.argv.includes("--rotate");
 
-const key = readKey(ROOT);
-const existingDeployment = readDeployment(ROOT);
-const { suffixes, minted } = resolveSuffixes(key, existingDeployment, rotate);
+const key = sample ? readSampleKey(ROOT) : readKey(ROOT);
+
+// The demo set uses a fixed, obvious suffix rather than a random one: it has to
+// be reproducible so regenerating it doesn't churn the committed files, and
+// visible so nobody mistakes a demo instance for a live one.
+const existingDeployment = sample ? null : readDeployment(ROOT);
+const { suffixes, minted } = sample
+  ? {
+      suffixes: Object.fromEntries(Object.keys(key.flags).map((s) => [s, "sample"])),
+      minted: 0,
+    }
+  : resolveSuffixes(key, existingDeployment, rotate);
+
+/*
+ * The unlisted page's own path.
+ *
+ * It used to be the literal /vault/omega, which meant a public repo gave the
+ * whole recon challenge away: `ls src/routes/vault/` was the answer. Now the
+ * route is a dynamic segment and the real path is minted per deployment, named
+ * only in the generated robots.txt -- which is exactly where the challenge
+ * intends you to find it.
+ */
+const vaultSlug = sample
+  ? "omega"
+  : rotate
+    ? mintSuffix()
+    : (existingDeployment?.vaultSlug ?? mintSuffix());
+const vaultPath = `/vault/${vaultSlug}`;
 
 /**
  * The flags players actually submit: authored base plus this deployment's
@@ -340,12 +380,13 @@ const { suffixes, minted } = resolveSuffixes(key, existingDeployment, rotate);
 const flags = resolveFlags(key, suffixes);
 const order = Object.keys(flags);
 
-if (minted > 0 || rotate) {
+if (!sample && (minted > 0 || rotate || existingDeployment?.vaultSlug !== vaultSlug)) {
   writeDeployment(ROOT, {
     $comment:
       "Per-deployment flag suffixes. Gitignored, and the only thing separating this " +
       "instance's flags from any other's. Regenerate with `pnpm gen --rotate`.",
     suffixes,
+    vaultSlug,
   });
 }
 
@@ -431,7 +472,6 @@ for (const slug of order) {
     sealSalt: toHex(sealSalt),
     sealIv: toHex(sealIv),
     writeup: await seal(flag, sealSalt, writeup, sealIv),
-    length: flag.length,
   };
 }
 
@@ -457,7 +497,14 @@ payloads["one-frame-window"] = {
 // Keyed by the URL you can only reach by reading robots.txt. The unlisted page
 // derives the key from its own location.pathname, so no path literal is needed.
 payloads["nowhere-to-be-found"] = {
-  sealed: await publicSeal("/vault/omega", normalizeFlag(flags["nowhere-to-be-found"])),
+  sealed: await publicSeal(vaultPath, normalizeFlag(flags["nowhere-to-be-found"])),
+  /*
+   * Needed by the prerenderer and by robots.txt. It is *not* a leak: the whole
+   * challenge is finding the path, and payloads.json is gitignored precisely
+   * so this does not ship in the repo. Anyone reading the deployed bundle has
+   * already won this one, which was true of the hardcoded path too.
+   */
+  path: vaultPath,
 };
 
 /*
@@ -521,6 +568,8 @@ writeFileSync(
       ...banner,
       $flag: decoyNamed("read_the_registry"),
       version: 1,
+      // The UI warns loudly when this is true -- see SampleDataNotice.
+      sample,
       order,
       challenges: registry,
       honeypots,
@@ -535,37 +584,61 @@ writeFileSync(
 );
 
 /*
- * The resolved answers, written where the author can find them. Suffixes are
+ * The resolved answers, written where the operator can find them. Suffixes are
  * random, so without this the person running the CTF would not know their own
- * flags -- and there is no way to recover them from the committed output, which
- * is rather the point.
+ * flags -- and they cannot be recovered from the committed output, which is
+ * rather the point. The demo set needs none of this: its flags are public.
  */
 const answersFile = "ANSWERS.secret.md";
+if (!sample) {
+  writeFileSync(
+    join(ROOT, answersFile),
+    [
+      "# Answers",
+      "",
+      "Generated by `pnpm gen`. Gitignored, and the only readable copy of this",
+      "deployment's flags. Suffixes come from `deployment.secret.json`; changing",
+      "that file (or running `pnpm gen --rotate`) changes every flag below.",
+      "",
+      "| # | Challenge | Flag |",
+      "| - | --------- | ---- |",
+      ...order.map((slug, i) => `| ${i + 1} | ${slug} | \`${flags[slug]}\` |`),
+      "",
+    ].join("\n"),
+  );
+}
+
 writeFileSync(
-  join(ROOT, answersFile),
-  [
-    "# Answers",
-    "",
-    "Generated by `pnpm gen`. Gitignored, and the only readable copy of this",
-    "deployment's flags. Suffixes come from `deployment.secret.json`; changing",
-    "that file (or running `pnpm gen --rotate`) changes every flag below.",
-    "",
-    "| # | Challenge | Flag |",
-    "| - | --------- | ---- |",
-    ...order.map((slug, i) => `| ${i + 1} | ${slug} | \`${flags[slug]}\` |`),
-    "",
-  ].join("\n"),
+  join(ROOT, "public", "robots.txt"),
+  `# Pocket CTF
+#
+# robots.txt is a polite request, not a security control. Crawlers that respect
+# it will stay out of the paths below. Everyone else is welcome to read this
+# file -- which is exactly the problem with keeping a secret in it.
+#
+# Generated by \`pnpm gen\`, because the path below differs per deployment.
+
+User-agent: *
+Disallow: ${vaultPath}
+
+# Please do not index the challenge pages; they are spoilers by nature.
+Disallow: /c/
+`,
 );
 
+const rel = (f) => `${relative(ROOT, join(OUT_DIR, f))}`;
 console.log(
-  `✔ ${order.length} challenges, ${honeypots.length} decoys` +
-    (rotate
-      ? " -- suffixes and salts ROTATED: every flag changed, all saved progress invalid"
-      : `, ${reusedCount} salt set(s) reused so existing progress still verifies`),
+  `\u2714 ${order.length} challenges, ${honeypots.length} decoys` +
+    (sample
+      ? " -- SAMPLE set, flags end in _sample and are public"
+      : rotate
+        ? " -- suffixes and salts ROTATED: every flag changed, all saved progress invalid"
+        : `, ${reusedCount} salt set(s) reused so existing progress still verifies`),
 );
-if (minted > 0 && !rotate) {
+if (!sample && minted > 0 && !rotate) {
   console.log(`  minted ${minted} new deployment suffix(es) -> ${DEPLOYMENT_FILE}`);
 }
-console.log("  src/lib/generated/registry.json");
-console.log("  src/lib/generated/payloads.json");
-console.log(`  ${answersFile}  <- this deployment's flags, gitignored`);
+console.log(`  ${rel("registry.json")}`);
+console.log(`  ${rel("payloads.json")}`);
+console.log("  public/robots.txt");
+if (!sample) console.log(`  ${answersFile}  <- this deployment's flags, gitignored`);

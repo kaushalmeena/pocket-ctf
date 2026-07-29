@@ -15,9 +15,13 @@
     "typecheck": "tsc --noEmit",
     "gen": "node scripts/generate.mjs",
     "selftest": "node scripts/selftest.mjs",
-    "verify:flags": "node scripts/verify-no-flags.mjs",
+    "verify:flags": "node scripts/leak-scan.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm verify:flags && pnpm selftest",
-    "icons": "node scripts/icon.mjs"
+    "icons": "node scripts/build-icons.mjs",
+    "postinstall": "node scripts/bootstrap.mjs",
+    "predev": "node scripts/bootstrap.mjs",
+    "prebuild": "node scripts/bootstrap.mjs",
+    "gen:sample": "node scripts/generate.mjs --sample"
   },
   "dependencies": {
     "@tanstack/solid-router": "^1.170.18",

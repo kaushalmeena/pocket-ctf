@@ -1,0 +1,23 @@
+{
+  "$comment": "The PUBLIC sample answer key. Committed on purpose. `pnpm gen --sample` builds src/lib/generated/sample/ from this, which is what a fresh clone plays until someone runs `pnpm gen` with a real flags.secret.json. Every sample flag ends in _sample so nobody mistakes a demo instance for a live one. Writeups are deliberately empty here: publishing the real ones would spoil every deployment, not just this demo.",
+  "flags": {
+    "first-light": "pctf{devtools_are_your_friend}",
+    "invisible-ink": "pctf{zero_width_ghosts}",
+    "russian-dolls": "pctf{turtles_all_the_way_down}",
+    "knights-and-knaves": "pctf{knnkknkn}",
+    "chromatic-aberration": "pctf{one_bit_at_a_time}",
+    "dots-and-dashes": "pctf{listen_closely}",
+    "one-frame-window": "pctf{blink_and_you_miss_it}",
+    "nowhere-to-be-found": "pctf{robots_txt_told_me}",
+    "prime-cuts": "pctf{fundamental_theorem}",
+    "the-repeat-offender": "pctf{crib_dragging_champ}",
+    "the-meta-key": "pctf{dztkolbrfc}"
+  },
+  "writeups": {},
+  "honeypots": {
+    "pctf{n1ce_try_but_no}": "That one was painted on the page in twenty-four-point type. Flags that want to be found aren't flags.",
+    "pctf{grep_is_not_a_solution}": "Found in a source comment, was it? Comments are where developers put things they've stopped thinking about.",
+    "pctf{th4ts_a_decoy_friend}": "A plausible-looking string in a payload file. Plausible is doing a lot of work in that sentence.",
+    "pctf{i_read_the_registry}": "The registry holds hashes. If a readable flag appeared there, someone put it there on purpose."
+  }
+}

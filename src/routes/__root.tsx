@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/solid-router";
 import type { JSX } from "solid-js";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { SampleDataNotice } from "~/components/SampleDataNotice";
 import { SiteFooter } from "~/components/SiteFooter";
 import { SiteHeader } from "~/components/SiteHeader";
 import { ProgressProvider } from "~/lib/store";
@@ -51,6 +52,7 @@ function RootDocument(props: { children: JSX.Element }) {
         <ThemeProvider>
           <ProgressProvider>
             <div class="flex min-h-dvh flex-col">
+              <SampleDataNotice />
               <SiteHeader />
               <main class="mx-auto w-full max-w-3xl flex-1 px-5 py-10 sm:px-6">
                 <Suspense>{props.children}</Suspense>

@@ -23,7 +23,7 @@ import { Route as CPrimeCutsRouteImport } from './routes/c/prime-cuts'
 import { Route as CRussianDollsRouteImport } from './routes/c/russian-dolls'
 import { Route as CTheMetaKeyRouteImport } from './routes/c/the-meta-key'
 import { Route as CTheRepeatOffenderRouteImport } from './routes/c/the-repeat-offender'
-import { Route as VaultOmegaRouteImport } from './routes/vault/omega'
+import { Route as VaultKeyRouteImport } from './routes/vault/$key'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -95,9 +95,9 @@ const CTheRepeatOffenderRoute = CTheRepeatOffenderRouteImport.update({
   path: '/c/the-repeat-offender',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VaultOmegaRoute = VaultOmegaRouteImport.update({
-  id: '/vault/omega',
-  path: '/vault/omega',
+const VaultKeyRoute = VaultKeyRouteImport.update({
+  id: '/vault/$key',
+  path: '/vault/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -116,7 +116,7 @@ export interface FileRoutesByFullPath {
   '/c/russian-dolls': typeof CRussianDollsRoute
   '/c/the-meta-key': typeof CTheMetaKeyRoute
   '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/omega': typeof VaultOmegaRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,7 +133,7 @@ export interface FileRoutesByTo {
   '/c/russian-dolls': typeof CRussianDollsRoute
   '/c/the-meta-key': typeof CTheMetaKeyRoute
   '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/omega': typeof VaultOmegaRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,7 +151,7 @@ export interface FileRoutesById {
   '/c/russian-dolls': typeof CRussianDollsRoute
   '/c/the-meta-key': typeof CTheMetaKeyRoute
   '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/omega': typeof VaultOmegaRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,7 +170,7 @@ export interface FileRouteTypes {
     | '/c/russian-dolls'
     | '/c/the-meta-key'
     | '/c/the-repeat-offender'
-    | '/vault/omega'
+    | '/vault/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,7 +187,7 @@ export interface FileRouteTypes {
     | '/c/russian-dolls'
     | '/c/the-meta-key'
     | '/c/the-repeat-offender'
-    | '/vault/omega'
+    | '/vault/$key'
   id:
     | '__root__'
     | '/'
@@ -204,7 +204,7 @@ export interface FileRouteTypes {
     | '/c/russian-dolls'
     | '/c/the-meta-key'
     | '/c/the-repeat-offender'
-    | '/vault/omega'
+    | '/vault/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -222,7 +222,7 @@ export interface RootRouteChildren {
   CRussianDollsRoute: typeof CRussianDollsRoute
   CTheMetaKeyRoute: typeof CTheMetaKeyRoute
   CTheRepeatOffenderRoute: typeof CTheRepeatOffenderRoute
-  VaultOmegaRoute: typeof VaultOmegaRoute
+  VaultKeyRoute: typeof VaultKeyRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -325,11 +325,11 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof CTheRepeatOffenderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/vault/omega': {
-      id: '/vault/omega'
-      path: '/vault/omega'
-      fullPath: '/vault/omega'
-      preLoaderRoute: typeof VaultOmegaRouteImport
+    '/vault/$key': {
+      id: '/vault/$key'
+      path: '/vault/$key'
+      fullPath: '/vault/$key'
+      preLoaderRoute: typeof VaultKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -350,7 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   CRussianDollsRoute: CRussianDollsRoute,
   CTheMetaKeyRoute: CTheMetaKeyRoute,
   CTheRepeatOffenderRoute: CTheRepeatOffenderRoute,
-  VaultOmegaRoute: VaultOmegaRoute,
+  VaultKeyRoute: VaultKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -32,7 +32,8 @@ import { join } from "node:path";
 const ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
 const SUFFIX_LENGTH = 6;
 
-export const KEY_FILE = "flags.secret.json";
+export const SECRET_KEY_FILE = "flags.secret.json";
+export const SAMPLE_KEY_FILE = "flags.sample.json";
 export const DEPLOYMENT_FILE = "deployment.secret.json";
 
 /**
@@ -65,7 +66,12 @@ export function innerOf(flag) {
 }
 
 export function readKey(root) {
-  return JSON.parse(readFileSync(join(root, KEY_FILE), "utf8"));
+  return JSON.parse(readFileSync(join(root, SECRET_KEY_FILE), "utf8"));
+}
+
+/** The committed demo key. Public by design; see flags.sample.json. */
+export function readSampleKey(root) {
+  return JSON.parse(readFileSync(join(root, SAMPLE_KEY_FILE), "utf8"));
 }
 
 export function readDeployment(root) {
