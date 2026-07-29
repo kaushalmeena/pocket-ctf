@@ -1,15 +1,42 @@
-import { Lightbulb } from "lucide-solid";
-import { For, Show } from "solid-js";
+import { Lightbulb, LoaderCircle } from "lucide-solid";
+import { createSignal, For, Show } from "solid-js";
 import { type Challenge, HINT_COST_RATIO, pointsAfterHints } from "~/lib/challenges";
+import { revealHintText } from "~/lib/hints";
 import { useProgress } from "~/lib/store";
 
 export function HintPanel(props: { challenge: Challenge }) {
   const { state, revealHint } = useProgress();
 
+  /**
+   * Decrypted hint text, keyed by index.
+   *
+   * Hints ship as ciphertext, so the text arrives after a key derivation rather
+   * than being available synchronously. Already-revealed hints are decrypted
+   * lazily when the panel first renders them, which is why this is a cache
+   * rather than something the store holds.
+   */
+  const [text, setText] = createSignal<Record<number, string>>({});
+  const [busy, setBusy] = createSignal(false);
+
   const used = () => state().hints[props.challenge.slug] ?? 0;
   const solved = () => state().solves[props.challenge.slug];
-  const total = () => props.challenge.hints.length;
+  const total = () => props.challenge.hintCount;
   const worth = () => pointsAfterHints(props.challenge, used());
+
+  const load = async (index: number) => {
+    if (text()[index] !== undefined) return;
+    const decrypted = await revealHintText(props.challenge.slug, index);
+    setText((prev) => ({ ...prev, [index]: decrypted ?? "This hint could not be decrypted." }));
+  };
+
+  /** Charge for the hint first, then decrypt it. */
+  const take = async () => {
+    const index = used();
+    setBusy(true);
+    revealHint(props.challenge.slug);
+    await load(index);
+    setBusy(false);
+  };
 
   return (
     <section class="rounded-xl border border-zinc-200 dark:border-zinc-800">
@@ -34,15 +61,26 @@ export function HintPanel(props: { challenge: Challenge }) {
       </div>
 
       <div class="divide-y divide-zinc-100 dark:divide-zinc-900">
-        <For each={props.challenge.hints.slice(0, used())}>
-          {(hint, i) => (
-            <div class="flex gap-3 px-4 py-3">
-              <span class="mt-0.5 font-mono text-xs text-zinc-400 dark:text-zinc-600">
-                {i() + 1}
-              </span>
-              <p class="prose-mini flex-1">{hint}</p>
-            </div>
-          )}
+        <For each={Array.from({ length: used() }, (_, i) => i)}>
+          {(index) => {
+            // Revealed on a previous visit; fetch the plaintext on first render.
+            void load(index);
+            return (
+              <div class="flex gap-3 px-4 py-3">
+                <span class="mt-0.5 font-mono text-xs text-zinc-400 dark:text-zinc-600">
+                  {index + 1}
+                </span>
+                <p class="prose-mini flex-1">
+                  <Show
+                    when={text()[index]}
+                    fallback={<span class="text-zinc-400">Decrypting…</span>}
+                  >
+                    {text()[index]}
+                  </Show>
+                </p>
+              </div>
+            );
+          }}
         </For>
       </div>
 
@@ -59,10 +97,14 @@ export function HintPanel(props: { challenge: Challenge }) {
         <div class="flex flex-wrap items-center gap-3 px-4 py-3">
           <button
             type="button"
-            onClick={() => revealHint(props.challenge.slug)}
-            class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+            onClick={take}
+            disabled={busy()}
+            class="inline-flex min-w-36 items-center justify-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
           >
-            Reveal hint {used() + 1}
+            <Show when={busy()}>
+              <LoaderCircle aria-hidden="true" size={13} class="animate-spin" />
+            </Show>
+            {busy() ? "Decrypting" : `Reveal hint ${used() + 1}`}
           </button>
           <span class="text-xs text-zinc-400 dark:text-zinc-600">
             <Show when={!solved()} fallback="Already solved — this one is free.">
@@ -70,6 +112,14 @@ export function HintPanel(props: { challenge: Challenge }) {
             </Show>
           </span>
         </div>
+      </Show>
+
+      {/* A deployment can legitimately ship none -- the demo set does. */}
+      <Show when={total() === 0}>
+        <p class="px-4 py-3 text-xs text-zinc-400 dark:text-zinc-600">
+          This deployment ships no hints. They live in the answer key, so whoever built it chose
+          not to include any.
+        </p>
       </Show>
     </section>
   );

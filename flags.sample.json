@@ -1,5 +1,5 @@
 {
-  "$comment": "The PUBLIC sample answer key. Committed on purpose. `pnpm gen --sample` builds src/lib/generated/sample/ from this, which is what a fresh clone plays until someone runs `pnpm gen` with a real flags.secret.json. Every sample flag ends in _sample so nobody mistakes a demo instance for a live one. Writeups are deliberately empty here: publishing the real ones would spoil every deployment, not just this demo.",
+  "$comment": "The PUBLIC sample answer key. Committed on purpose. `pnpm gen --sample` builds src/lib/generated/sample/ from this, which is what a fresh clone plays until someone runs `pnpm gen` with a real flags.secret.json. Every sample flag ends in _sample so nobody mistakes a demo instance for a live one. Hints and writeups are deliberately empty: publishing the real ones would spoil every deployment, not just this demo.",
   "flags": {
     "first-light": "pctf{devtools_are_your_friend}",
     "invisible-ink": "pctf{zero_width_ghosts}",
@@ -13,6 +13,7 @@
     "the-repeat-offender": "pctf{crib_dragging_champ}",
     "the-meta-key": "pctf{dztkolbrfc}"
   },
+  "hints": {},
   "writeups": {},
   "honeypots": {
     "pctf{n1ce_try_but_no}": "That one was painted on the page in twenty-four-point type. Flags that want to be found aren't flags.",

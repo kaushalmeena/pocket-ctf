@@ -327,6 +327,33 @@ check(
   }
 }
 
+/* --- hints ---------------------------------------------------------- */
+
+{
+  const hintSecret = (slug, index) => `pocket-ctf/hint/${slug}/${index}`;
+  let checked = 0;
+  let broken = 0;
+  for (const slug of registry.order) {
+    const sealed = registry.challenges[slug].hints ?? [];
+    const authored = baseKey.hints?.[slug] ?? [];
+    if (sealed.length !== authored.length) {
+      broken++;
+      console.log(`✘ ${slug}: ${sealed.length} sealed hints, ${authored.length} authored`);
+      continue;
+    }
+    for (const [i, h] of sealed.entries()) {
+      const text = await unseal(hintSecret(slug, i), fromHex(h.salt), h.ct, fromHex(h.iv));
+      checked++;
+      if (text !== authored[i]) {
+        broken++;
+        console.log(`✘ ${slug} hint ${i + 1}: did not round-trip`);
+      }
+    }
+  }
+  failures += broken;
+  console.log(`${broken === 0 ? "✔" : "✘"} ${checked} hint(s) decrypt to their authored text`);
+}
+
 /* --- registry integrity ------------------------------------------- */
 
 for (const slug of registry.order) {

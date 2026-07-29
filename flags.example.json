@@ -1,5 +1,5 @@
 {
-  "$comment": "Template for flags.secret.json (which is gitignored). Fill in a flag for every slug in src/lib/challenges.ts, then run `pnpm gen`. The generator hashes, encrypts and encodes everything into src/lib/generated/ -- the committed site never contains a plaintext flag, so this file is the only place the answers exist.",
+  "$comment": "Template for flags.secret.json (which is gitignored). Fill in a flag for every slug in src/lib/challenges.ts, then run `pnpm gen`. Hints and writeups live here too, and ship encrypted -- nothing in the committed site or the built bundle carries their plaintext.",
   "flags": {
     "first-light": "pctf{...}",
     "invisible-ink": "pctf{...}",
@@ -12,6 +12,13 @@
     "prime-cuts": "pctf{...}",
     "the-repeat-offender": "pctf{...}",
     "the-meta-key": "pctf{...}"
+  },
+  "hints": {
+    "first-light": [
+      "Hint 1 — the gentlest nudge. Three per challenge is the convention here.",
+      "Hint 2 — narrower.",
+      "Hint 3 — names the technique outright."
+    ]
   },
   "writeups": {
     "first-light": "Markdown-ish explanation of the intended solve. Sealed with AES-GCM under a key derived from the flag, so it is unreadable until the challenge is solved."

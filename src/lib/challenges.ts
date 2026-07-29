@@ -3,7 +3,8 @@
  *
  * The hashes, ciphertexts and puzzle payloads live in src/lib/generated/,
  * produced by `pnpm gen` from the answer key. This file is hand-written and
- * deliberately spoiler-light -- hints are the exception, and they cost points.
+ * deliberately spoiler-light: no flag, hint or writeup text appears here. Hints
+ * and writeups live in the answer key and ship encrypted.
  */
 
 import registry from "./generated/registry.json";
@@ -31,8 +32,16 @@ export type Challenge = {
   category: Category;
   difficulty: Difficulty;
   points: number;
-  /** Progressive. Each one revealed costs {@link HINT_COST_RATIO} of the points. */
-  hints: string[];
+  /**
+   * How many hints exist, read from the generated registry.
+   *
+   * The text itself is not here. Hints used to be plaintext in this file, which
+   * meant they were readable in the public repository -- free spoilers -- and
+   * readable in the shipped bundle, so a player could have all three without
+   * paying the points they cost. They now live in the answer key and ship as
+   * AES-GCM ciphertext; see hintCount() and revealHintText().
+   */
+  hintCount: number;
   /** Slugs that must be solved first. */
   requires?: string[];
 };
@@ -52,6 +61,12 @@ export const REQUIRES_INTERACTION: ReadonlySet<string> = new Set([
   "knights-and-knaves",
   "nowhere-to-be-found",
 ]);
+
+/** How many hints the generated registry carries for a challenge. */
+function hintCount(slug: string): number {
+  const entry = (registry.challenges as Record<string, { hints?: unknown[] }>)[slug];
+  return entry?.hints?.length ?? 0;
+}
 
 /** Each revealed hint forfeits this fraction of the challenge's points. */
 export const HINT_COST_RATIO = 0.15;
@@ -77,11 +92,7 @@ export const CHALLENGES: Challenge[] = [
     category: "recon",
     difficulty: "easy",
     points: 50,
-    hints: [
-      "The flag on the page is the wrong flag. Ignore what is painted; ask what is present.",
-      "Right-click. Inspect. Then look for elements that occupy no space at all.",
-      "Each one carries a character and a number. The number is not decoration — it is an index, and the characters are shuffled without it.",
-    ],
+    hintCount: hintCount("first-light"),
   },
   {
     slug: "invisible-ink",
@@ -91,11 +102,7 @@ export const CHALLENGES: Challenge[] = [
     category: "stego",
     difficulty: "easy",
     points: 75,
-    hints: [
-      "Select the poem and copy it. Paste it somewhere that shows you a character count. That number is bigger than it should be.",
-      "Some Unicode characters have no width. Two of them, used as 0 and 1, will carry any message you like.",
-      "U+200B and U+200C. Filter the string down to just those, map them to bits, and read eight at a time.",
-    ],
+    hintCount: hintCount("invisible-ink"),
   },
   {
     slug: "russian-dolls",
@@ -105,11 +112,7 @@ export const CHALLENGES: Challenge[] = [
     category: "encoding",
     difficulty: "easy",
     points: 75,
-    hints: [
-      "Every encoding has a silhouette. Trailing `=`, mixed case and digits means one thing; all-caps with digits 2 through 7 means another.",
-      "Layer three is not an encoding at all — it is a substitution cipher, and the laziest one there is.",
-      "Outside in: base64, base32, ROT13, base64. Then the plaintext is the right characters in the wrong order.",
-    ],
+    hintCount: hintCount("russian-dolls"),
   },
   {
     slug: "knights-and-knaves",
@@ -119,11 +122,7 @@ export const CHALLENGES: Challenge[] = [
     category: "logic",
     difficulty: "medium",
     points: 125,
-    hints: [
-      "Knights only say true things; knaves only say false things. So an islander is a knight *exactly when* their statement is true. Write that as an equation and the puzzle solves itself.",
-      "Start with B and C — they form a loop you can close by contradiction. Then note that two of the remaining statements are direct contradictions, which pins the total.",
-      "Enter the verdicts in order, A through H, as `k` and `n` — the flag is encrypted with them as the key, so a wrong answer yields nothing at all. Brute-forcing all 256 assignments is a perfectly honest solve.",
-    ],
+    hintCount: hintCount("knights-and-knaves"),
   },
   {
     slug: "chromatic-aberration",
@@ -133,11 +132,7 @@ export const CHALLENGES: Challenge[] = [
     category: "stego",
     difficulty: "medium",
     points: 150,
-    hints: [
-      "The image is noise because almost all of it is noise. You are looking for the part that isn't.",
-      "Every channel of every pixel is a byte. Changing a byte by one is invisible to you and obvious to a script.",
-      "Blue channel, least significant bit, row-major, most-significant-bit first, NUL-terminated. Draw it to a canvas and read `getImageData`.",
-    ],
+    hintCount: hintCount("chromatic-aberration"),
   },
   {
     slug: "dots-and-dashes",
@@ -147,11 +142,7 @@ export const CHALLENGES: Challenge[] = [
     category: "audio",
     difficulty: "medium",
     points: 125,
-    hints: [
-      "You already know what this is. The only question is whether you decode it by ear or by arithmetic.",
-      "Short beep, long beep. A gap three times the base unit ends a letter; a gap seven times the base unit ends a word.",
-      "The word gap becomes an underscore in the flag. If you'd rather read than listen, the timings are sitting in the page as an array of numbers.",
-    ],
+    hintCount: hintCount("dots-and-dashes"),
   },
   {
     slug: "one-frame-window",
@@ -161,11 +152,7 @@ export const CHALLENGES: Challenge[] = [
     category: "web",
     difficulty: "medium",
     points: 150,
-    hints: [
-      "Reloading won't help; it is exactly as fast every time. Change the rules instead of your reflexes.",
-      "Grepping the bundle finds ciphertext, not a flag. But something has to decrypt it, and that something runs in a debugger you control.",
-      "Elements panel → right-click the container → Break on → subtree modifications. Then reload. The page freezes mid-reveal.",
-    ],
+    hintCount: hintCount("one-frame-window"),
   },
   {
     slug: "nowhere-to-be-found",
@@ -175,11 +162,7 @@ export const CHALLENGES: Challenge[] = [
     category: "recon",
     difficulty: "medium",
     points: 125,
-    hints: [
-      "Websites keep a handful of files at fixed, well-known paths. You have never opened most of them.",
-      "One of those files exists to tell crawlers what to stay away from. Consider what that implies about its contents.",
-      "`/robots.txt`. Read what it forbids, then go there.",
-    ],
+    hintCount: hintCount("nowhere-to-be-found"),
   },
   {
     slug: "prime-cuts",
@@ -189,11 +172,7 @@ export const CHALLENGES: Challenge[] = [
     category: "math",
     difficulty: "hard",
     points: 200,
-    hints: [
-      "There is precisely one way to break a whole number into primes. That uniqueness is the encoding, not an obstacle to it.",
-      "Trial division is enough — every factor is small enough to reach in well under a second. Sort what falls out, ascending.",
-      "Reduce each prime modulo 127 and read the results as ASCII. (Why 127 and not 128? Try 128 and watch half the alphabet become unreachable.)",
-    ],
+    hintCount: hintCount("prime-cuts"),
   },
   {
     slug: "the-repeat-offender",
@@ -203,11 +182,7 @@ export const CHALLENGES: Challenge[] = [
     category: "crypto",
     difficulty: "hard",
     points: 200,
-    hints: [
-      "XOR with a repeating key. The key length is given to you, which is the hard half of the problem removed.",
-      "Take the key length as K. Bytes at positions 0, K, 2K, … were all XORed with the same single byte; so were 1, K+1, 2K+1, …. That is K separate, tiny problems instead of one impossible one.",
-      "For each column try all 256 bytes and score the result on how English it looks — spaces and `etaoin shrdlu` are worth the most. The best-scoring byte is almost always right.",
-    ],
+    hintCount: hintCount("the-repeat-offender"),
   },
   {
     slug: "the-meta-key",
@@ -217,6 +192,7 @@ export const CHALLENGES: Challenge[] = [
     category: "meta",
     difficulty: "hard",
     points: 300,
+    hintCount: hintCount("the-meta-key"),
     requires: [
       "first-light",
       "invisible-ink",
@@ -228,11 +204,6 @@ export const CHALLENGES: Challenge[] = [
       "nowhere-to-be-found",
       "prime-cuts",
       "the-repeat-offender",
-    ],
-    hints: [
-      "Everything you need is in the ten flags you already have. Lay them out in challenge order.",
-      "You are looking at the inner text of each flag — what sits between the braces.",
-      "First character of each, in order. The unlocked instructions also give you a random tag for this installation, which you could not have derived — append it, then wrap the lot in `pctf{ }`.",
     ],
   },
 ];

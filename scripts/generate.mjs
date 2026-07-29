@@ -320,6 +320,12 @@ function buildRepeatOffender(flag) {
 }
 
 /**
+ * Key material for hint N of a challenge. Mirrored in src/lib/hints.ts, which is
+ * what the browser uses to open them.
+ */
+const hintSecret = (slug, index) => `pocket-ctf/hint/${slug}/${index}`;
+
+/**
  * Encrypt a value under a key derived from a *publicly discoverable* string:
  * a URL path, a slug, a phrase on the page. The bundle then carries only
  * ciphertext -- knowing where to look is the key.
@@ -474,6 +480,24 @@ for (const slug of order) {
 
   const writeup = key.writeups?.[slug] ?? "_No writeup was written for this challenge._";
 
+  /*
+   * Hints ship encrypted rather than as plaintext strings.
+   *
+   * Be clear about what this is and isn't. A hint must be readable *before* the
+   * challenge is solved, so its key cannot depend on the flag -- it is derived
+   * from the slug and index, both public. This is obfuscation, not secrecy: a
+   * determined reader can run the same derivation.
+   *
+   * It still buys two real things. The text is no longer in the repository, so a
+   * public clone is not a spoiler sheet; and it is no longer sitting in the
+   * bundle as readable JSON, so taking a hint means clicking the button that
+   * charges you points for it.
+   */
+  const hints = [];
+  for (const [i, text] of (key.hints?.[slug] ?? []).entries()) {
+    hints.push(await publicSeal(hintSecret(slug, i), text));
+  }
+
   registry[slug] = {
     verifySalt: toHex(verifySalt),
     verifyHash: toHex(await derive(flag, PURPOSE.verify, verifySalt)),
@@ -484,6 +508,7 @@ for (const slug of order) {
     sealSalt: toHex(sealSalt),
     sealIv: toHex(sealIv),
     writeup: await seal(flag, sealSalt, writeup, sealIv),
+    hints,
   };
 }
 
