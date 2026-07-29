@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { Check, KeyRound, Minus } from "lucide-solid";
 import { createResource, For, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { CHALLENGE_BY_SLUG, getChallenge } from "~/lib/challenges";
@@ -62,9 +63,19 @@ function TheMetaKey() {
                     <span class="ml-auto font-mono text-xs">
                       <Show
                         when={record()}
-                        fallback={<span class="text-zinc-300 dark:text-zinc-700">—</span>}
+                        fallback={
+                          <Minus
+                            aria-hidden="true"
+                            size={13}
+                            class="text-zinc-300 dark:text-zinc-700"
+                          />
+                        }
                       >
-                        <span class="text-accent-600 dark:text-accent-400">✓</span>
+                        <Check
+                          aria-hidden="true"
+                          size={13}
+                          class="text-accent-600 dark:text-accent-400"
+                        />
                       </Show>
                     </span>
                   </li>
@@ -88,7 +99,8 @@ function TheMetaKey() {
         >
           {(text) => (
             <div class="animate-rise rounded-xl border border-accent-200 bg-accent-50/60 p-5 dark:border-accent-900 dark:bg-accent-950/40">
-              <p class="text-xs tracking-wider text-accent-700 uppercase dark:text-accent-300">
+              <p class="flex items-center gap-2 text-xs tracking-wider text-accent-700 uppercase dark:text-accent-300">
+                <KeyRound aria-hidden="true" size={13} />
                 Unsealed with your ten tokens
               </p>
               <p class="pt-2 text-[1.05rem] leading-relaxed text-accent-900 dark:text-accent-50">

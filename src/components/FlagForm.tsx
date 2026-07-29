@@ -1,3 +1,4 @@
+import { CircleCheck, CornerDownLeft, LoaderCircle } from "lucide-solid";
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import type { Challenge } from "~/lib/challenges";
 import { lockoutRemaining } from "~/lib/progress";
@@ -108,7 +109,7 @@ export function FlagForm(props: { challenge: Challenge }) {
       fallback={
         <div class="rounded-xl border border-accent-200 bg-accent-50/60 p-4 dark:border-accent-900 dark:bg-accent-950/40">
           <p class="flex items-center gap-2 text-sm font-medium text-accent-700 dark:text-accent-200">
-            <span aria-hidden="true">✓</span> Solved
+            <CircleCheck aria-hidden="true" size={16} /> Solved
           </p>
         </div>
       }
@@ -140,13 +141,24 @@ export function FlagForm(props: { challenge: Challenge }) {
           <button
             type="submit"
             disabled={busy() || lockedMs() > 0 || value().trim().length === 0}
-            class="shrink-0 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            class="shrink-0 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
           >
-            {busy()
-              ? "Checking…"
-              : lockedMs() > 0
-                ? `${Math.ceil(lockedMs() / 1000)}s`
-                : "Check"}
+            <Show
+              when={busy()}
+              fallback={
+                <span class="inline-flex items-center gap-1.5">
+                  {lockedMs() > 0 ? `${Math.ceil(lockedMs() / 1000)}s` : "Check"}
+                  <Show when={lockedMs() === 0}>
+                    <CornerDownLeft aria-hidden="true" size={13} class="opacity-60" />
+                  </Show>
+                </span>
+              }
+            >
+              <span class="inline-flex items-center gap-1.5">
+                <LoaderCircle aria-hidden="true" size={13} class="animate-spin" />
+                Checking
+              </span>
+            </Show>
           </button>
         </div>
 

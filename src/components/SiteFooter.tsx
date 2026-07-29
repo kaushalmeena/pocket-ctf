@@ -1,3 +1,5 @@
+import { ExternalLink } from "lucide-solid";
+
 export function SiteFooter() {
   return (
     <footer class="border-t border-zinc-200 dark:border-zinc-800">
@@ -9,10 +11,11 @@ export function SiteFooter() {
         <span>Runs offline. Nothing you type leaves this machine.</span>
         <a
           href="https://github.com/topics/capture-the-flag"
-          class="ml-auto underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+          class="ml-auto inline-flex items-center underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
           rel="noreferrer"
         >
           What is a CTF?
+          <ExternalLink aria-hidden="true" size={11} class="ml-1 inline align-baseline" />
         </a>
       </div>
     </footer>

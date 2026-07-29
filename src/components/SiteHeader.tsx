@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/solid-router";
+import { Flag } from "lucide-solid";
 import { Show } from "solid-js";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { TOTAL_POINTS } from "~/lib/challenges";
@@ -11,9 +12,10 @@ export function SiteHeader() {
     <header class="sticky top-0 z-20 border-b border-zinc-200 bg-white/85 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/85">
       <div class="mx-auto flex w-full max-w-3xl items-center gap-4 px-5 py-3 sm:px-6">
         <Link to="/" class="group flex items-center gap-2 font-mono text-sm font-semibold">
-          <span
+          <Flag
             aria-hidden="true"
-            class="inline-block size-2 rounded-full bg-accent-500 transition-transform group-hover:scale-125"
+            size={15}
+            class="text-accent-500 transition-transform duration-200 group-hover:-rotate-12"
           />
           pocket<span class="text-zinc-400 dark:text-zinc-600">/</span>ctf
         </Link>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
+import { ArrowRight } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { CHALLENGES, TOTAL_POINTS } from "~/lib/challenges";
 import { useProgress } from "~/lib/store";
@@ -25,7 +26,7 @@ function Home() {
         <p class="max-w-xl text-[1.05rem] leading-relaxed text-zinc-600 dark:text-zinc-400">
           Each challenge hides a <em>flag</em> — a short string shaped like{" "}
           <code class="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-accent-600 dark:bg-zinc-800 dark:text-accent-400">
-            pctf&#123;something&#125;
+            pctf&#123;some_words_x7fq2p&#125;
           </code>
           . Find it, type it in, move on. Nothing here rewards guessing, and none of the puzzles
           want you to know a tool you don't already have. They want you to look at an ordinary
@@ -35,9 +36,14 @@ function Home() {
         <div class="flex flex-wrap items-center gap-3 pt-1">
           <Link
             to="/challenges"
-            class="rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            class="group inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
           >
             {ready() && stats().solved > 0 ? "Keep going" : "Start with First Light"}
+            <ArrowRight
+              aria-hidden="true"
+              size={15}
+              class="transition-transform duration-200 group-hover:translate-x-0.5"
+            />
           </Link>
           <Show when={ready() && stats().solved > 0}>
             <span class="font-mono text-xs text-zinc-500">
@@ -82,6 +88,11 @@ function Home() {
             After four misses, submissions back off exponentially. Brute force is not a strategy
             here; it is a waiting game you lose.
           </Fact>
+          <Fact label="Every flag ends in noise">
+            That trailing gibberish is random, and different on every installation of this site.
+            Answers copied from someone else's copy will not work on yours.
+          </Fact>
+
           <Fact label="Progress lives in your browser">
             No account, no sync, no telemetry. Export it to a file if you want it elsewhere.
           </Fact>

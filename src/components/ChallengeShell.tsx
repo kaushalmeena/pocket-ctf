@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/solid-router";
+import { ArrowLeft, ArrowRight, ChevronRight, Clock, Lock, ScrollText } from "lucide-solid";
 import { createEffect, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
 import { FlagForm } from "~/components/FlagForm";
 import { HintPanel } from "~/components/HintPanel";
@@ -60,9 +61,10 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
         <div class="flex items-center gap-2 text-xs">
           <Link
             to="/challenges"
-            class="text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
+            class="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
           >
-            ← All challenges
+            <ArrowLeft aria-hidden="true" size={13} />
+            All challenges
           </Link>
           <span class="font-mono text-zinc-300 dark:text-zinc-700">
             {String(index() + 1).padStart(2, "0")}/{CHALLENGES.length}
@@ -79,7 +81,10 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
           <Pill title="Points before hint deductions">{`${props.challenge.points} pts`}</Pill>
           <Show when={ready() && elapsed() > 0}>
             <Pill title={record() ? "Time taken" : "Time on this challenge"}>
-              <span class="tabular-nums">{formatDuration(elapsed())}</span>
+              <span class="inline-flex items-center gap-1 tabular-nums">
+                <Clock aria-hidden="true" size={10} />
+                {formatDuration(elapsed())}
+              </span>
             </Pill>
           </Show>
         </div>
@@ -105,17 +110,21 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
                 class="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-100"
                 aria-expanded={showWriteup()}
               >
+                <ScrollText
+                  aria-hidden="true"
+                  size={15}
+                  class="text-zinc-400 dark:text-zinc-600"
+                />
                 Writeup
                 <span class="font-mono text-xs font-normal text-zinc-400 dark:text-zinc-600">
                   decrypted with your solve
                 </span>
-                <span
+                <ChevronRight
                   aria-hidden="true"
-                  class="ml-auto text-zinc-400 transition-transform dark:text-zinc-600"
+                  size={16}
+                  class="ml-auto text-zinc-400 transition-transform duration-200 dark:text-zinc-600"
                   classList={{ "rotate-90": showWriteup() }}
-                >
-                  ›
-                </span>
+                />
               </button>
               <Show when={showWriteup()}>
                 <div class="animate-rise border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
@@ -133,7 +142,7 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
               {(n) => (
                 <Link
                   to={n().path}
-                  class="flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3.5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                  class="group flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3.5 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
                 >
                   <span>
                     <span class="block text-xs text-zinc-500 dark:text-zinc-500">Next up</span>
@@ -141,9 +150,11 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
                       {n().title}
                     </span>
                   </span>
-                  <span aria-hidden="true" class="text-zinc-400 dark:text-zinc-600">
-                    →
-                  </span>
+                  <ArrowRight
+                    aria-hidden="true"
+                    size={16}
+                    class="text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-zinc-600"
+                  />
                 </Link>
               )}
             </Show>
@@ -161,7 +172,10 @@ function LockedNotice(props: { challenge: Challenge }) {
 
   return (
     <section class="rounded-xl border border-dashed border-zinc-300 p-6 text-center dark:border-zinc-700">
-      <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">Locked</p>
+      <p class="flex items-center justify-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+        <Lock aria-hidden="true" size={14} />
+        Locked
+      </p>
       <p class="prose-mini mx-auto max-w-md pt-2">
         This one needs {missing().length} more solve{missing().length === 1 ? "" : "s"}. Not as
         a formality — the instructions are encrypted with the proof-of-solve tokens from the

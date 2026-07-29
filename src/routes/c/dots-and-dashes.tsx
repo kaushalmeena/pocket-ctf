@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { Play, Square } from "lucide-solid";
 import { createSignal, onCleanup, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
@@ -96,7 +97,12 @@ function DotsAndDashes() {
               onClick={() => (playing() ? stop() : play())}
               class="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
-              <span aria-hidden="true">{playing() ? "■" : "▶"}</span>
+              <Show
+                when={playing()}
+                fallback={<Play aria-hidden="true" size={14} fill="currentColor" />}
+              >
+                <Square aria-hidden="true" size={14} fill="currentColor" />
+              </Show>
               {playing() ? "Stop" : "Play"}
             </button>
 

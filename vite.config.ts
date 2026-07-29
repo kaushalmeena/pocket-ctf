@@ -8,7 +8,23 @@ export default defineConfig({
   server: { port: 3000 },
   resolve: {
     // Mirrors the `~/*` -> `./src/*` alias in tsconfig.json.
+    //
+    // Note: no `conditions` here on purpose. Setting it *replaces* Vite's
+    // defaults rather than adding to them, and vite-plugin-solid already
+    // prepends "solid" to whatever the defaults are. An explicit
+    // `conditions: ["solid"]` silently dropped "node"/"module", so the server
+    // build resolved @tanstack/solid-router's browser entry and prerendering
+    // died in createBrowserHistory.
     alias: { "~": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
+  ssr: {
+    // lucide-solid ships a precompiled ESM build that calls `template()` from
+    // solid-js/web at module scope -- a client-only API. Its `solid` export
+    // condition points at raw JSX instead, which vite-plugin-solid compiles for
+    // the server too, but externalised dependencies are loaded straight by Node
+    // during dev and skip Vite's resolution entirely. Bundling it keeps the
+    // plugin's conditions in force on the server.
+    noExternal: ["lucide-solid"],
   },
   plugins: [
     // tanstackStart MUST come before the solid plugin.

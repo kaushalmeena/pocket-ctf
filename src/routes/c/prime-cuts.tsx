@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/solid-router";
-import { createSignal } from "solid-js";
+import { Check, Copy } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
@@ -35,8 +36,15 @@ function PrimeCuts() {
           <button
             type="button"
             onClick={copy}
-            class="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
           >
+            <Show when={copied()} fallback={<Copy aria-hidden="true" size={12} />}>
+              <Check
+                aria-hidden="true"
+                size={12}
+                class="text-accent-600 dark:text-accent-400"
+              />
+            </Show>
             {copied() ? "Copied" : "Copy the number"}
           </button>
         </div>

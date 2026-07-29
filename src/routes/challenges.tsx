@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
+import { Check, Lock, TriangleAlert } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { CategoryPill, DifficultyPill } from "~/components/Pill";
 import { CHALLENGES, type Challenge, TOTAL_POINTS } from "~/lib/challenges";
@@ -30,10 +31,13 @@ function ChallengeIndex() {
       </header>
 
       <Show when={rejected().length > 0}>
-        <p class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-          {rejected().length} stored solve{rejected().length === 1 ? "" : "s"} failed
-          verification and {rejected().length === 1 ? "was" : "were"} discarded. Solve records
-          are proofs, not flags — editing them doesn't work.
+        <p class="flex gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <TriangleAlert aria-hidden="true" size={16} class="mt-0.5 shrink-0" />
+          <span>
+            {rejected().length} stored solve{rejected().length === 1 ? "" : "s"} failed
+            verification and {rejected().length === 1 ? "was" : "were"} discarded. Solve records
+            are proofs, not flags — editing them doesn't work.
+          </span>
         </p>
       </Show>
 
@@ -66,7 +70,9 @@ function Row(props: { challenge: Challenge }) {
             "border-zinc-300 dark:border-zinc-700": !record(),
           }}
         >
-          <Show when={record()}>✓</Show>
+          <Show when={record()}>
+            <Check size={10} strokeWidth={3} />
+          </Show>
         </span>
 
         <span class="min-w-0 flex-1">
@@ -75,7 +81,8 @@ function Row(props: { challenge: Challenge }) {
               {props.challenge.title}
             </span>
             <Show when={locked()}>
-              <span class="font-mono text-[0.7rem] text-zinc-400 dark:text-zinc-600">
+              <span class="inline-flex items-center gap-1 font-mono text-[0.7rem] text-zinc-400 dark:text-zinc-600">
+                <Lock aria-hidden="true" size={10} />
                 locked
               </span>
             </Show>

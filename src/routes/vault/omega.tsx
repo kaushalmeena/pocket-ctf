@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
+import { ArrowLeft, EyeOff, KeyRound } from "lucide-solid";
 import { createSignal, onMount, Show } from "solid-js";
 import payloads from "~/lib/generated/payloads.json";
 import { unsealPublic } from "~/lib/progress";
@@ -31,7 +32,8 @@ function Vault() {
 
   return (
     <div class="space-y-6 py-10">
-      <p class="font-mono text-xs tracking-widest text-zinc-400 uppercase dark:text-zinc-600">
+      <p class="flex items-center gap-2 font-mono text-xs tracking-widest text-zinc-400 uppercase dark:text-zinc-600">
+        <EyeOff aria-hidden="true" size={13} />
         unlisted
       </p>
 
@@ -64,7 +66,8 @@ function Vault() {
       >
         {(value) => (
           <div class="animate-rise rounded-xl border border-accent-200 bg-accent-50/60 p-6 dark:border-accent-900 dark:bg-accent-950/40">
-            <p class="text-xs tracking-wider text-accent-700 uppercase dark:text-accent-300">
+            <p class="flex items-center gap-2 text-xs tracking-wider text-accent-700 uppercase dark:text-accent-300">
+              <KeyRound aria-hidden="true" size={13} />
               Decrypted with the path you had to know
             </p>
             <p class="pt-2 font-mono text-lg break-all text-accent-800 select-all dark:text-accent-100">
@@ -78,9 +81,10 @@ function Vault() {
 
       <Link
         to="/c/nowhere-to-be-found"
-        class="inline-block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+        class="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
       >
-        ← Nowhere To Be Found
+        <ArrowLeft aria-hidden="true" size={14} />
+        Nowhere To Be Found
       </Link>
     </div>
   );

@@ -1,3 +1,4 @@
+import { Lightbulb } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { type Challenge, HINT_COST_RATIO, pointsAfterHints } from "~/lib/challenges";
 import { useProgress } from "~/lib/store";
@@ -13,7 +14,10 @@ export function HintPanel(props: { challenge: Challenge }) {
   return (
     <section class="rounded-xl border border-zinc-200 dark:border-zinc-800">
       <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-        <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Hints</h2>
+        <h2 class="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          <Lightbulb aria-hidden="true" size={15} class="text-zinc-400 dark:text-zinc-600" />
+          Hints
+        </h2>
         <span class="font-mono text-xs text-zinc-400 dark:text-zinc-600">
           {used()}/{total()} revealed
         </span>

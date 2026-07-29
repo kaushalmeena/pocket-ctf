@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { RefreshCw } from "lucide-solid";
 import { createSignal, onMount, Show } from "solid-js";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { getChallenge } from "~/lib/challenges";
@@ -123,8 +124,9 @@ function OneFrameWindow() {
             type="button"
             onClick={flash}
             disabled={armed()}
-            class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
           >
+            <RefreshCw aria-hidden="true" size={13} classList={{ "animate-spin": armed() }} />
             Flash it again
           </button>
           <span class="font-mono text-xs text-zinc-400 dark:text-zinc-600">

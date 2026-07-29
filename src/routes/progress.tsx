@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { Check, Download, HelpCircle, PartyPopper, RotateCcw, Upload } from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
 import { Pill } from "~/components/Pill";
 import { ACHIEVEMENTS, earnedAchievements } from "~/lib/achievements";
@@ -57,7 +58,8 @@ function ProgressPage() {
       <Show when={ready()} fallback={<p class="text-sm text-zinc-400">Verifying solves…</p>}>
         <Show when={stats().solved === stats().total}>
           <section class="animate-rise rounded-xl border border-accent-200 bg-accent-50/60 p-6 dark:border-accent-900 dark:bg-accent-950/40">
-            <p class="font-mono text-xs tracking-widest text-accent-700 uppercase dark:text-accent-300">
+            <p class="flex items-center gap-2 font-mono text-xs tracking-widest text-accent-700 uppercase dark:text-accent-300">
+              <PartyPopper aria-hidden="true" size={14} />
               All eleven
             </p>
             <h2 class="pt-2 text-xl font-semibold text-accent-900 dark:text-accent-50">
@@ -145,13 +147,19 @@ function ProgressPage() {
                   >
                     <span
                       aria-hidden="true"
-                      class="mt-0.5 text-sm"
+                      class="mt-0.5 shrink-0"
                       classList={{
                         "text-accent-600 dark:text-accent-400": has(),
                         "text-zinc-300 dark:text-zinc-700": !has(),
                       }}
                     >
-                      {hide() ? "?" : achievement.icon}
+                      <Show when={!hide()} fallback={<HelpCircle size={16} />}>
+                        {/* The icon is a component on the achievement itself. */}
+                        {(() => {
+                          const Icon = achievement.icon;
+                          return <Icon size={16} />;
+                        })()}
+                      </Show>
                     </span>
                     {/* Earned state is otherwise conveyed by colour alone. */}
                     <span class="sr-only">{has() ? "Earned:" : "Not yet earned:"}</span>
@@ -165,12 +173,11 @@ function ProgressPage() {
                       >
                         {hide() ? "Hidden badge" : achievement.title}
                         <Show when={has()}>
-                          <span
+                          <Check
                             aria-hidden="true"
-                            class="pl-1.5 text-accent-600 dark:text-accent-400"
-                          >
-                            ✓
-                          </span>
+                            size={13}
+                            class="ml-1.5 inline text-accent-600 dark:text-accent-400"
+                          />
                         </Show>
                       </span>
                       <span class="block text-xs text-zinc-500 dark:text-zinc-500">
@@ -236,11 +243,13 @@ function ProgressPage() {
             <button
               type="button"
               onClick={download}
-              class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
             >
+              <Download aria-hidden="true" size={14} />
               Export
             </button>
-            <label class="cursor-pointer rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
+              <Upload aria-hidden="true" size={14} />
               Import
               <input type="file" accept="application/json" class="hidden" onChange={upload} />
             </label>
@@ -250,8 +259,9 @@ function ProgressPage() {
                 <button
                   type="button"
                   onClick={() => setConfirming(true)}
-                  class="ml-auto rounded-lg px-3 py-1.5 text-sm text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40"
+                  class="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40"
                 >
+                  <RotateCcw aria-hidden="true" size={14} />
                   Reset everything
                 </button>
               }
