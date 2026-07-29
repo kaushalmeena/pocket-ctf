@@ -6,7 +6,14 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/.vinxi", "!**/.output", "!**/dist", "!**/node_modules"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.tanstack",
+      "!src/routeTree.gen.ts",
+      "!src/app.css"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -45,17 +52,5 @@
         "organizeImports": "on"
       }
     }
-  },
-  "overrides": [
-    {
-      "includes": ["src/challenges/**", "src/lib/generated/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noNonNullAssertion": "off"
-          }
-        }
-      }
-    }
-  ]
+  }
 }

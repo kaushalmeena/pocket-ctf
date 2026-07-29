@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/*
+ * Dark mode is driven by a `class="dark"` on <html>, set by src/lib/theme.tsx
+ * before paint. Tailwind v4 needs to be told that, since its default is the
+ * `prefers-color-scheme` media query.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* One accent, used sparingly. A CTF is mostly text; let the text lead. */
+  --color-accent-50: oklch(0.97 0.02 165);
+  --color-accent-200: oklch(0.88 0.08 165);
+  --color-accent-400: oklch(0.75 0.14 165);
+  --color-accent-500: oklch(0.67 0.15 165);
+  --color-accent-600: oklch(0.58 0.14 165);
+  --color-accent-900: oklch(0.32 0.07 165);
+  --color-accent-950: oklch(0.22 0.05 165);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-white text-zinc-800 antialiased dark:bg-zinc-950 dark:text-zinc-200;
+    font-feature-settings: "cv05", "ss01";
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent-500;
+  }
+
+  ::selection {
+    @apply bg-accent-200 text-zinc-900;
+  }
+
+  html.dark ::selection {
+    @apply bg-accent-900 text-accent-50;
+  }
+}
+
+@layer components {
+  /* Puzzle text that must survive copy-paste byte for byte. */
+  .carrier {
+    @apply font-mono text-[0.9rem] leading-7 whitespace-pre-wrap break-words;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Long generated blobs: hex, base64, 93-digit integers. */
+  .blob {
+    @apply rounded-lg border border-zinc-200 bg-zinc-50 p-4 font-mono text-xs
+      leading-relaxed break-all text-zinc-600 select-all
+      dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400;
+  }
+
+  .prose-mini {
+    @apply text-[0.95rem] leading-7 text-zinc-600 dark:text-zinc-400;
+  }
+
+  .prose-mini code {
+    @apply rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-accent-600
+      dark:bg-zinc-800 dark:text-accent-400;
+  }
+
+  .prose-mini pre {
+    @apply my-3 overflow-x-auto rounded-lg bg-zinc-900 p-4 text-xs leading-relaxed
+      text-zinc-100 dark:bg-black;
+  }
+
+  .prose-mini pre code {
+    @apply bg-transparent p-0 text-inherit;
+  }
+
+  .prose-mini strong {
+    @apply font-semibold text-zinc-800 dark:text-zinc-200;
+  }
+}
+
+/* A one-frame reveal has to be immune to the browser's own paint batching. */
+@keyframes flash-once {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.28s ease-out both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  30%, 70% { transform: translateX(3px); }
+  50% { transform: translateX(-1px); }
+}
+
+.animate-shake {
+  animation: shake 0.34s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-rise,
+  .animate-shake {
+    animation: none;
+  }
+}
