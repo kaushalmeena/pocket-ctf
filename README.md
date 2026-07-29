@@ -159,7 +159,7 @@ so a clone with no secret files at all could recover live flags:
 
 ```
 $ git clone … && node -e "…solve payloads.json…"
-{ "first-light": "pctf{devtools_are_your_friend_zrzbft}", … }
+{ "first-light": "pctf{devtools_are_your_friend_<that instance's real suffix>}", … }
 ```
 
 So `src/lib/generated/{registry,payloads}.json` and `public/robots.txt` are now
