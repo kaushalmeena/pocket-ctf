@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/solid-router";
-import { ArrowLeft, ArrowRight, ChevronRight, Clock, Lock, ScrollText } from "lucide-solid";
+import { ArrowLeft, ArrowRight, ChevronRight, Clock, ScrollText } from "lucide-solid";
 import { createEffect, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
 import { FlagForm } from "~/components/FlagForm";
 import { HintPanel } from "~/components/HintPanel";
@@ -21,7 +21,7 @@ function formatDuration(ms: number) {
  * behave identically everywhere.
  */
 export function ChallengeShell(props: { challenge: Challenge; children: JSX.Element }) {
-  const { state, markOpened, writeup, unlocked, ready } = useProgress();
+  const { state, markOpened, writeup, ready } = useProgress();
   const [now, setNow] = createSignal(Date.now());
   const [writeupText, setWriteupText] = createSignal<string | null>(null);
 
@@ -91,104 +91,73 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
         <p class="text-[1.05rem] text-zinc-600 dark:text-zinc-400">{props.challenge.tagline}</p>
       </header>
 
-      <Show
-        when={!ready() || unlocked(props.challenge)}
-        fallback={<LockedNotice challenge={props.challenge} />}
-      >
-        <div class="space-y-8">
-          {props.children}
+      <div class="space-y-8">
+        {props.children}
 
-          <FlagForm challenge={props.challenge} />
-          <HintPanel challenge={props.challenge} />
+        <FlagForm challenge={props.challenge} />
+        <HintPanel challenge={props.challenge} />
 
-          <Show when={record()}>
-            {/*
+        <Show when={record()}>
+          {/*
               A real <details> rather than a button plus a conditional div: it is
               a disclosure, so it should behave like one for assistive tech and
               keyboard users, and it picks up the animated open/close from
               app.css for free instead of needing its own height measuring.
             */}
-            <details
-              class="group rounded-xl border border-zinc-200 dark:border-zinc-800"
-              onToggle={(e) => {
-                if (e.currentTarget.open) void openWriteup();
-              }}
-            >
-              <summary class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                <ScrollText
-                  aria-hidden="true"
-                  size={15}
-                  class="text-zinc-400 dark:text-zinc-600"
-                />
-                Writeup
-                <span class="font-mono text-xs font-normal text-zinc-400 dark:text-zinc-600">
-                  decrypted with your solve
+          <details
+            class="group rounded-xl border border-zinc-200 dark:border-zinc-800"
+            onToggle={(e) => {
+              if (e.currentTarget.open) void openWriteup();
+            }}
+          >
+            <summary class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              <ScrollText
+                aria-hidden="true"
+                size={15}
+                class="text-zinc-400 dark:text-zinc-600"
+              />
+              Writeup
+              <span class="font-mono text-xs font-normal text-zinc-400 dark:text-zinc-600">
+                decrypted with your solve
+              </span>
+              <ChevronRight
+                aria-hidden="true"
+                size={16}
+                class="ml-auto text-zinc-400 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-600"
+              />
+            </summary>
+            <div class="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
+              <Show
+                when={writeupText()}
+                fallback={<p class="text-sm text-zinc-400">Decrypting…</p>}
+              >
+                {(text) => <Markdown source={text()} />}
+              </Show>
+            </div>
+          </details>
+
+          <Show when={next()}>
+            {(n) => (
+              <Link
+                to={n().path}
+                class="group flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3.5 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+              >
+                <span>
+                  <span class="block text-xs text-zinc-500 dark:text-zinc-500">Next up</span>
+                  <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {n().title}
+                  </span>
                 </span>
-                <ChevronRight
+                <ArrowRight
                   aria-hidden="true"
                   size={16}
-                  class="ml-auto text-zinc-400 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-600"
+                  class="text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-zinc-600"
                 />
-              </summary>
-              <div class="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
-                <Show
-                  when={writeupText()}
-                  fallback={<p class="text-sm text-zinc-400">Decrypting…</p>}
-                >
-                  {(text) => <Markdown source={text()} />}
-                </Show>
-              </div>
-            </details>
-
-            <Show when={next()}>
-              {(n) => (
-                <Link
-                  to={n().path}
-                  class="group flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3.5 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
-                >
-                  <span>
-                    <span class="block text-xs text-zinc-500 dark:text-zinc-500">Next up</span>
-                    <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                      {n().title}
-                    </span>
-                  </span>
-                  <ArrowRight
-                    aria-hidden="true"
-                    size={16}
-                    class="text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 dark:text-zinc-600"
-                  />
-                </Link>
-              )}
-            </Show>
+              </Link>
+            )}
           </Show>
-        </div>
-      </Show>
+        </Show>
+      </div>
     </article>
-  );
-}
-
-function LockedNotice(props: { challenge: Challenge }) {
-  const { state } = useProgress();
-  const missing = () =>
-    (props.challenge.requires ?? []).filter((slug) => !state().solves[slug]);
-
-  return (
-    <section class="rounded-xl border border-dashed border-zinc-300 p-6 text-center dark:border-zinc-700">
-      <p class="flex items-center justify-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-        <Lock aria-hidden="true" size={14} />
-        Locked
-      </p>
-      <p class="prose-mini mx-auto max-w-md pt-2">
-        This one needs {missing().length} more solve{missing().length === 1 ? "" : "s"}. Not as
-        a formality — the instructions are encrypted with the proof-of-solve tokens from the
-        other challenges, so there is nothing here to read yet.
-      </p>
-      <Link
-        to="/challenges"
-        class="mt-4 inline-block rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-      >
-        Back to the list
-      </Link>
-    </section>
   );
 }

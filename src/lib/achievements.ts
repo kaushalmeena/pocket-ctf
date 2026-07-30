@@ -11,7 +11,6 @@ import {
   Cat,
   Crosshair,
   Droplet,
-  FingerprintPattern,
   Gem,
   Hammer,
   Moon,
@@ -97,13 +96,6 @@ export const ACHIEVEMENTS: Achievement[] = [
     description: "Submit a flag you found lying around instead of solving for it.",
     earned: (state) => state.decoysTripped > 0,
     secret: true,
-  },
-  {
-    id: "hands-on",
-    icon: FingerprintPattern,
-    title: "Hands On",
-    description: "Finish everything, having genuinely worked the puzzles that can prove it.",
-    earned: (_, stats) => stats.solved === CHALLENGES.length && stats.unengaged === 0,
   },
   {
     id: "completionist",

@@ -236,6 +236,40 @@ Being explicit about the boundary:
 The goal was never unbreakable. It was that the lazy path is slower than the
 honest one, and that nothing is unlocked by editing a value.
 
+## Adding and removing challenges
+
+A challenge is a directory. Everything it needs lives inside, and nothing
+outside it has to be told the challenge exists.
+
+```
+src/challenges/<slug>/
+  meta.ts      title, tagline, category, difficulty, points
+  build.mjs    build({ flag, seal }) -> the payload that ships
+  solve.mjs    solve({ payload })    -> the flag, from shipped data alone
+  Page.tsx     the puzzle UI, given its payload
+  index.ts     re-exports meta and Page
+```
+
+The browser finds them with `import.meta.glob`; Node finds them by reading the
+directory. Both read the same folders, so there is no manifest to fall out of
+sync, and one dynamic route (`src/routes/c/$slug.tsx`) serves all of them.
+
+**To add one:** create the directory, add its flag (and optionally hints and a
+writeup) to the answer key, and run `pnpm gen && pnpm test`. The registry, the
+route, the prerender list, the index page and the test suite all pick it up.
+
+**To remove one:** delete the directory and its answer-key entries. The registry
+audit throws at build time if the two ever disagree, so a half-removal fails
+loudly rather than rendering a broken page.
+
+Two rules the current set holds to, and which the audit does not enforce for
+you:
+
+- **The only accepted input is the flag.** No challenge asks for an intermediate
+  answer in some other format.
+- **No challenge displays its own flag, and none depends on another.** Payloads
+  encode the flag; they do not print it.
+
 ## Module map
 
 ```
@@ -248,7 +282,9 @@ scripts/answers.mjs        splices base + suffix; the single source of truth for
                            what a flag actually is
 scripts/generate.mjs       answer key -> hashes, ciphertext, puzzle payloads
 scripts/bootstrap.mjs      generates from a real key, or seeds the demo set
-scripts/selftest.mjs       solves every challenge from shipped data
+scripts/lib/encoding.mjs   transforms shared by builders and solvers
+scripts/lib/discover.mjs   the Node half of challenge discovery
+tests/                     Vitest: solvability, crypto properties, hygiene
 scripts/leak-scan.mjs      fails the build on a readable flag
 scripts/icon-lint.mjs      fails on deprecated Lucide aliases
 scripts/build-icons.mjs    one SVG geometry -> favicons, OG card, manifest

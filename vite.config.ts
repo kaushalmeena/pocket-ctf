@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
@@ -6,19 +6,15 @@ import { defineConfig } from "vite";
 import viteSolid from "vite-plugin-solid";
 
 /**
- * The unlisted page's path is minted per deployment and lives in the generated
- * payloads, which are gitignored. Reading it here keeps it out of the repo while
- * still letting the crawler-invisible route be prerendered.
+ * One dynamic route serves every challenge, so the prerenderer has to be told
+ * which slugs exist. Read from the same directories the app discovers, so a new
+ * challenge is prerendered without touching this file.
  */
-function unlistedPath() {
-  try {
-    const payloads = JSON.parse(
-      readFileSync(new URL("./src/lib/generated/payloads.json", import.meta.url), "utf8"),
-    );
-    return payloads["nowhere-to-be-found"]?.path ?? "/vault/omega";
-  } catch {
-    return "/vault/omega";
-  }
+function challengePages() {
+  const dir = fileURLToPath(new URL("./src/challenges", import.meta.url));
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => ({ path: `/c/${e.name}`, prerender: { enabled: true } }));
 }
 
 export default defineConfig({
@@ -54,9 +50,7 @@ export default defineConfig({
         crawlLinks: true,
         failOnError: true,
       },
-      // Unlisted pages are deliberately not linked from anywhere, so the
-      // crawler can't find them. They still have to ship.
-      pages: [{ path: unlistedPath(), prerender: { enabled: true } }],
+      pages: challengePages(),
     }),
     viteSolid({ ssr: true }),
     tailwindcss(),

@@ -22,9 +22,11 @@
       "~/*": ["./src/*"]
     }
   },
-  // The Node scripts in scripts/ are intentionally out of scope: they are
-  // plain .mjs build tooling, and `pnpm selftest` verifies them by actually
-  // solving every challenge from their output, which catches more than types
-  // would. src/lib/kdf.js *is* checked -- it ships to the browser.
-  "include": ["src", "vite.config.ts"]
+  // .mjs files are Node-only build tooling -- the generator, the leak scanner,
+  // and each challenge's build/solve pair. They are verified by `pnpm test`,
+  // which runs every one of them for real, and that catches more than types
+  // would. Everything that ships to the browser is .ts/.tsx and is checked,
+  // including src/lib/kdf.js.
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["**/*.mjs"]
 }

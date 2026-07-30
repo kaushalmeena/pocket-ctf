@@ -7,12 +7,10 @@ import {
   onMount,
   useContext,
 } from "solid-js";
-import type { Challenge } from "./challenges";
 import {
   checkFlag,
   computeStats,
   emptyProgress,
-  isUnlocked,
   loadProgress,
   type ProgressState,
   revealWriteup,
@@ -34,7 +32,6 @@ type Store = {
   /** Record that the player actually interacted with a puzzle. */
   noteEngagement: (slug: string, signal: string) => void;
   writeup: (slug: string) => Promise<string | null>;
-  unlocked: (challenge: Challenge) => boolean;
   reset: () => void;
   importState: (json: string) => Promise<{ ok: boolean; message: string }>;
   exportState: () => string;
@@ -171,7 +168,6 @@ export function ProgressProvider(props: { children: JSX.Element }) {
     markOpened,
     noteEngagement,
     writeup: (slug) => revealWriteup(state(), slug),
-    unlocked: (challenge) => isUnlocked(state(), challenge),
     reset,
     importState,
     exportState,

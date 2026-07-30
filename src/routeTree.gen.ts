@@ -12,18 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChallengesRouteImport } from './routes/challenges'
 import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as CChromaticAberrationRouteImport } from './routes/c/chromatic-aberration'
-import { Route as CDotsAndDashesRouteImport } from './routes/c/dots-and-dashes'
-import { Route as CFirstLightRouteImport } from './routes/c/first-light'
-import { Route as CInvisibleInkRouteImport } from './routes/c/invisible-ink'
-import { Route as CKnightsAndKnavesRouteImport } from './routes/c/knights-and-knaves'
-import { Route as CNowhereToBeFoundRouteImport } from './routes/c/nowhere-to-be-found'
-import { Route as COneFrameWindowRouteImport } from './routes/c/one-frame-window'
-import { Route as CPrimeCutsRouteImport } from './routes/c/prime-cuts'
-import { Route as CRussianDollsRouteImport } from './routes/c/russian-dolls'
-import { Route as CTheMetaKeyRouteImport } from './routes/c/the-meta-key'
-import { Route as CTheRepeatOffenderRouteImport } from './routes/c/the-repeat-offender'
-import { Route as VaultKeyRouteImport } from './routes/vault/$key'
+import { Route as CSlugRouteImport } from './routes/c/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,64 +29,9 @@ const ProgressRoute = ProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CChromaticAberrationRoute = CChromaticAberrationRouteImport.update({
-  id: '/c/chromatic-aberration',
-  path: '/c/chromatic-aberration',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CDotsAndDashesRoute = CDotsAndDashesRouteImport.update({
-  id: '/c/dots-and-dashes',
-  path: '/c/dots-and-dashes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CFirstLightRoute = CFirstLightRouteImport.update({
-  id: '/c/first-light',
-  path: '/c/first-light',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CInvisibleInkRoute = CInvisibleInkRouteImport.update({
-  id: '/c/invisible-ink',
-  path: '/c/invisible-ink',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CKnightsAndKnavesRoute = CKnightsAndKnavesRouteImport.update({
-  id: '/c/knights-and-knaves',
-  path: '/c/knights-and-knaves',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CNowhereToBeFoundRoute = CNowhereToBeFoundRouteImport.update({
-  id: '/c/nowhere-to-be-found',
-  path: '/c/nowhere-to-be-found',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const COneFrameWindowRoute = COneFrameWindowRouteImport.update({
-  id: '/c/one-frame-window',
-  path: '/c/one-frame-window',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CPrimeCutsRoute = CPrimeCutsRouteImport.update({
-  id: '/c/prime-cuts',
-  path: '/c/prime-cuts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CRussianDollsRoute = CRussianDollsRouteImport.update({
-  id: '/c/russian-dolls',
-  path: '/c/russian-dolls',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CTheMetaKeyRoute = CTheMetaKeyRouteImport.update({
-  id: '/c/the-meta-key',
-  path: '/c/the-meta-key',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CTheRepeatOffenderRoute = CTheRepeatOffenderRouteImport.update({
-  id: '/c/the-repeat-offender',
-  path: '/c/the-repeat-offender',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VaultKeyRoute = VaultKeyRouteImport.update({
-  id: '/vault/$key',
-  path: '/vault/$key',
+const CSlugRoute = CSlugRouteImport.update({
+  id: '/c/$slug',
+  path: '/c/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -105,124 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/progress': typeof ProgressRoute
-  '/c/chromatic-aberration': typeof CChromaticAberrationRoute
-  '/c/dots-and-dashes': typeof CDotsAndDashesRoute
-  '/c/first-light': typeof CFirstLightRoute
-  '/c/invisible-ink': typeof CInvisibleInkRoute
-  '/c/knights-and-knaves': typeof CKnightsAndKnavesRoute
-  '/c/nowhere-to-be-found': typeof CNowhereToBeFoundRoute
-  '/c/one-frame-window': typeof COneFrameWindowRoute
-  '/c/prime-cuts': typeof CPrimeCutsRoute
-  '/c/russian-dolls': typeof CRussianDollsRoute
-  '/c/the-meta-key': typeof CTheMetaKeyRoute
-  '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/$key': typeof VaultKeyRoute
+  '/c/$slug': typeof CSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/progress': typeof ProgressRoute
-  '/c/chromatic-aberration': typeof CChromaticAberrationRoute
-  '/c/dots-and-dashes': typeof CDotsAndDashesRoute
-  '/c/first-light': typeof CFirstLightRoute
-  '/c/invisible-ink': typeof CInvisibleInkRoute
-  '/c/knights-and-knaves': typeof CKnightsAndKnavesRoute
-  '/c/nowhere-to-be-found': typeof CNowhereToBeFoundRoute
-  '/c/one-frame-window': typeof COneFrameWindowRoute
-  '/c/prime-cuts': typeof CPrimeCutsRoute
-  '/c/russian-dolls': typeof CRussianDollsRoute
-  '/c/the-meta-key': typeof CTheMetaKeyRoute
-  '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/$key': typeof VaultKeyRoute
+  '/c/$slug': typeof CSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/challenges': typeof ChallengesRoute
   '/progress': typeof ProgressRoute
-  '/c/chromatic-aberration': typeof CChromaticAberrationRoute
-  '/c/dots-and-dashes': typeof CDotsAndDashesRoute
-  '/c/first-light': typeof CFirstLightRoute
-  '/c/invisible-ink': typeof CInvisibleInkRoute
-  '/c/knights-and-knaves': typeof CKnightsAndKnavesRoute
-  '/c/nowhere-to-be-found': typeof CNowhereToBeFoundRoute
-  '/c/one-frame-window': typeof COneFrameWindowRoute
-  '/c/prime-cuts': typeof CPrimeCutsRoute
-  '/c/russian-dolls': typeof CRussianDollsRoute
-  '/c/the-meta-key': typeof CTheMetaKeyRoute
-  '/c/the-repeat-offender': typeof CTheRepeatOffenderRoute
-  '/vault/$key': typeof VaultKeyRoute
+  '/c/$slug': typeof CSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/challenges'
-    | '/progress'
-    | '/c/chromatic-aberration'
-    | '/c/dots-and-dashes'
-    | '/c/first-light'
-    | '/c/invisible-ink'
-    | '/c/knights-and-knaves'
-    | '/c/nowhere-to-be-found'
-    | '/c/one-frame-window'
-    | '/c/prime-cuts'
-    | '/c/russian-dolls'
-    | '/c/the-meta-key'
-    | '/c/the-repeat-offender'
-    | '/vault/$key'
+  fullPaths: '/' | '/challenges' | '/progress' | '/c/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/challenges'
-    | '/progress'
-    | '/c/chromatic-aberration'
-    | '/c/dots-and-dashes'
-    | '/c/first-light'
-    | '/c/invisible-ink'
-    | '/c/knights-and-knaves'
-    | '/c/nowhere-to-be-found'
-    | '/c/one-frame-window'
-    | '/c/prime-cuts'
-    | '/c/russian-dolls'
-    | '/c/the-meta-key'
-    | '/c/the-repeat-offender'
-    | '/vault/$key'
-  id:
-    | '__root__'
-    | '/'
-    | '/challenges'
-    | '/progress'
-    | '/c/chromatic-aberration'
-    | '/c/dots-and-dashes'
-    | '/c/first-light'
-    | '/c/invisible-ink'
-    | '/c/knights-and-knaves'
-    | '/c/nowhere-to-be-found'
-    | '/c/one-frame-window'
-    | '/c/prime-cuts'
-    | '/c/russian-dolls'
-    | '/c/the-meta-key'
-    | '/c/the-repeat-offender'
-    | '/vault/$key'
+  to: '/' | '/challenges' | '/progress' | '/c/$slug'
+  id: '__root__' | '/' | '/challenges' | '/progress' | '/c/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChallengesRoute: typeof ChallengesRoute
   ProgressRoute: typeof ProgressRoute
-  CChromaticAberrationRoute: typeof CChromaticAberrationRoute
-  CDotsAndDashesRoute: typeof CDotsAndDashesRoute
-  CFirstLightRoute: typeof CFirstLightRoute
-  CInvisibleInkRoute: typeof CInvisibleInkRoute
-  CKnightsAndKnavesRoute: typeof CKnightsAndKnavesRoute
-  CNowhereToBeFoundRoute: typeof CNowhereToBeFoundRoute
-  COneFrameWindowRoute: typeof COneFrameWindowRoute
-  CPrimeCutsRoute: typeof CPrimeCutsRoute
-  CRussianDollsRoute: typeof CRussianDollsRoute
-  CTheMetaKeyRoute: typeof CTheMetaKeyRoute
-  CTheRepeatOffenderRoute: typeof CTheRepeatOffenderRoute
-  VaultKeyRoute: typeof VaultKeyRoute
+  CSlugRoute: typeof CSlugRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -248,88 +92,11 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/c/chromatic-aberration': {
-      id: '/c/chromatic-aberration'
-      path: '/c/chromatic-aberration'
-      fullPath: '/c/chromatic-aberration'
-      preLoaderRoute: typeof CChromaticAberrationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/dots-and-dashes': {
-      id: '/c/dots-and-dashes'
-      path: '/c/dots-and-dashes'
-      fullPath: '/c/dots-and-dashes'
-      preLoaderRoute: typeof CDotsAndDashesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/first-light': {
-      id: '/c/first-light'
-      path: '/c/first-light'
-      fullPath: '/c/first-light'
-      preLoaderRoute: typeof CFirstLightRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/invisible-ink': {
-      id: '/c/invisible-ink'
-      path: '/c/invisible-ink'
-      fullPath: '/c/invisible-ink'
-      preLoaderRoute: typeof CInvisibleInkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/knights-and-knaves': {
-      id: '/c/knights-and-knaves'
-      path: '/c/knights-and-knaves'
-      fullPath: '/c/knights-and-knaves'
-      preLoaderRoute: typeof CKnightsAndKnavesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/nowhere-to-be-found': {
-      id: '/c/nowhere-to-be-found'
-      path: '/c/nowhere-to-be-found'
-      fullPath: '/c/nowhere-to-be-found'
-      preLoaderRoute: typeof CNowhereToBeFoundRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/one-frame-window': {
-      id: '/c/one-frame-window'
-      path: '/c/one-frame-window'
-      fullPath: '/c/one-frame-window'
-      preLoaderRoute: typeof COneFrameWindowRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/prime-cuts': {
-      id: '/c/prime-cuts'
-      path: '/c/prime-cuts'
-      fullPath: '/c/prime-cuts'
-      preLoaderRoute: typeof CPrimeCutsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/russian-dolls': {
-      id: '/c/russian-dolls'
-      path: '/c/russian-dolls'
-      fullPath: '/c/russian-dolls'
-      preLoaderRoute: typeof CRussianDollsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/the-meta-key': {
-      id: '/c/the-meta-key'
-      path: '/c/the-meta-key'
-      fullPath: '/c/the-meta-key'
-      preLoaderRoute: typeof CTheMetaKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/c/the-repeat-offender': {
-      id: '/c/the-repeat-offender'
-      path: '/c/the-repeat-offender'
-      fullPath: '/c/the-repeat-offender'
-      preLoaderRoute: typeof CTheRepeatOffenderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vault/$key': {
-      id: '/vault/$key'
-      path: '/vault/$key'
-      fullPath: '/vault/$key'
-      preLoaderRoute: typeof VaultKeyRouteImport
+    '/c/$slug': {
+      id: '/c/$slug'
+      path: '/c/$slug'
+      fullPath: '/c/$slug'
+      preLoaderRoute: typeof CSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -339,18 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChallengesRoute: ChallengesRoute,
   ProgressRoute: ProgressRoute,
-  CChromaticAberrationRoute: CChromaticAberrationRoute,
-  CDotsAndDashesRoute: CDotsAndDashesRoute,
-  CFirstLightRoute: CFirstLightRoute,
-  CInvisibleInkRoute: CInvisibleInkRoute,
-  CKnightsAndKnavesRoute: CKnightsAndKnavesRoute,
-  CNowhereToBeFoundRoute: CNowhereToBeFoundRoute,
-  COneFrameWindowRoute: COneFrameWindowRoute,
-  CPrimeCutsRoute: CPrimeCutsRoute,
-  CRussianDollsRoute: CRussianDollsRoute,
-  CTheMetaKeyRoute: CTheMetaKeyRoute,
-  CTheRepeatOffenderRoute: CTheRepeatOffenderRoute,
-  VaultKeyRoute: VaultKeyRoute,
+  CSlugRoute: CSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

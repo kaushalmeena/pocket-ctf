@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![CI](https://img.shields.io/github/actions/workflow/status/kaushalmeena/pocket-ctf/ci.yml?logo=githubactions&logoColor=white&label=CI)](https://github.com/kaushalmeena/pocket-ctf/actions) [![Solid](https://img.shields.io/badge/Solid-1.9-2C4F7C?logo=solid&logoColor=white)](https://www.solidjs.com) [![TanStack Start](https://img.shields.io/badge/TanStack_Start-1.x-C2255C?logo=react&logoColor=white)](https://tanstack.com/start) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-0B7285?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-**Eleven security puzzles, one browser, and not a single flag in the source.**
+**Twelve security puzzles, one browser, and not a single flag in the source.**
 
 A free, open-source capture-the-flag playground that runs entirely on your
 machine — no server, no accounts, no network. Every flag is stored as a **salted
@@ -21,9 +21,9 @@ so the answers genuinely are not in the bundle you downloaded.
 
 ## Features
 
-- **Eleven hand-built challenges** — steganography, layered encodings, Morse
-  audio, propositional logic, prime factorisation, repeating-key XOR, recon and
-  browser devtools, from a fifty-point warm-up to a three-hundred-point finale.
+- **Twelve hand-built challenges** — steganography, layered encodings, Morse
+  audio, prime factorisation, repeating-key XOR, an LFSR stream cipher, a
+  bytecode VM, CSS, SVG, IndexedDB forensics and browser devtools.
 - **No plaintext flags** — each one exists only as a salted hash; the zero-width
   poem, stego PNG, prime product and XOR ciphertext are all computed *from* the
   flag, so there is nowhere for an answer to sit.
@@ -36,8 +36,11 @@ so the answers genuinely are not in the bundle you downloaded.
   two installations share an answer, so answers copied from elsewhere fail.
 - **Runs completely offline** — a folder of static HTML you can host anywhere or
   open from a USB stick. Nothing you type leaves the machine.
+- **Plug-and-play challenges** — one directory per puzzle holding its metadata,
+  builder, reference solver and page. Adding one means adding a folder; removing
+  one means deleting it. Nothing else has a list to keep in sync.
 - **Hints, points, timers and badges** — three progressive hints per challenge at
-  a cost, eleven badges, and a per-challenge timer.
+  a cost, ten badges, and a per-challenge timer.
 - **Light and dark themes** — follows your system preference until you say
   otherwise, with no flash of the wrong theme on load.
 
@@ -64,6 +67,7 @@ so the answers genuinely are not in the bundle you downloaded.
 | **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                  |
 | **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (PBKDF2, AES-GCM)  |
 | **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                    |
+| **Testing**   | [Vitest](https://vitest.dev)                                                               |
 | **Tooling**   | [Biome](https://biomejs.dev) · [pnpm](https://pnpm.io)                                     |
 | **Hosting**   | [Vercel](https://vercel.com)                                                               |
 
@@ -122,11 +126,12 @@ Your app should now be running on [localhost:3000](http://localhost:3000/).
 
 ### Testing
 
-The check that matters solves all eleven challenges from shipped data, proving
-none of them is unsolvable:
+The suite runs under [Vitest](https://vitest.dev). The tests that matter drive
+each challenge's own reference solver against the payload that actually shipped,
+so a puzzle that cannot be solved fails the build:
 
 ```bash
-pnpm selftest
+pnpm test
 ```
 
 To lint, typecheck, scan for leaked flags and run the self-test together:
@@ -171,8 +176,9 @@ required, are in [docs/architecture.md](docs/architecture.md#deployment).
 ## Roadmap
 
 - [ ] Per-browser challenge variants, so a shared flag fails for the next player
-- [ ] Ship hints sealed rather than readable in the source
 - [ ] More challenges: timing side channels, archive formats, a padding oracle
+- [x] Hints shipped sealed rather than readable in the source
+- [x] One directory per challenge, discovered automatically
 - [x] Per-deployment random flag suffixes
 - [x] Proof-of-solve tokens instead of a stored boolean
 - [x] Encrypted writeups, unlocked by solving

@@ -17,14 +17,15 @@
     "gen": "node scripts/generate.mjs",
     "gen:sample": "node scripts/generate.mjs --sample",
     "icons": "node scripts/build-icons.mjs",
-    "selftest": "node scripts/selftest.mjs",
     "verify:flags": "node scripts/leak-scan.mjs",
-    "check": "pnpm lint && pnpm lint:icons && pnpm typecheck && pnpm verify:flags && pnpm selftest",
+    "check": "pnpm lint && pnpm lint:icons && pnpm typecheck && pnpm verify:flags && pnpm test",
     "deploy:preview": "pnpm dlx vercel deploy",
     "deploy": "pnpm dlx vercel deploy --prod",
     "postinstall": "node scripts/bootstrap.mjs",
     "predev": "node scripts/bootstrap.mjs",
-    "prebuild": "node scripts/bootstrap.mjs"
+    "prebuild": "node scripts/bootstrap.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@tanstack/solid-router": "^1.170.18",
@@ -39,7 +40,8 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.2",
     "vite": "^7.1.14",
-    "vite-plugin-solid": "^2.11.10"
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=20"

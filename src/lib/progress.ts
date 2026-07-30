@@ -12,13 +12,7 @@
  * around doesn't hand the answer back.
  */
 
-import {
-  CHALLENGE_BY_SLUG,
-  CHALLENGES,
-  type Challenge,
-  pointsAfterHints,
-  REQUIRES_INTERACTION,
-} from "./challenges";
+import { CHALLENGE_BY_SLUG, CHALLENGES, pointsAfterHints } from "./challenges";
 import registry from "./generated/registry.json";
 import { derive, fromHex, normalizeFlag, PURPOSE, sha256Hex, toHex, unseal } from "./kdf.js";
 
@@ -297,11 +291,6 @@ export type Stats = {
   hintsUsed: number;
   fastestMs: number | null;
   totalTries: number;
-  /**
-   * Solves of a challenge in {@link REQUIRES_INTERACTION} that recorded no
-   * interaction at all -- the fingerprint of a flag that arrived from elsewhere.
-   */
-  unengaged: number;
   byCategory: Record<string, { solved: number; total: number }>;
 };
 
@@ -310,7 +299,6 @@ export function computeStats(state: ProgressState): Stats {
   let score = 0;
   let hintsUsed = 0;
   let totalTries = 0;
-  let unengaged = 0;
   let fastestMs: number | null = null;
 
   for (const challenge of CHALLENGES) {
@@ -323,7 +311,6 @@ export function computeStats(state: ProgressState): Stats {
     score += pointsAfterHints(challenge, record.hintsUsed);
     hintsUsed += record.hintsUsed;
     totalTries += record.tries;
-    if (REQUIRES_INTERACTION.has(challenge.slug) && record.signals?.length === 0) unengaged++;
     if (record.elapsedMs > 0 && (fastestMs === null || record.elapsedMs < fastestMs)) {
       fastestMs = record.elapsedMs;
     }
@@ -337,12 +324,6 @@ export function computeStats(state: ProgressState): Stats {
     hintsUsed,
     fastestMs,
     totalTries,
-    unengaged,
     byCategory,
   };
-}
-
-/** A challenge is playable when its prerequisites are genuinely proven. */
-export function isUnlocked(state: ProgressState, challenge: Challenge) {
-  return (challenge.requires ?? []).every((slug) => Boolean(state.solves[slug]));
 }

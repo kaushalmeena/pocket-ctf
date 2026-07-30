@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { Check, Lock, TriangleAlert } from "lucide-solid";
+import { Check, TriangleAlert } from "lucide-solid";
 import { For, Show } from "solid-js";
 import { CategoryPill, DifficultyPill } from "~/components/Pill";
 import { CHALLENGES, type Challenge, TOTAL_POINTS } from "~/lib/challenges";
@@ -10,10 +10,10 @@ export const Route = createFileRoute("/challenges")({
   component: ChallengeIndex,
   head: () =>
     pageSeo({
-      title: "All eleven challenges",
+      title: "All twelve challenges",
       description:
-        "Browse the eleven Pocket CTF challenges: steganography, ciphers, " +
-        "recon, logic, audio, maths and browser devtools, from easy to hard. " +
+        "Browse the twelve Pocket CTF challenges: steganography, ciphers, " +
+        "recon, reversing, forensics, audio, maths and browser devtools, from easy to hard. " +
         "Every puzzle runs offline in your browser.",
       path: "/challenges",
     }),
@@ -58,10 +58,9 @@ function ChallengeIndex() {
 }
 
 function Row(props: { challenge: Challenge }) {
-  const { state, unlocked, ready } = useProgress();
+  const { state } = useProgress();
 
   const record = () => state().solves[props.challenge.slug];
-  const locked = () => ready() && !unlocked(props.challenge);
   const hintsTaken = () => state().hints[props.challenge.slug] ?? 0;
 
   return (
@@ -69,7 +68,6 @@ function Row(props: { challenge: Challenge }) {
       <Link
         to={props.challenge.path}
         class="group flex items-start gap-3.5 rounded-xl border border-zinc-200 px-4 py-3.5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
-        classList={{ "opacity-60": locked() }}
       >
         <span
           aria-hidden="true"
@@ -89,12 +87,6 @@ function Row(props: { challenge: Challenge }) {
             <span class="font-medium text-zinc-900 dark:text-zinc-100">
               {props.challenge.title}
             </span>
-            <Show when={locked()}>
-              <span class="inline-flex items-center gap-1 font-mono text-[0.7rem] text-zinc-400 dark:text-zinc-600">
-                <Lock aria-hidden="true" size={10} />
-                locked
-              </span>
-            </Show>
           </span>
           <span class="mt-0.5 block text-sm text-zinc-500 dark:text-zinc-500">
             {props.challenge.tagline}
