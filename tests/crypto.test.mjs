@@ -134,3 +134,30 @@ describe("hints", () => {
     }
   });
 });
+
+describe("decoys", () => {
+  it("look like real entries but belong to no challenge", () => {
+    const phantoms = registry.$decoys ?? {};
+    expect(Object.keys(phantoms).length).toBeGreaterThan(0);
+    for (const [name, entry] of Object.entries(phantoms)) {
+      // Same shape, so dumping the JSON does not separate them at a glance.
+      expect(entry).toHaveProperty("verifySalt");
+      expect(entry).toHaveProperty("verifyHash");
+      // But no page, no payload, and no route.
+      expect(registry.order).not.toContain(name);
+    }
+  });
+
+  it("cannot be satisfied by any flag", async () => {
+    // Their verifyHash is the hash of a non-flag string, so no submission
+    // matching the flag grammar can ever validate against one.
+    for (const [name, entry] of Object.entries(registry.$decoys ?? {})) {
+      for (const slug of registry.order) {
+        const attempt = toHex(
+          await derive(normalizeFlag(flags[slug]), PURPOSE.verify, fromHex(entry.verifySalt)),
+        );
+        expect(attempt, `${slug} matched decoy ${name}`).not.toBe(entry.verifyHash);
+      }
+    }
+  });
+});

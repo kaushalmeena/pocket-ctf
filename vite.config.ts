@@ -58,5 +58,28 @@ export default defineConfig({
   build: {
     // Source maps would hand out the un-minified challenge internals.
     sourcemap: false,
+
+    /*
+     * Terser rather than the default esbuild, for two things esbuild will not
+     * do: `mangle.toplevel` renames module-level bindings, and `drop_console`
+     * removes logging outright.
+     *
+     * This is a speed bump, not a defence -- anyone determined will still read
+     * the bundle, and the design assumes they can (no flag is in it). What it
+     * changes is the cost of a casual skim: `verifyHash`, `tokenSalt` and
+     * `unsealPublic` stop being greppable names attached to obvious call sites.
+     */
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        // Two passes so the constant folding from the first can be inlined by
+        // the second; measurably smaller on a bundle this size.
+        passes: 2,
+      },
+      mangle: { toplevel: true },
+      format: { comments: false },
+    },
   },
 });

@@ -25,8 +25,8 @@
       "tokenSalt": "af444c73afa293f68dd3a8bbea1966f9",
       "tokenHash": "02e977e9e2a9da591f1b3f3e4dd6121acfa1d230c5bc798524915a8ff9dc137b",
       "sealSalt": "dc48a87a8e68f21bed55aad88fd3f132",
-      "sealIv": "6cec6ad014e5ad0a1a722902",
-      "writeup": "5371ce7eecb99c51d4af51296be1fdb75460bbcc0fc326813e992f76a4d051a621f57b0935877c27579977f0307c4aa2f679c143ef31d9813a18bc5f",
+      "sealIv": "7da596e3a85656bc6ced5b3f",
+      "writeup": "7654931c5d8ad21e4026e6158528c93d5240bd2b592f42ebbeeabe7aa01f26291aff4cc3da0af9e92b38384fe6a9f3212032018228c72d6d9a6ad717",
       "hints": []
     },
     "dots-and-dashes": {
@@ -35,8 +35,8 @@
       "tokenSalt": "5af99addf167b5342c7567c5bc494bab",
       "tokenHash": "a599f15a0057495b4a657db39fc61ba57c9bd7719bc9424bc20ac6f15e5f7038",
       "sealSalt": "42f172940d2cd709b34127883b470b17",
-      "sealIv": "e20d1fe1157285726f98a8ed",
-      "writeup": "51738d2dcfb6fa4a529a6782ac654c83b7697d990213ff184b1e35e8fdc09cd0f737a1cce2b9b6fc0dd8fca126bca601e305218a0f390fc1ff72ac10",
+      "sealIv": "2e64d38a3f9e7f41c37d9c84",
+      "writeup": "83bfd65f68cac0e2d2a82cc2e8fdff8feb6dda3c0783016ed5fe0d3d55b4db6a7a98d373b8dedf3e71c12845ceac26534a8c1e51a6f5b8b561a02eab",
       "hints": []
     },
     "feedback-loop": {
@@ -45,8 +45,8 @@
       "tokenSalt": "a1706a4dc4ed85566cb7589d46f3582d",
       "tokenHash": "f5252a51cbd53d7defb4f39d1574a8881cb3bc60694fb964450a92d1f669c269",
       "sealSalt": "5dbbe50c3ad722cd37728728016cbc9c",
-      "sealIv": "14e8d7f21d73f2b1e349534c",
-      "writeup": "3432870d3eb91db84f0b00858edb8af0eb6a26e9f5ec1c545ddd4e61dc706a386d1e25e5432b277a8d6d7ea658e930860ac542dedc704d481d99a36f",
+      "sealIv": "f1235ba4a91a7f104d8d5fa6",
+      "writeup": "4026b5027b98f74aa7c294b38fc93e9067814f89522e634ba86c26fb80bb5f1f5a73571e032716980d1aecc04ed150d9bad8ea5c025f27cee1742646",
       "hints": []
     },
     "first-light": {
@@ -55,8 +55,8 @@
       "tokenSalt": "ce6efa920486a9fa0ea25c9131e3af00",
       "tokenHash": "34d36d93cb1f5d3deeedd95d02fab14f83bfd2a91d20633b575fadfdcf3eac5e",
       "sealSalt": "e5437f78ece0c3a36ecce03a26c2e814",
-      "sealIv": "dfbdab058f05b22f91daee6e",
-      "writeup": "3e02026ff15b2ef5f9166a58321a0e5d9f97041fcf9a4480fe06f602b351d64ac08d4b1ba4f35b53088de4042c67952724a4ca7ae7729b27b69c8f53",
+      "sealIv": "06c7f811250ff6bdd53e08ee",
+      "writeup": "b2d9e6a42daac1f25c283fedd0d4f042c81caa89d53503a9377f9cd828f359b49e055e211764ca8f1fa4f38cd7444f89625bd3d663ab986d7881aa02",
       "hints": []
     },
     "instruction-set": {
@@ -65,8 +65,8 @@
       "tokenSalt": "902b889ab60262dfe86e70333ef5aa74",
       "tokenHash": "9e76b1481bf8eaea7ae9456011c0d91864033bbf5fb324d8d598982058643ebe",
       "sealSalt": "212762198faf1febbbdac449d54a4316",
-      "sealIv": "426db5714195120ae3896275",
-      "writeup": "144ac652ba3844cd8fb3e3a259b02b1a4752bf4f43aa40ce8701b000530a43ca5ce249c71624203bc2a8ac40a8f5d0708090e5b162d1faf9a906e1aa",
+      "sealIv": "a2da8c13b67116254c60f1e2",
+      "writeup": "55e10bcf089b6536e1abb5282f750ede26e094a9891e887339edef252ce5ff40c360c731be8473dc9f196f4ea9d175f833b5bb6c29dd83c106671131",
       "hints": []
     },
     "invisible-ink": {
@@ -75,8 +75,8 @@
       "tokenSalt": "2fefa44b66a8c6e3fc60d81bdfeda96e",
       "tokenHash": "d178e9744a743cb6b5e6f400ee13c98fde25f23aff60ae7434b2faac407e3278",
       "sealSalt": "015e72e40cce491354c6b470f8360f28",
-      "sealIv": "a5cd9fd3d8f1566b94ced243",
-      "writeup": "bfed46ca7b551561bff322bc9323dfbc4edc9b66b6cd0ad2cce06de75fd89e02eb8104dd8b5d8245bc3e6869fde8d4763c0f42d949fab31a68d17528",
+      "sealIv": "14534f99158b27093b245ee7",
+      "writeup": "069f8ee5efe0e10b76f4ffa33c4187b4ee644b62bd70d69e929172e2fd70fea39094eaa6b6f4c12c5d7874226d90eb08362e8f23417bf2af3d9067b5",
       "hints": []
     },
     "local-records": {
@@ -85,8 +85,8 @@
       "tokenSalt": "321b53560ad3be1a4a49376d2d4b75dd",
       "tokenHash": "da67a054b550269a6e22521327004ba5622ecb13d1d7e7ea837e21b93f45f022",
       "sealSalt": "b7002c4994ccad81e25edd2d5dc1be69",
-      "sealIv": "05c751b469ee25b729af9b19",
-      "writeup": "57ae46a70176023d9a45e3c61a1839d044bbeef1cea3dbafe8c566ac11e8e1599503220f12fcf2769f414d1c24278b4862e7515677002d5fa3110e12",
+      "sealIv": "b88bd0cb18ceed24d78c7c53",
+      "writeup": "af3b8adc61b3dc133203bf111a950b442365b6dc5d6ecd197487c525c30c32afbafa81207ffd2fb03e901da660e0f71f1ab2c5496c7cf6bca1e90ab0",
       "hints": []
     },
     "prime-cuts": {
@@ -95,8 +95,8 @@
       "tokenSalt": "d1fcef0be1dec14a347ba9681fa2f02a",
       "tokenHash": "d801d64b6e2646c340e0567a5c9d630a00cf6437ed28322c340e92b77e783b95",
       "sealSalt": "e2739ac13601186e9fc6fd44b920194d",
-      "sealIv": "101d837e17b6a723a806c51c",
-      "writeup": "98e918dccb6886471b22314c409e83fb3229fdb1e04e0dd6ce23c8850fdceb102b0abf65d8051d7abc36dbfac4e6ca5930b8ceb82145d2679fda22e1",
+      "sealIv": "99ee0b3f197ad711e9e69602",
+      "writeup": "04f018d0a7df43ccd0e26f792d8e36b76d0ec1f2ea1c98701ff0bbb6b086feb5edaa1d71100d286700e517e861569a0ec09e2d6963452aa3721fcb76",
       "hints": []
     },
     "russian-dolls": {
@@ -105,8 +105,8 @@
       "tokenSalt": "172286afb91f48f87577bba9690f8eae",
       "tokenHash": "4446084aab484d9235f00361ce7ef89fad512a1b64ff3c799bf556ec30590252",
       "sealSalt": "9c52ef47360ef77a792ab581e7cdcc77",
-      "sealIv": "9c279538c8fb7263346dd121",
-      "writeup": "20173ab6ed8193671937a59ccc5d629d481c6e70eea113a527aa0e8e47b66d3f62f10159224099668c365bebe30605e91ac0dce4060189b74118d3f7",
+      "sealIv": "6db31e4356fe17d7b7b94e05",
+      "writeup": "efb079c674ac0ebac120d0c7c005ebe6d31c9975837d13c368803dd63e3c5390c1b481725edfc0e62d4e955bf0757c4cae5628f91323d39c650b6cc5",
       "hints": []
     },
     "stylesheet-secrets": {
@@ -115,8 +115,8 @@
       "tokenSalt": "2f9873e3d1cd92309751bde595c8081b",
       "tokenHash": "cb54538ddb771bce7cbf88b9d82a97b89b082dc76fd714e2eedfe665d1d4be16",
       "sealSalt": "9d6018a5788db25358a4f428df190270",
-      "sealIv": "493c96d66eecdcc08f53f706",
-      "writeup": "267b6ead33bf893d563b0e1a751ed53eea7d639bc1280b7235a8fd8c9286fb6e19a3400657da18f648e647e8cc4b37f73301d3e95f4ca79ce0bb5ada",
+      "sealIv": "35e2020b6ea5e1d11dde5b78",
+      "writeup": "b2d6c23405339f3335a85d44857c0e7cfa427f0b5b6293ddca1c4da05760fdebd5932f899974c97fe79e508380b87e2c46bbcdeec9640a234712b752",
       "hints": []
     },
     "the-repeat-offender": {
@@ -125,8 +125,8 @@
       "tokenSalt": "59de109f40d4ef825a71979479f0eaea",
       "tokenHash": "2cc18bdb23c096e8fc2d5b33776eec24e095fa45f724f079f4f2c07dcc955d94",
       "sealSalt": "8b5ad0e0888339a593c44e5e3b7e92cb",
-      "sealIv": "99342613daee9ebb0172deb8",
-      "writeup": "57d5580af86bf5191035e4dc7b0c63e71de7b7b3f0b8c2992536ed356f70f245a3234cbe61c06768833b3b92ee8c94279d973afaadd1351329178005",
+      "sealIv": "757123953ecadd44755394f9",
+      "writeup": "9553b3fcc141b77ae4471387d3a48ae585b72d08414610a4b4c2c84e9dcdccdf11f5eb348b8fe140fccc64ba9b2dc70370b1a21961a84983830908cb",
       "hints": []
     },
     "vector-tracing": {
@@ -135,31 +135,66 @@
       "tokenSalt": "4f40bb5d251cddec0db9562e6fc932aa",
       "tokenHash": "ca5380e5b00535e71fc514600b76f631d1dfbbb5888001e0e5ee1f1eec53772a",
       "sealSalt": "a2e56e52bf7a30e1eccaec30c3b4e8eb",
-      "sealIv": "92a26d154bbea623c33fad95",
-      "writeup": "b88fd5f500dddedd19d7c112a0cda7b324fe5d4bc5f4e0433d51138831b52f3513e16e7b3c582e01d7f93a6c2126a649ffa7db53035a6a8268913fac",
+      "sealIv": "a9e74af6aea4a755fc60766a",
+      "writeup": "43134d434548a9eb49f0c00e8b876c8cc95ea6c7b1c54a32510e8403580812c2982933c36c4b74d27e57ae7e3d507387817f166b7b615ac2269393ef",
       "hints": []
     }
   },
   "honeypots": [
     {
-      "salt": "1bd30608b490c65c4e71a1f5260e6e33",
-      "hash": "bd4892e3d90727eac4d9ea0c6f10a44723aed1bdae14650e92960ccea7b021ca",
+      "salt": "9e942f3fc4eaf3437f56acc897029e95",
+      "hash": "bd594d194cb6b31bb273f7319fb5c836aee90052801c1286def36f18e6c0a192",
       "message": "That one was painted on the page in twenty-four-point type. Flags that want to be found aren't flags."
     },
     {
-      "salt": "6b0bbc2974ff1e9e18be193d41297ed8",
-      "hash": "e5ced1d00ec7ebf0522ee0705101e1e082d3e6f3a18faba474846e5cb9d1f81e",
+      "salt": "faa83362e1215600bb1813642025fcca",
+      "hash": "afc199742d02c95a29bd38ceeb22ea9f9b38e65a60a13560d961c1742b0835aa",
       "message": "Found in a source comment, was it? Comments are where developers put things they've stopped thinking about."
     },
     {
-      "salt": "0158cc2a147d59d56e7916f1a31247ef",
-      "hash": "d4b3f4c83783969da0f39487f61395e9b3ba196eddc8972178832ba89e01f745",
+      "salt": "ea09b50455dc5b2d2e0583bf3c35ad93",
+      "hash": "a77297f03e5b90fdb1032abc5e43a8511b802de04f662163c7881886348bbc76",
       "message": "A plausible-looking string in a payload file. Plausible is doing a lot of work in that sentence."
     },
     {
-      "salt": "58b2b57294cd9cd4ac6a3b6402725afa",
-      "hash": "fcfa72db47253afb72f3af6532438c7ac3d1bca3efa4143ca8d8434a54cedd23",
+      "salt": "76c94c89887ea019b5237e86ae19b275",
+      "hash": "009c8339e80914e8a39022b2b7014f013f47edb20eecc669cc60c8e187341758",
       "message": "The registry holds hashes. If a readable flag appeared there, someone put it there on purpose."
     }
-  ]
+  ],
+  "$decoys": {
+    "shader-secrets": {
+      "verifySalt": "a9ccc02d850c697f92f05c5869626f1c",
+      "verifyHash": "72e28dd2ca856f1b317e2401ddf1b04bacc757f94f1094488bf960a2b1c36378",
+      "tokenSalt": "1b8b9c752024539fc7f90f393d0af1ae",
+      "tokenHash": "277608e21269beba3a27df4019d3ec7cb67755f86c159eaaa0a15314aba9a444",
+      "sealed": {
+        "salt": "879798e30eca9ab7f2320cdc4372596d",
+        "iv": "e746b6c52e7d5d91bf3e2ac6",
+        "ct": "185c829a181dc3e362a3253fb2a53430f25b6b9b8d5c8c6254ca9350f335764a5429d1973270e7454366fdfcb3d82564b35637d4b800e94e032361b1fba15a5ad6027108ea275baa8ae7888832db08d67e37255e7d85fb56d049de3a6a90a3aa4c0256d4c34ecee36067d6c9e9df9ea53d5fb7a5e18f678dc8610e965e7388d2dde811476c1ec9594c401d3d103ea3972ada4b10"
+      }
+    },
+    "cache-poisoning": {
+      "verifySalt": "582e692321311b985e25db3ce33981f2",
+      "verifyHash": "8dced7efc665d40f621c441edbac503f1c7a4e42235d536df986c7a4fd5e8a25",
+      "tokenSalt": "8748bbe683c4d9e34c0d5f22d826096e",
+      "tokenHash": "30f6d57715792e4ebef8830ecbf21de0c4cbec8e3b3fc16ae42d6e201fe7f940",
+      "sealed": {
+        "salt": "ef5206f199a963a5a4545034762a0238",
+        "iv": "5c8b5ab4300c31dc7b4cf5dd",
+        "ct": "5ecbf69f79a7ca825dbafa69eb5e1ef6d35eac8786e6a4830ca74278b245a370863d857be8435c67ea1b7c2b394633b1741d349d53b0e1f463d4a090763e28a25400a7302d26443b5fc5a1ac2e4cc71ad0e0036e0b060031b6fc8aac522efb5c817e7191e3b2eaa20d4ef64c0544bd0b106adcb01191c3d38c8c49dc0b09712f73dae2316a208e976acf1cddc064cd40ad2f121eda2c2f7282b120"
+      }
+    },
+    "heap-snapshot": {
+      "verifySalt": "8118fec9cf5558160ac05c2fcdbc996f",
+      "verifyHash": "9b3885fb01da9f70d77ea053397f1179379c7e813ea63b980331c5b348160c4e",
+      "tokenSalt": "c6cf990c8d6754eb771497091ee87ad1",
+      "tokenHash": "02df3275354c30ea681cdfe7a215c75c72642928ab20853fb53719a4e25e5203",
+      "sealed": {
+        "salt": "9e708bbb236832d31de1fc4362c01df6",
+        "iv": "1899ebcc5f7f26f0ed926fe3",
+        "ct": "527e28c1efa1e086a6a9ed849030f36642f567c5ae51d88b700fe723a5184bdc4293cae7828218d914c3ae6bb16f0dd5f27ee33395cb14087c5e9b8f4f19ea16b090af3c1778b7c664e051f9be0c0c9f1d38c1c0eb335a9c0a220a5b29e71dabc9e8e0cc407bf166f8cefd7728549957f611d520c3b791c60cef391929e081ed6754a6060ddb11d8d9c0b3"
+      }
+    }
+  }
 }

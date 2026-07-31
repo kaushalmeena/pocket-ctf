@@ -242,6 +242,51 @@ const decoyNamed = (needle) => Object.keys(key.honeypots ?? {}).find((d) => d.in
  * Emit
  * ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ *
+ * Decoys
+ * ------------------------------------------------------------------ */
+
+/**
+ * Plausible-looking data that leads nowhere.
+ *
+ * A static analyst's first move is to dump the generated JSON and look for
+ * anything flag-shaped. These give them more to work through: entries for
+ * challenges that do not exist, carrying salts, hashes and sealed blobs in
+ * exactly the shape the real ones use.
+ *
+ * Deliberately in a separate `$decoys` key rather than mixed into each
+ * challenge's payload. Noise that slows someone reading the whole file is fair;
+ * noise inside the puzzle a player is honestly working on is not, and would make
+ * the challenges feel arbitrary rather than fair.
+ *
+ * Each decrypts, under a key derived from its own name, to a note. Someone who
+ * works that out has earned the joke rather than wasted their evening.
+ */
+const PHANTOMS = {
+  "shader-secrets":
+    "There is no shader challenge. You reversed a decoy, which is genuinely good " +
+    "practice -- the real ones are all listed on /challenges.",
+  "cache-poisoning":
+    "Also not real. Everything this site ships is reachable from the challenge " +
+    "list; nothing is hidden behind a slug you were supposed to guess.",
+  "heap-snapshot":
+    "Three for three. The registry is public by design: it holds hashes, and " +
+    "hashes are safe to publish. That is the whole idea.",
+};
+
+const decoys = {};
+for (const [name, note] of Object.entries(PHANTOMS)) {
+  const salt = rand(16);
+  decoys[name] = {
+    verifySalt: toHex(salt),
+    // A hash of something that is not a flag, so no submission can ever match.
+    verifyHash: toHex(await derive(`pocket-ctf/decoy/${name}`, PURPOSE.verify, salt)),
+    tokenSalt: toHex(rand(16)),
+    tokenHash: await sha256Hex(toHex(rand(32))),
+    sealed: await publicSeal(`pocket-ctf/decoy/${name}`, note),
+  };
+}
+
 const banner = {
   $generated: "pnpm gen -- do not edit by hand",
   $note: "Contains no plaintext flags, hints or writeups. See docs/architecture.md.",
@@ -258,6 +303,7 @@ writeFileSync(
       order,
       challenges: registry,
       honeypots,
+      $decoys: decoys,
     },
     null,
     2,
