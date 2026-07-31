@@ -19,7 +19,7 @@
  *      the puzzle encodes is caught here, rather than by a player who has solved
  *      it and is being told they are wrong.
  *
- * Requires flags.secret.json and deployment.secret.json. Run with
+ * Requires flags.secret.json and seeds.secret.json. Run with
  * `pnpm self-test`.
  */
 
@@ -49,7 +49,7 @@ if (registry.sample === true) {
 }
 
 const deployment = readDeployment(ROOT);
-if (!deployment) die("deployment.secret.json is missing -- run `pnpm gen` first.");
+if (!deployment) die("seeds.secret.json is missing -- run `pnpm gen` first.");
 
 const payloads = read("src/lib/generated/payloads.json");
 const flags = resolveFlags(readKey(ROOT), deployment.suffixes);

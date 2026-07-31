@@ -20,11 +20,11 @@ python3 -m http.server 4173 --directory dist/client
 
 Nothing exotic, but three settings are worth checking:
 
-| Setting | Why |
-| ------- | --- |
-| **Clean URLs** | Pages are emitted as `c/first-light/index.html`. Hosts that do not resolve extensionless paths to `index.html` will 404 on every challenge. |
-| **404 page** | Point it at `404.html` if your host asks. The app also renders its own not-found page for client-side navigation. |
-| **Immutable asset caching** | Everything under `/assets/` is content-hashed, so `Cache-Control: public, max-age=31536000, immutable` is safe and worth setting. |
+| Setting                     | Why                                                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Clean URLs**              | Pages are emitted as `c/first-light/index.html`. Hosts that do not resolve extensionless paths to `index.html` will 404 on every challenge. |
+| **404 page**                | Point it at `404.html` if your host asks. The app also renders its own not-found page for client-side navigation.                           |
+| **Immutable asset caching** | Everything under `/assets/` is content-hashed, so `Cache-Control: public, max-age=31536000, immutable` is safe and worth setting.           |
 
 Security headers are a host concern rather than an application one, since there
 is no server here to set them. `X-Content-Type-Options: nosniff`,
@@ -38,11 +38,11 @@ The wrinkle, on any host: a hosted build clones the repository, so the gitignore
 answer key is absent and the deploy would ship the **demo** set. Supply the same
 JSON through environment variables instead:
 
-| Variable | Contents |
-| -------- | -------- |
-| `POCKET_CTF_FLAGS` | the whole of your `flags.secret.json` |
-| `POCKET_CTF_DEPLOYMENT` | the whole of your `deployment.secret.json` |
-| `VITE_SITE_URL` | your real origin, e.g. `https://ctf.example.com` |
+| Variable           | Contents                                         |
+| ------------------ | ------------------------------------------------ |
+| `POCKET_CTF_FLAGS` | the whole of your `flags.secret.json`            |
+| `POCKET_CTF_SEEDS` | the whole of your `seeds.secret.json`            |
+| `VITE_SITE_URL`    | your real origin, e.g. `https://ctf.example.com` |
 
 Rather than minify that JSON by hand, generate the file:
 

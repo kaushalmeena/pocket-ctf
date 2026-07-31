@@ -35,7 +35,7 @@ const FLAG_RE = /pctf\{[a-z0-9_]{2,64}\}/g;
 
 const SKIP_DIRS = new Set(["node_modules", ".git"]);
 /** Only the gitignored answer key and its derivatives may hold real flags. */
-const ALLOWLIST = new Set(["flags.secret.json", "deployment.secret.json", "ANSWERS.secret.md"]);
+const ALLOWLIST = new Set(["flags.secret.json", "seeds.secret.json", "ANSWERS.secret.md"]);
 
 /**
  * Prerendered HTML carries `pctf&#123;…&#125;` where the page renders

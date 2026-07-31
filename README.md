@@ -63,13 +63,13 @@ so the answers genuinely are not in the bundle you downloaded.
 
 | Area          | Tools                                                                                     |
 | ------------- | ----------------------------------------------------------------------------------------- |
-| **Framework** | [Solid](https://www.solidjs.com) · [TanStack Start](https://tanstack.com/start)            |
-| **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                  |
-| **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (PBKDF2, AES-GCM)  |
-| **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                    |
-| **Testing**   | [Vitest](https://vitest.dev)                                                               |
-| **Tooling**   | [Biome](https://biomejs.dev) · [pnpm](https://pnpm.io)                                     |
-| **Hosting**   | Any static host — the build is a folder of files                                           |
+| **Framework** | [Solid](https://www.solidjs.com) · [TanStack Start](https://tanstack.com/start)           |
+| **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                 |
+| **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (PBKDF2, AES-GCM) |
+| **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                   |
+| **Testing**   | [Vitest](https://vitest.dev)                                                              |
+| **Tooling**   | [Biome](https://biomejs.dev) · [pnpm](https://pnpm.io)                                    |
+| **Hosting**   | Any static host — the build is a folder of files                                          |
 
 ## Getting Started
 
@@ -180,11 +180,11 @@ required and what settings a host needs, are in
 
 ## Configuration
 
-| Variable                | Default                         | Notes                                                                                                        |
-| ----------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `POCKET_CTF_FLAGS`      | `—`                             | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.           |
-| `POCKET_CTF_DEPLOYMENT` | `—`                             | The whole of `deployment.secret.json`. **Required** alongside the above, or every deploy changes your flags.   |
-| `VITE_SITE_URL`         | `http://localhost:3000`         | Your public origin, used for canonical URLs, the sitemap and social cards. **Set this for any public deploy** — `pnpm gen` warns when it is missing. |
+| Variable           | Default                 | Notes                                                                                                                                                |
+| ------------------ | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POCKET_CTF_FLAGS` | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.                                                  |
+| `POCKET_CTF_SEEDS` | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.                                              |
+| `VITE_SITE_URL`    | `http://localhost:3000` | Your public origin, used for canonical URLs, the sitemap and social cards. **Set this for any public deploy** — `pnpm gen` warns when it is missing. |
 
 ## Documentation
 

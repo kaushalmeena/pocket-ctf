@@ -12,7 +12,7 @@ dist
 flags.secret.json
 
 # Per-deployment flag suffixes, and the resolved answers derived from them.
-deployment.secret.json
+seeds.secret.json
 ANSWERS.secret.md
 
 # This deployment's generated challenge data. Committing it would publish the

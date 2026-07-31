@@ -8,7 +8,7 @@ generator, and everything the site needs falls out of it.
 
 ```
 flags.secret.json          base flags you author        (gitignored)
-deployment.secret.json     random suffix per challenge  (gitignored, generated)
+seeds.secret.json     random suffix per challenge  (gitignored, generated)
         │
         ├── scripts/answers.mjs      splices base + suffix -> the real flag
         │

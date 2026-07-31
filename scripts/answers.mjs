@@ -5,7 +5,7 @@
  *
  *   flags.secret.json        the *base* flags you authored, of the shape
  *                            pctf{some_memorable_phrase}
- *   deployment.secret.json   a random suffix per challenge, minted on first
+ *   seeds.secret.json   a random suffix per challenge, minted on first
  *                            `pnpm gen` and reused thereafter
  *
  * The flag players actually submit is the two spliced together --
@@ -50,7 +50,7 @@ const SUFFIX_LENGTH = 6;
 
 export const SECRET_KEY_FILE = "flags.secret.json";
 export const SAMPLE_KEY_FILE = "flags.sample.json";
-export const DEPLOYMENT_FILE = "deployment.secret.json";
+export const SEEDS_FILE = "seeds.secret.json";
 
 /**
  * A fresh suffix. Rejection-sampled so each character is uniform over the
@@ -85,12 +85,21 @@ export function innerOf(flag) {
  * Environment fallbacks, for building where the gitignored files cannot exist.
  *
  * A hosted build clones the repo, so `flags.secret.json` and
- * `deployment.secret.json` are simply absent. Supplying the same JSON through
+ * `seeds.secret.json` are simply absent. Supplying the same JSON through
  * environment variables is what lets a *real* instance deploy without the
  * answers ever being committed -- see docs/architecture/README.md.
  */
 export const KEY_ENV = "POCKET_CTF_FLAGS";
-export const DEPLOYMENT_ENV = "POCKET_CTF_DEPLOYMENT";
+/** Same width as {@link KEY_ENV}, so values line up in a .env. */
+export const SEEDS_ENV = "POCKET_CTF_SEEDS";
+
+/**
+ * The public origin. Not a secret, unlike the two above -- it is read by the
+ * browser bundle, which is why it keeps Vite's `VITE_` prefix. Vite only inlines
+ * prefixed variables into client code, so renaming it would need `envPrefix` in
+ * vite.config.ts and would silently resolve to undefined until that was done.
+ */
+export const URL_ENV = "VITE_SITE_URL";
 
 /** Prefer the environment, fall back to the file. */
 function readJson(path, envVar) {
@@ -114,21 +123,21 @@ export function readSampleKey(root) {
 
 export function readDeployment(root) {
   try {
-    return readJson(join(root, DEPLOYMENT_FILE), DEPLOYMENT_ENV);
+    return readJson(join(root, SEEDS_FILE), SEEDS_ENV);
   } catch {
     return null;
   }
 }
 
 export function writeDeployment(root, deployment) {
-  writeFileSync(join(root, DEPLOYMENT_FILE), `${JSON.stringify(deployment, null, 2)}\n`);
+  writeFileSync(join(root, SEEDS_FILE), `${JSON.stringify(deployment, null, 2)}\n`);
 }
 
 /**
  * Suffixes for every slug in the key, minting any that are missing.
  *
  * @param {object} key parsed flags.secret.json
- * @param {object|null} existing parsed deployment.secret.json
+ * @param {object|null} existing parsed seeds.secret.json
  * @param {boolean} rotate mint fresh suffixes for everything
  */
 export function resolveSuffixes(key, existing, rotate = false) {

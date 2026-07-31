@@ -40,7 +40,7 @@ you:
 ```
 flags.sample.json          public demo key; what a fresh clone plays
 flags.secret.json          base flags you author (gitignored)
-deployment.secret.json     this install's random suffixes (gitignored)
+seeds.secret.json     this install's random suffixes (gitignored)
 ANSWERS.secret.md          resolved flags, for whoever runs the CTF (gitignored)
 
 scripts/answers.mjs        splices base + suffix; the single source of truth for
