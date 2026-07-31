@@ -174,36 +174,10 @@ required, are in [docs/architecture/deployment.md](docs/architecture/deployment.
 | `POCKET_CTF_DEPLOYMENT` | `—`                             | The whole of `deployment.secret.json`. **Required** alongside the above, or every deploy changes your flags.   |
 | `VITE_SITE_URL`         | `https://pocket-ctf.vercel.app` | Origin used for canonical URLs, the sitemap and social cards.                                                  |
 
-## Roadmap
-
-- [ ] More challenges: timing side channels, archive formats, a padding oracle
-- [x] Per-browser challenge variants, so a shared flag usually fails for the
-      next player
-- [x] Hints shipped sealed rather than readable in the source
-- [x] One directory per challenge, discovered automatically
-- [x] Per-deployment random flag suffixes
-- [x] Proof-of-solve tokens instead of a stored boolean
-- [x] Encrypted writeups, unlocked by solving
-
-See the [open issues](https://github.com/kaushalmeena/pocket-ctf/issues) for a
-full list of proposed features and known issues.
-
-## Credits
-
-- [Lucide](https://lucide.dev) icons by the **Lucide contributors**, licensed
-  under [ISC](https://github.com/lucide-icons/lucide/blob/main/LICENSE).
-
 ## Documentation
 
-- **[Architecture](docs/architecture/README.md)** — four pages covering the
-  [build pipeline](docs/architecture/build-pipeline.md), the
-  [challenge layout](docs/architecture/challenges.md), every
-  [anti-cheat measure](docs/architecture/anti-cheat.md) with the limit it runs
-  into, and [deployment and indexing](docs/architecture/deployment.md).
-- **[Design](docs/design/README.md)** — three pages covering the
-  [foundations](docs/design/foundations.md) (colour, type, theming),
-  [motion and iconography](docs/design/motion.md), and
-  [components, accessibility and voice](docs/design/components.md).
+- **[Architecture](docs/architecture/README.md)** — how one answer key becomes hashes, ciphertext and puzzle data, how challenges are added and removed, every anti-cheat measure with the limit it runs into, and how to deploy a real instance without committing the answers.
+- **[Design](docs/design/README.md)** — the interface decisions and the reasoning behind them, covering colour and theming, motion, iconography, component patterns, accessibility and voice.
 
 ## Contributing
 
