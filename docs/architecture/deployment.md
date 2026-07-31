@@ -26,6 +26,13 @@ Nothing exotic, but three settings are worth checking:
 | **404 page**                | Point it at `404.html` if your host asks. The app also renders its own not-found page for client-side navigation.                           |
 | **Immutable asset caching** | Everything under `/assets/` is content-hashed, so `Cache-Control: public, max-age=31536000, immutable` is safe and worth setting.           |
 
+`vercel.json` in the repository root is a worked example of exactly these three
+settings, kept because that is where this instance runs. It is one host's syntax
+for host-agnostic requirements, not a dependency -- delete it and the build is
+unchanged. Without it Vercel publishes `dist` rather than `dist/client`, so the
+site lands one directory deep and every path 404s while the build still reports
+success.
+
 Security headers are a host concern rather than an application one, since there
 is no server here to set them. `X-Content-Type-Options: nosniff`,
 `Referrer-Policy: strict-origin-when-cross-origin` and a restrictive

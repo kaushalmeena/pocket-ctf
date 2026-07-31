@@ -168,7 +168,9 @@ scan against the real artifact with `pnpm build && pnpm verify:flags`.
 
 Every route is prerendered, so there is no server runtime to deploy. `pnpm build`
 writes `dist/client`, a plain folder of static files that any host will serve —
-point it at that directory, enable clean URLs, and you are done.
+point it at that directory, enable clean URLs, and you are done. `vercel.json` is
+a worked example of those settings for one host; delete it if you deploy
+elsewhere.
 
 A hosted build clones the repository, so the gitignored answer key is absent and
 the deploy would ship the demo set. Run `pnpm gen:env --url=https://your-origin` to write
