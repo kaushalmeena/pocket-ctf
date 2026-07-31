@@ -34,13 +34,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const FLAG_RE = /pctf\{[a-z0-9_]{2,64}\}/g;
 
 const SKIP_DIRS = new Set(["node_modules", ".git"]);
-/** The answer key itself, and its template, are allowed to hold flags. */
-const ALLOWLIST = new Set([
-  "flags.secret.json",
-  "flags.example.json",
-  "deployment.secret.json",
-  "ANSWERS.secret.md",
-]);
+/** Only the gitignored answer key and its derivatives may hold real flags. */
+const ALLOWLIST = new Set(["flags.secret.json", "deployment.secret.json", "ANSWERS.secret.md"]);
 
 /**
  * Prerendered HTML carries `pctf&#123;…&#125;` where the page renders
@@ -106,7 +101,21 @@ try {
 
 /* --- scan --------------------------------------------------------- */
 
-const targets = ["src", "scripts", "public", "README.md", "vite.config.ts"];
+/*
+ * `flags.sample.json` is scanned rather than allowlisted, and that is the point:
+ * it is published, so if its demo phrases ever drifted back into matching a real
+ * base flag, the scanner would catch it. Root-level files used to be skipped
+ * entirely, which is precisely where that mistake would have hidden.
+ */
+const targets = [
+  "src",
+  "scripts",
+  "public",
+  "docs",
+  "README.md",
+  "vite.config.ts",
+  "flags.sample.json",
+];
 if (statSyncSafe(join(ROOT, "dist"))) targets.push("dist");
 
 const files = targets.flatMap((t) => walk(join(ROOT, t), []));

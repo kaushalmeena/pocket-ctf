@@ -3,9 +3,12 @@ import { createSignal, onCleanup, Show } from "solid-js";
 import { useProgress } from "~/lib/store";
 import { meta } from "./meta";
 
-// biome-ignore lint/suspicious/noExplicitAny: the payload shape is this
-// challenge's own business, and pinning it here would couple every challenge
-// to one shared union.
+/**
+ * This challenge's own payload shape. Deliberately loose: pinning it here would
+ * couple every challenge to one shared union, which is the coupling the
+ * one-directory-per-challenge layout exists to remove.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: payload shape is per-challenge
 type Payload = any;
 
 export default function Page(props: { payload: Payload }) {

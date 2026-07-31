@@ -107,7 +107,8 @@ banner. To create a real instance with unguessable flags, write your own answer
 key and generate from it:
 
 ```bash
-cp flags.example.json flags.secret.json
+cp flags.sample.json flags.secret.json
+# then replace every phrase -- the demo ones are published
 pnpm gen
 ```
 
