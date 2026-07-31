@@ -44,6 +44,22 @@ JSON through environment variables instead:
 | `POCKET_CTF_DEPLOYMENT` | the whole of your `deployment.secret.json` |
 | `VITE_SITE_URL` | your real origin, e.g. `https://ctf.example.com` |
 
+Rather than minify that JSON by hand, generate the file:
+
+```bash
+pnpm gen:env --url=https://ctf.example.com
+```
+
+It reads the secrets already on your machine, writes a gitignored `.env`, and
+reads it back to confirm both values round-trip through `JSON.parse`. Paste those
+into your host's environment settings, or hand the file to a CLI that reads one.
+The values are minified and unquoted on purpose: JSON cannot contain a raw
+newline, and leaving it unquoted sidesteps the apostrophe problem, since dotenv
+only strips quotes it finds at the start of a value.
+
+That file is your plaintext answer key. Delete it once the host has what it
+needs.
+
 `scripts/bootstrap.mjs` runs on `postinstall` and `prebuild`. It generates from a
 real key when one is reachable — file or environment — and otherwise seeds the
 demo set. So `pnpm build` does the right thing locally and on any host without a

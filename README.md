@@ -171,9 +171,10 @@ writes `dist/client`, a plain folder of static files that any host will serve â€
 point it at that directory, enable clean URLs, and you are done.
 
 A hosted build clones the repository, so the gitignored answer key is absent and
-the deploy would ship the demo set. Supply the same JSON through the environment
-variables below and `scripts/bootstrap.mjs` will generate this deployment's own
-data during `prebuild`. Full details, including why both secret variables are
+the deploy would ship the demo set. Run `pnpm gen:env --url=https://your-origin` to write
+those secrets to a gitignored `.env`, hand them to your host, and
+`scripts/bootstrap.mjs` will generate this deployment's own data during
+`prebuild`. Full details, including why both secret variables are
 required and what settings a host needs, are in
 [docs/architecture/deployment.md](docs/architecture/deployment.md).
 

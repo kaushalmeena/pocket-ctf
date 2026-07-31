@@ -14,6 +14,7 @@
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
     "gen": "node scripts/generate.mjs",
+    "gen:env": "node scripts/env-write.mjs",
     "gen:sample": "node scripts/generate.mjs --sample",
     "icons": "node scripts/build-icons.mjs",
     "verify:flags": "node scripts/leak-scan.mjs",

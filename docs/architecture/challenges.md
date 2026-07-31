@@ -47,6 +47,7 @@ scripts/answers.mjs        splices base + suffix; the single source of truth for
                            what a flag actually is
 scripts/generate.mjs       answer key -> hashes, ciphertext, puzzle payloads
 scripts/bootstrap.mjs      generates from a real key, or seeds the demo set
+scripts/env-write.mjs      the secrets as a .env, for a hosted build
 scripts/lib/encoding.mjs   transforms shared by builders and solvers
 scripts/lib/discover.mjs   the Node half of challenge discovery
 tests/                     Vitest: solvability, crypto properties, hygiene
