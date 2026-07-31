@@ -92,7 +92,10 @@ try {
   // since those are what a leak would actually expose. The bases are also
   // included: a stray base flag in the bundle would hand over most of the
   // answer even though it would not validate on its own.
-  const resolved = deployment ? Object.values(resolveFlags(key, deployment.suffixes)) : [];
+  // resolveFlags returns one flag per variant, so flatten before comparing.
+  const resolved = deployment
+    ? Object.values(resolveFlags(key, deployment.suffixes)).flat()
+    : [];
   realFlags = new Set([...Object.values(key.flags ?? {}), ...resolved].map(normalizeFlag));
   haveKey = true;
 } catch {

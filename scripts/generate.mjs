@@ -305,7 +305,7 @@ for (const [name, note] of Object.entries(PHANTOMS)) {
 
 const banner = {
   $generated: "pnpm gen -- do not edit by hand",
-  $note: "Contains no plaintext flags, hints or writeups. See docs/architecture.md.",
+  $note: "Contains no plaintext flags, hints or writeups. See docs/architecture/README.md.",
 };
 
 writeFileSync(

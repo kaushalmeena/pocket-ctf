@@ -87,7 +87,7 @@ export function innerOf(flag) {
  * A hosted build clones the repo, so `flags.secret.json` and
  * `deployment.secret.json` are simply absent. Supplying the same JSON through
  * environment variables is what lets a *real* instance deploy without the
- * answers ever being committed -- see docs/architecture.md.
+ * answers ever being committed -- see docs/architecture/README.md.
  */
 export const KEY_ENV = "POCKET_CTF_FLAGS";
 export const DEPLOYMENT_ENV = "POCKET_CTF_DEPLOYMENT";

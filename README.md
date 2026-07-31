@@ -163,7 +163,7 @@ A hosted build clones the repository, so the gitignored answer key is absent and
 the deploy would ship the demo set. Supply the same JSON through the environment
 variables below and `scripts/bootstrap.mjs` will generate this deployment's own
 data during `prebuild`. Full details, including why both secret variables are
-required, are in [docs/architecture.md](docs/architecture.md#deployment).
+required, are in [docs/architecture/deployment.md](docs/architecture/deployment.md).
 
 ## Configuration
 
@@ -175,8 +175,9 @@ required, are in [docs/architecture.md](docs/architecture.md#deployment).
 
 ## Roadmap
 
-- [ ] Per-browser challenge variants, so a shared flag fails for the next player
 - [ ] More challenges: timing side channels, archive formats, a padding oracle
+- [x] Per-browser challenge variants, so a shared flag usually fails for the
+      next player
 - [x] Hints shipped sealed rather than readable in the source
 - [x] One directory per challenge, discovered automatically
 - [x] Per-deployment random flag suffixes
@@ -193,14 +194,15 @@ full list of proposed features and known issues.
 
 ## Documentation
 
-- **[Architecture](docs/architecture.md)** — how the build pipeline turns one
-  answer key into hashes, ciphertext and puzzles; every anti-cheat measure and
-  precisely what each one does not stop; how to author a challenge; and how to
-  deploy a real instance without committing the answers.
-- **[Design](docs/design.md)** — the interface decisions and the reasoning behind
-  them: why the theme switch is CSS-driven, why text colour is excluded from the
-  theme transition, how disclosures animate without JavaScript, and the
-  accessibility rules the components follow.
+- **[Architecture](docs/architecture/README.md)** — four pages covering the
+  [build pipeline](docs/architecture/build-pipeline.md), the
+  [challenge layout](docs/architecture/challenges.md), every
+  [anti-cheat measure](docs/architecture/anti-cheat.md) with the limit it runs
+  into, and [deployment and indexing](docs/architecture/deployment.md).
+- **[Design](docs/design/README.md)** — three pages covering the
+  [foundations](docs/design/foundations.md) (colour, type, theming),
+  [motion and iconography](docs/design/motion.md), and
+  [components, accessibility and voice](docs/design/components.md).
 
 ## Contributing
 
