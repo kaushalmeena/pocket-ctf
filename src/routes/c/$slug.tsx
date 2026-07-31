@@ -3,6 +3,7 @@ import { Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { pageFor } from "~/challenges/registry";
 import { ChallengeShell } from "~/components/ChallengeShell";
+import { LoadingBar } from "~/components/LoadingBar";
 import { CHALLENGE_BY_SLUG } from "~/lib/challenges";
 import payloads from "~/lib/generated/payloads.json";
 import { NO_INDEX } from "~/lib/seo";
@@ -59,9 +60,7 @@ function ChallengePage() {
         <ChallengeShell challenge={challenge}>
           <Show
             when={ready() && payload()}
-            fallback={
-              <p class="text-sm text-zinc-400 dark:text-zinc-600">Preparing your puzzle…</p>
-            }
+            fallback={<LoadingBar label="Preparing your puzzle" />}
           >
             <Dynamic component={pageFor(challenge.slug)} payload={payload()} />
           </Show>

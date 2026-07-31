@@ -33,6 +33,19 @@ because a permanent global colour transition makes ordinary hovers sluggish.
 Two smaller pieces: `animate-rise` for content that appears on demand, and
 `animate-shake` on a wrong flag, retriggered by removing and re-adding the class.
 
+**Waits get a delayed indeterminate bar.** `LoadingBar` covers the one real wait
+on a challenge page — reading storage and drawing this browser's variant — and
+does nothing for the first 120ms. That wait is usually a frame or two, and an
+indicator that appears and vanishes inside 100ms reads as a rendering glitch
+rather than as feedback. The `role="status"` region is present from the start
+regardless, so assistive tech is told immediately even when nothing is drawn.
+There is no percentage to report, so the bar sweeps rather than fills; under
+reduced motion it holds still at partial width, which still says "working".
+
+A router-level navigation bar was considered and rejected: every route is
+prerendered and preloaded on intent, so navigations finish in a frame or two and
+the bar would never legitimately appear.
+
 **Overscroll is disabled** on `html` and `body`. Challenge pages involve a lot of
 scrolling between the puzzle and the submission box, and an accidental
 pull-to-refresh mid-solve is worse than annoying — `one-frame-window` fires its

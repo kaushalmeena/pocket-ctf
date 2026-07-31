@@ -233,6 +233,20 @@
   animation: rise 0.28s ease-out both;
 }
 
+/* Indeterminate progress: a short bar sweeping the full track. */
+@keyframes sweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(360%);
+  }
+}
+
+.animate-sweep {
+  animation: sweep 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }
   30%, 70% { transform: translateX(3px); }
@@ -281,6 +295,12 @@
   .animate-rise,
   .animate-shake {
     animation: none;
+  }
+
+  /* Hold still at partial width: still reads as "working", without moving. */
+  .animate-sweep {
+    animation: none;
+    width: 40%;
   }
 
   /* Keep hover/press feedback instant rather than merely faster. */
