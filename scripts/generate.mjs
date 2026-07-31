@@ -336,10 +336,19 @@ writeFileSync(
  * the landing page and the challenge index are public, everything whose content
  * is a spoiler is not.
  */
-const siteUrl = (process.env.VITE_SITE_URL ?? "https://pocket-ctf.vercel.app").replace(
-  /\/$/,
-  "",
-);
+const siteUrl = (process.env.VITE_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+
+/*
+ * There is no host to assume: the build output is a folder of static files that
+ * can be served from anywhere. Left unset, canonical tags and the sitemap point
+ * at localhost, which is right for development and wrong the moment it ships.
+ */
+if (!sample && !process.env.VITE_SITE_URL) {
+  console.warn(
+    `! VITE_SITE_URL is unset, so canonical URLs and the sitemap point at ${siteUrl}. ` +
+      "Fine locally; set it to your real origin before deploying.",
+  );
+}
 
 writeFileSync(
   join(ROOT, "public", "robots.txt"),

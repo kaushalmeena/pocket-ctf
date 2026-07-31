@@ -13,10 +13,19 @@
  * the same thing at the crawler level.
  */
 
-/** Absolute origin, needed for canonical URLs and social card images. */
-export const SITE_URL = (
-  import.meta.env.VITE_SITE_URL ?? "https://pocket-ctf.vercel.app"
-).replace(/\/$/, "");
+/**
+ * Absolute origin, needed for canonical URLs and social card images.
+ *
+ * Defaults to localhost because there is no host to assume -- the build output
+ * is a folder of static files that can be served from anywhere. Set
+ * `VITE_SITE_URL` for any public deployment, or the canonical tags and the
+ * sitemap will point at a machine nobody else can reach. `pnpm gen` warns when
+ * it is unset.
+ */
+export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000").replace(
+  /\/$/,
+  "",
+);
 
 export const SITE_NAME = "Pocket CTF";
 

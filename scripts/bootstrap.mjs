@@ -95,10 +95,7 @@ Disallow: /c/
 
 const sitemap = join(ROOT, "public", "sitemap.xml");
 if (!existsSync(sitemap)) {
-  const site = (process.env.VITE_SITE_URL ?? "https://pocket-ctf.vercel.app").replace(
-    /\/$/,
-    "",
-  );
+  const site = (process.env.VITE_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
   writeFileSync(
     sitemap,
     `<?xml version="1.0" encoding="UTF-8"?>

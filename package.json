@@ -19,8 +19,6 @@
     "icons": "node scripts/build-icons.mjs",
     "verify:flags": "node scripts/leak-scan.mjs",
     "check": "pnpm lint && pnpm lint:icons && pnpm typecheck && pnpm verify:flags && pnpm test",
-    "deploy:preview": "pnpm dlx vercel deploy",
-    "deploy": "pnpm dlx vercel deploy --prod",
     "postinstall": "node scripts/bootstrap.mjs",
     "predev": "node scripts/bootstrap.mjs",
     "prebuild": "node scripts/bootstrap.mjs",

@@ -69,7 +69,7 @@ so the answers genuinely are not in the bundle you downloaded.
 | **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                    |
 | **Testing**   | [Vitest](https://vitest.dev)                                                               |
 | **Tooling**   | [Biome](https://biomejs.dev) · [pnpm](https://pnpm.io)                                     |
-| **Hosting**   | [Vercel](https://vercel.com)                                                               |
+| **Hosting**   | Any static host — the build is a folder of files                                           |
 
 ## Getting Started
 
@@ -155,16 +155,16 @@ scan against the real artifact with `pnpm build && pnpm verify:flags`.
 
 ## Deployment
 
-Every route is prerendered, so there is no server runtime to deploy.
-`vercel.json` sets the build command, points `outputDirectory` at `dist/client`
-and enables clean URLs; pushing to `main` is enough. `pnpm deploy` runs a
-production deploy through the Vercel CLI if you would rather not push.
+Every route is prerendered, so there is no server runtime to deploy. `pnpm build`
+writes `dist/client`, a plain folder of static files that any host will serve —
+point it at that directory, enable clean URLs, and you are done.
 
 A hosted build clones the repository, so the gitignored answer key is absent and
 the deploy would ship the demo set. Supply the same JSON through the environment
 variables below and `scripts/bootstrap.mjs` will generate this deployment's own
 data during `prebuild`. Full details, including why both secret variables are
-required, are in [docs/architecture/deployment.md](docs/architecture/deployment.md).
+required and what settings a host needs, are in
+[docs/architecture/deployment.md](docs/architecture/deployment.md).
 
 ## Configuration
 
@@ -172,7 +172,7 @@ required, are in [docs/architecture/deployment.md](docs/architecture/deployment.
 | ----------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `POCKET_CTF_FLAGS`      | `—`                             | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.           |
 | `POCKET_CTF_DEPLOYMENT` | `—`                             | The whole of `deployment.secret.json`. **Required** alongside the above, or every deploy changes your flags.   |
-| `VITE_SITE_URL`         | `https://pocket-ctf.vercel.app` | Origin used for canonical URLs, the sitemap and social cards.                                                  |
+| `VITE_SITE_URL`         | `http://localhost:3000`         | Your public origin, used for canonical URLs, the sitemap and social cards. **Set this for any public deploy** — `pnpm gen` warns when it is missing. |
 
 ## Documentation
 
