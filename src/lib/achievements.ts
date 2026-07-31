@@ -101,7 +101,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: "completionist",
     icon: Trophy,
     title: "Completionist",
-    description: "Solve all eleven challenges.",
+    description: `Solve all ${CHALLENGES.length} challenges.`,
     earned: (_, stats) => stats.solved === CHALLENGES.length,
   },
   {

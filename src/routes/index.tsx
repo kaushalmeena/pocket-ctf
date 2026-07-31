@@ -18,7 +18,7 @@ const FAQ = [
     a:
       "A CTF is a security puzzle that hides a short marker string — the flag — " +
       "somewhere you have to work to find. You submit the flag to prove you got " +
-      "there. Real competitions run for teams over a weekend; these eleven are " +
+      `there. Real competitions run for teams over a weekend; these ${CHALLENGES.length} are ` +
       "single-player and take a few minutes each.",
   },
   {
@@ -40,16 +40,16 @@ const FAQ = [
     q: "What skills do the challenges cover?",
     a:
       "Browser devtools and recon, zero-width Unicode and image steganography, " +
-      "layered encodings, Morse audio, propositional logic, prime factorisation, " +
-      "and breaking repeating-key XOR by frequency analysis.",
+      "layered encodings, Morse audio, prime factorisation, reading a small " +
+      "instruction set by hand, and breaking repeating-key XOR by frequency analysis.",
   },
   {
     q: "Can I cheat by reading the source code?",
     a:
       "Not usefully. No flag exists in plaintext anywhere in the site — each one " +
       "is stored as a salted PBKDF2 hash, and every puzzle's content is derived " +
-      "from its flag at build time. Four decoy flags are planted where a " +
-      "shortcut-taker looks first.",
+      "from its flag at build time. Decoy flags are planted where a shortcut-taker " +
+      "looks first, and the site recognises them when you submit one.",
   },
   {
     q: "Is Pocket CTF free and open source?",
@@ -86,7 +86,7 @@ function Home() {
           Capture the flag · offline · no accounts
         </p>
         <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
-          Eleven puzzles. One browser.
+          {CHALLENGES.length} puzzles. One browser.
           <br />
           <span class="text-zinc-400 dark:text-zinc-500">No server to ask for help.</span>
         </h1>
@@ -144,8 +144,9 @@ function Home() {
       <Section title="The rules, such as they are">
         <div class="grid gap-x-8 gap-y-4 sm:grid-cols-2">
           <Fact label="Flags are not in the source">
-            Not in the HTML, not in the JavaScript, not in the registry. Grep the whole bundle
-            for <code>pctf&#123;</code> and you will find four results, all four of them lies.
+            Not in the HTML, not in the JavaScript, not in the registry. Grep the bundle for{" "}
+            <code>pctf&#123;</code> and every hit is either a decoy planted for exactly that, or
+            the example in this sentence.
           </Fact>
           <Fact label="Hints cost points">
             Three per challenge, progressively less coy. Take them — a stuck player learns
@@ -188,8 +189,8 @@ function Home() {
           </For>
         </div>
         <p class="pt-3 text-sm text-zinc-500 dark:text-zinc-500">
-          {TOTAL_POINTS} points available. The eleventh needs the other ten first, and it means
-          it — its instructions are encrypted with the proof you earned solving them.
+          {TOTAL_POINTS} points available. Nothing is locked behind anything else — they run
+          roughly easiest to hardest, but start wherever you like.
         </p>
       </Section>
 

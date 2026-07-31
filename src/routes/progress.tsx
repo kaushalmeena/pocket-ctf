@@ -68,7 +68,7 @@ function ProgressPage() {
           <section class="animate-rise rounded-xl border border-accent-200 bg-accent-50/60 p-6 dark:border-accent-900 dark:bg-accent-950/40">
             <p class="flex items-center gap-2 font-mono text-xs tracking-widest text-accent-700 uppercase dark:text-accent-300">
               <PartyPopper aria-hidden="true" size={14} />
-              All eleven
+              All {stats().total}
             </p>
             <h2 class="pt-2 text-xl font-semibold text-accent-900 dark:text-accent-50">
               You finished it.

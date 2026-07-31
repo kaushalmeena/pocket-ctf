@@ -19,6 +19,7 @@
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { slugs } from "./lib/discover.mjs";
 import { encodeRaw, encodeRgba } from "./png-write.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -205,7 +206,7 @@ writeFileSync(
     {
       name: "Pocket CTF",
       short_name: "Pocket CTF",
-      description: "Eleven offline capture-the-flag puzzles that run in your browser.",
+      description: `${slugs().length} offline capture-the-flag puzzles that run in your browser.`,
       start_url: "/",
       display: "standalone",
       background_color: "#09090b",

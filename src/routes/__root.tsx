@@ -6,6 +6,7 @@ import { NotFound } from "~/components/NotFound";
 import { SampleDataNotice } from "~/components/SampleDataNotice";
 import { SiteFooter } from "~/components/SiteFooter";
 import { SiteHeader } from "~/components/SiteHeader";
+import { SITE_TAGLINE } from "~/lib/seo";
 import { ProgressProvider } from "~/lib/store";
 import { THEME_BOOTSTRAP, ThemeProvider } from "~/lib/theme";
 import appCss from "../app.css?url";
@@ -16,11 +17,9 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Pocket CTF" },
-      {
-        name: "description",
-        content:
-          "Eleven offline capture-the-flag puzzles that run entirely in your browser. No server, no accounts, no plaintext flags.",
-      },
+      // The default for routes that set no description of their own. Imported
+      // rather than written out, so the puzzle count has one home.
+      { name: "description", content: SITE_TAGLINE },
       // Deliberately no blanket `noindex` here. Indexing is decided per route
       // (see src/lib/seo.ts): the landing page and the challenge index opt in,
       // everything whose content is a spoiler opts out.

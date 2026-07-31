@@ -5,13 +5,15 @@
  * Being findable matters for the landing page, and being *unfindable* matters
  * for the challenges: an indexed challenge page puts its payload -- the
  * zero-width poem, the XOR ciphertext, the prime product -- into a search
- * cache, and an indexed writeup or unlisted page hands over answers to anyone
- * who types the right query.
+ * cache, and an indexed writeup hands over the answer to anyone who types the
+ * right query.
  *
  * So indexing is opt-in per route. Only the two pages that describe the project
  * are indexable; everything else is explicitly excluded, and robots.txt says
  * the same thing at the crawler level.
  */
+
+import { CHALLENGES } from "./challenges";
 
 /**
  * Absolute origin, needed for canonical URLs and social card images.
@@ -29,20 +31,26 @@ export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000
 
 export const SITE_NAME = "Pocket CTF";
 
-export const SITE_TAGLINE =
-  "Eleven offline capture-the-flag puzzles that run entirely in your browser.";
+/**
+ * Counted rather than written out, because this copy is the sort that quietly
+ * goes stale: it is search-engine metadata, so nothing on screen contradicts it
+ * when the number changes.
+ */
+const COUNT = CHALLENGES.length;
+
+export const SITE_TAGLINE = `${COUNT} offline capture-the-flag puzzles that run entirely in your browser.`;
 
 export const SITE_DESCRIPTION =
-  "A free, open-source capture-the-flag playground with eleven browser-based " +
-  "security puzzles covering steganography, ciphers, recon, logic and web " +
-  "devtools. No server, no accounts, no installation — and no plaintext flags " +
-  "anywhere in the source.";
+  `A free, open-source capture-the-flag playground with ${COUNT} browser-based ` +
+  "security puzzles covering steganography, ciphers, recon, reversing, forensics " +
+  "and web devtools. No server, no accounts, no installation — and no plaintext " +
+  "flags anywhere in the source.";
 
 /**
  * `noindex, nofollow` — for anything whose content is a spoiler.
  *
- * `nofollow` matters as much as `noindex` here: the meta challenge and the
- * unlisted vault page are reachable by link, and a crawler that follows them
+ * `nofollow` matters as much as `noindex` here: every challenge page is linked
+ * from the indexable challenge index, and a crawler that follows those links
  * would queue them for indexing even while honouring `noindex` on the page it
  * came from.
  */

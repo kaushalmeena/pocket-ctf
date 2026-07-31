@@ -1,7 +1,7 @@
 {
   "name": "Pocket CTF",
   "short_name": "Pocket CTF",
-  "description": "Eleven offline capture-the-flag puzzles that run in your browser.",
+  "description": "12 offline capture-the-flag puzzles that run in your browser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",
