@@ -60,11 +60,6 @@ merely faster, and drops the press transform.
 self-contained and offline. Icons are always paired with a label or carry an
 `aria-label`; none of them is the sole carrier of meaning.
 
-Deprecated Lucide aliases keep working and never warn, so they rot silently.
-`pnpm lint:icons` reads the `@deprecated` annotations out of the installed
-package and fails if a renamed alias is still imported — the list therefore
-tracks whichever version is installed rather than a hand-kept copy.
-
 The app mark is a pennant on a pole, echoing the wordmark's `flag` icon. Its
 geometry lives once in `scripts/build-icons.mjs` as normalised coordinates, and
 both the SVG writer and the rasteriser read it from there, so the favicon, the

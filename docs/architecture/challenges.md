@@ -51,7 +51,6 @@ scripts/lib/encoding.mjs   transforms shared by builders and solvers
 scripts/lib/discover.mjs   the Node half of challenge discovery
 tests/                     Vitest: solvability, crypto properties, hygiene
 scripts/leak-scan.mjs      fails the build on a readable flag
-scripts/icon-lint.mjs      fails on deprecated Lucide aliases
 scripts/build-icons.mjs    one SVG geometry -> favicons, OG card, manifest
 scripts/png-write.mjs      minimal PNG encoder, no dependencies
 
