@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/solid-router";
 import type { JSX } from "solid-js";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+import { NotFound } from "~/components/NotFound";
 import { SampleDataNotice } from "~/components/SampleDataNotice";
 import { SiteFooter } from "~/components/SiteFooter";
 import { SiteHeader } from "~/components/SiteHeader";
@@ -38,6 +39,14 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
+  /*
+   * Declared here rather than as the router's `defaultNotFoundComponent`.
+   * Router-level means the root route never matches, so its `head` -- including
+   * the stylesheet link -- is dropped on hydration and the shell is handed the
+   * notFound payload instead of an element, which rendered as "[object Object]"
+   * next to an entirely unstyled page.
+   */
+  notFoundComponent: NotFound,
   shellComponent: RootDocument,
 });
 
