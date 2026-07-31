@@ -58,4 +58,4 @@ up a fresh instance.
 
 ---
 
-Next: [Challenges](challenges.md) · [Anti-cheat](anti-cheat.md) · [Back to the index](README.md)
+Next: [Challenges](challenges.md) · [Anti-cheat](anti-cheat.md) · [Back to the index](../README.md#documentation)

@@ -174,4 +174,4 @@ honest one, and that nothing is unlocked by editing a value.
 
 ---
 
-Next: [Deployment](deployment.md) · [Build pipeline](build-pipeline.md) · [Back to the index](README.md)
+Next: [Deployment](deployment.md) · [Build pipeline](build-pipeline.md) · [Back to the index](../README.md#documentation)

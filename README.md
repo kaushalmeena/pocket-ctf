@@ -178,7 +178,7 @@ those secrets to a gitignored `.env`, hand them to your host, and
 `scripts/bootstrap.mjs` will generate this deployment's own data during
 `prebuild`. Full details, including why both secret variables are
 required and what settings a host needs, are in
-[docs/architecture/deployment.md](docs/architecture/deployment.md).
+[docs/deployment.md](docs/deployment.md).
 
 ## Configuration
 
@@ -190,8 +190,23 @@ required and what settings a host needs, are in
 
 ## Documentation
 
-- **[Architecture](docs/architecture/README.md)** — how one answer key becomes hashes, ciphertext and puzzle data, how challenges are added and removed, every anti-cheat measure with the limit it runs into, and how to deploy a real instance without committing the answers.
-- **[Design](docs/design/README.md)** — the interface decisions and the reasoning behind them, covering colour and theming, motion, iconography, component patterns, accessibility and voice.
+Full documentation is available in the [`/docs`](./docs) directory.
+
+**Core Concepts:**
+
+- [Build Pipeline](./docs/build-pipeline.md) — how `flags.secret.json` becomes hashes, ciphertext and puzzle data, and how regenerating avoids wiping progress.
+- [Challenges](./docs/challenges.md) — the one-directory-per-challenge layout, and what it takes to add or remove one.
+- [Anti-Cheat](./docs/anti-cheat.md) — all nine measures with the limit each runs into, plus what none of them stop.
+
+**Design System:**
+
+- [Foundations](./docs/foundations.md) — the principles, the single-accent colour rule, and why the theme switch is CSS-driven.
+- [Motion](./docs/motion.md) — what animates, what deliberately does not, and the icon set.
+- [Components](./docs/components.md) — the recurring patterns, the accessibility rules they follow, and the voice of the copy.
+
+**Advanced:**
+
+- [Deployment and Indexing](./docs/deployment.md) — Vercel, the environment variables that let a hosted build generate real flags, and the per-route indexing policy.
 
 ## Contributing
 

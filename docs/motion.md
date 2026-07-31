@@ -69,4 +69,4 @@ and the pennant's diagonal from stepping at 16px.
 
 ---
 
-Next: [Components](components.md) · [Foundations](foundations.md) · [Back to the index](README.md)
+Next: [Components](components.md) · [Foundations](foundations.md) · [Back to the index](../README.md#documentation)

@@ -73,4 +73,4 @@ src/routes/vault/$key.tsx  the unlisted page; path minted per deployment
 
 ---
 
-Next: [Anti-cheat](anti-cheat.md) · [Deployment](deployment.md) · [Back to the index](README.md)
+Next: [Anti-cheat](anti-cheat.md) · [Deployment](deployment.md) · [Back to the index](../README.md#documentation)

@@ -104,4 +104,4 @@ machine that a person would not want to read.
 
 ---
 
-Next: [Build pipeline](build-pipeline.md) · [Back to the index](README.md)
+Next: [Build pipeline](build-pipeline.md) · [Back to the index](../README.md#documentation)
