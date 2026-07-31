@@ -16,18 +16,21 @@ import { unsealPublic } from "./progress";
  *
  * Must match `hintSecret` in scripts/generate.mjs.
  */
-const hintSecret = (slug: string, index: number) => `pocket-ctf/hint/${slug}/${index}`;
+const hintSecret = (slug: string, variant: number, index: number) =>
+  `pocket-ctf/hint/${slug}/${variant}/${index}`;
 
 type Sealed = { salt: string; iv: string; ct: string };
 
-function sealedHints(slug: string): Sealed[] {
-  const entry = (registry.challenges as Record<string, { hints?: Sealed[] }>)[slug];
-  return entry?.hints ?? [];
+type Variants = { variants: { hints?: Sealed[] }[] };
+
+function sealedHints(slug: string, variant: number): Sealed[] {
+  const entry = (registry.challenges as Record<string, Variants>)[slug];
+  return entry?.variants[variant]?.hints ?? [];
 }
 
 /** Decrypt one hint, or null if this deployment ships none at that index. */
-export async function revealHintText(slug: string, index: number) {
-  const sealed = sealedHints(slug)[index];
+export async function revealHintText(slug: string, variant: number, index: number) {
+  const sealed = sealedHints(slug, variant)[index];
   if (!sealed) return null;
-  return unsealPublic(hintSecret(slug, index), sealed);
+  return unsealPublic(hintSecret(slug, variant, index), sealed);
 }

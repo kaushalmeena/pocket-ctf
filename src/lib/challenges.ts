@@ -29,9 +29,12 @@ export type Challenge = ChallengeMeta & {
   hintCount: number;
 };
 
+/** Every variant carries the same number of hints, so variant 0 answers this. */
 function hintCount(slug: string): number {
-  const entry = (registry.challenges as Record<string, { hints?: unknown[] }>)[slug];
-  return entry?.hints?.length ?? 0;
+  const entry = (registry.challenges as Record<string, { variants: { hints?: unknown[] }[] }>)[
+    slug
+  ];
+  return entry?.variants[0]?.hints?.length ?? 0;
 }
 
 export const CHALLENGES: Challenge[] = DISCOVERED.map((meta) => ({

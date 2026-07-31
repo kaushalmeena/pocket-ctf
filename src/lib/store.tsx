@@ -13,10 +13,12 @@ import {
   emptyProgress,
   loadProgress,
   type ProgressState,
+  pickVariant,
   revealWriteup,
   type Stats,
   type SubmitResult,
   saveProgress,
+  variantOf,
 } from "./progress";
 
 type Store = {
@@ -32,6 +34,8 @@ type Store = {
   /** Record that the player actually interacted with a puzzle. */
   noteEngagement: (slug: string, signal: string) => void;
   writeup: (slug: string) => Promise<string | null>;
+  /** Which variant of a challenge this browser drew. */
+  variant: (slug: string) => number;
   reset: () => void;
   importState: (json: string) => Promise<{ ok: boolean; message: string }>;
   exportState: () => string;
@@ -121,10 +125,23 @@ export function ProgressProvider(props: { children: JSX.Element }) {
     commit({ ...current, engaged: { ...current.engaged, [slug]: [...seen, signal] } });
   };
 
+  /**
+   * Start the clock, and draw this browser's variant of the challenge.
+   *
+   * Both happen exactly once. The variant has to be settled before the puzzle
+   * renders, since the payload shown and the flag accepted both depend on it.
+   */
   const markOpened = (slug: string) => {
     const current = state();
-    if (current.openedAt[slug]) return; // the clock starts once
-    commit({ ...current, openedAt: { ...current.openedAt, [slug]: Date.now() } });
+    if (current.openedAt[slug] && current.variants[slug] !== undefined) return;
+    commit({
+      ...current,
+      openedAt: { ...current.openedAt, [slug]: current.openedAt[slug] ?? Date.now() },
+      variants: {
+        ...current.variants,
+        [slug]: current.variants[slug] ?? pickVariant(slug),
+      },
+    });
   };
 
   const reset = () => commit(emptyProgress());
@@ -168,6 +185,7 @@ export function ProgressProvider(props: { children: JSX.Element }) {
     markOpened,
     noteEngagement,
     writeup: (slug) => revealWriteup(state(), slug),
+    variant: (slug) => variantOf(state(), slug),
     reset,
     importState,
     exportState,

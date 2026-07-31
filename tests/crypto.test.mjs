@@ -11,6 +11,14 @@ import {
 } from "../src/lib/kdf.js";
 import { answerKey, flags, isSample, registry } from "./helpers.mjs";
 
+const eachVariant = function* () {
+  for (const slug of registry.order) {
+    for (const [variant, entry] of registry.challenges[slug].variants.entries()) {
+      yield { slug, variant, entry, flag: flags[slug][variant] };
+    }
+  }
+};
+
 const rand = (n) => crypto.getRandomValues(new Uint8Array(new ArrayBuffer(n)));
 
 describe("flag normalization", () => {
@@ -58,9 +66,8 @@ describe("sealed content", () => {
 
 describe("the registry", () => {
   it("verifies each flag and no other", async () => {
-    for (const slug of registry.order) {
-      const entry = registry.challenges[slug];
-      const flag = normalizeFlag(flags[slug]);
+    for (const { entry, flag: raw } of eachVariant()) {
+      const flag = normalizeFlag(raw);
       const good = toHex(await derive(flag, PURPOSE.verify, fromHex(entry.verifySalt)));
       const bad = toHex(await derive(`${flag}x`, PURPOSE.verify, fromHex(entry.verifySalt)));
       expect(good).toBe(entry.verifyHash);
@@ -69,9 +76,8 @@ describe("the registry", () => {
   });
 
   it("stores only a digest of the proof-of-solve token", async () => {
-    for (const slug of registry.order) {
-      const entry = registry.challenges[slug];
-      const flag = normalizeFlag(flags[slug]);
+    for (const { entry, flag: raw } of eachVariant()) {
+      const flag = normalizeFlag(raw);
       const token = toHex(await derive(flag, PURPOSE.token, fromHex(entry.tokenSalt)));
       expect(await sha256Hex(token)).toBe(entry.tokenHash);
       // The token itself must not be recoverable from what ships.
@@ -81,17 +87,16 @@ describe("the registry", () => {
 
   it("will not let one challenge's token validate another", async () => {
     const [a, b] = registry.order;
-    const entryA = registry.challenges[a];
+    const entryA = registry.challenges[a].variants[0];
     const tokenA = toHex(
-      await derive(normalizeFlag(flags[a]), PURPOSE.token, fromHex(entryA.tokenSalt)),
+      await derive(normalizeFlag(flags[a][0]), PURPOSE.token, fromHex(entryA.tokenSalt)),
     );
-    expect(await sha256Hex(tokenA)).not.toBe(registry.challenges[b].tokenHash);
+    expect(await sha256Hex(tokenA)).not.toBe(registry.challenges[b].variants[0].tokenHash);
   });
 
   it("decrypts each writeup with its flag, and with nothing else", async () => {
-    for (const slug of registry.order) {
-      const entry = registry.challenges[slug];
-      const flag = normalizeFlag(flags[slug]);
+    for (const { entry, flag: raw } of eachVariant()) {
+      const flag = normalizeFlag(raw);
       const opened = await unseal(
         flag,
         fromHex(entry.sealSalt),
@@ -107,15 +112,20 @@ describe("the registry", () => {
 });
 
 describe("hints", () => {
-  const hintSecret = (slug, index) => `pocket-ctf/hint/${slug}/${index}`;
+  const hintSecret = (slug, variant, index) => `pocket-ctf/hint/${slug}/${variant}/${index}`;
 
-  it("decrypt to the authored text", async () => {
-    for (const slug of registry.order) {
-      const sealed = registry.challenges[slug].hints ?? [];
+  it("decrypt to the authored text, in every variant", async () => {
+    for (const { slug, variant, entry } of eachVariant()) {
+      const sealed = entry.hints ?? [];
       const authored = answerKey.hints?.[slug] ?? [];
       expect(sealed.length).toBe(authored.length);
       for (const [i, h] of sealed.entries()) {
-        const text = await unseal(hintSecret(slug, i), fromHex(h.salt), h.ct, fromHex(h.iv));
+        const text = await unseal(
+          hintSecret(slug, variant, i),
+          fromHex(h.salt),
+          h.ct,
+          fromHex(h.iv),
+        );
         expect(text).toBe(authored[i]);
       }
     }
@@ -129,8 +139,8 @@ describe("hints", () => {
   });
 
   it.skipIf(isSample)("exist for every challenge in a real deployment", () => {
-    for (const slug of registry.order) {
-      expect(registry.challenges[slug].hints.length).toBeGreaterThan(0);
+    for (const { entry } of eachVariant()) {
+      expect(entry.hints.length).toBeGreaterThan(0);
     }
   });
 });
@@ -152,9 +162,9 @@ describe("decoys", () => {
     // Their verifyHash is the hash of a non-flag string, so no submission
     // matching the flag grammar can ever validate against one.
     for (const [name, entry] of Object.entries(registry.$decoys ?? {})) {
-      for (const slug of registry.order) {
+      for (const { slug, flag } of eachVariant()) {
         const attempt = toHex(
-          await derive(normalizeFlag(flags[slug]), PURPOSE.verify, fromHex(entry.verifySalt)),
+          await derive(normalizeFlag(flag), PURPOSE.verify, fromHex(entry.verifySalt)),
         );
         expect(attempt, `${slug} matched decoy ${name}`).not.toBe(entry.verifyHash);
       }

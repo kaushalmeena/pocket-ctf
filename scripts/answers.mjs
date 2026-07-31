@@ -28,6 +28,22 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+/**
+ * How many variants of each challenge ship.
+ *
+ * Every browser draws one per challenge, so a flag passed between players only
+ * works if both happened to draw the same one -- (N-1)/N of the time it simply
+ * fails. Four is a deliberate middle: the payload data multiplies by this, and
+ * the stego PNG is the largest at ~12 KB apiece.
+ *
+ * Be clear about the ceiling. All N verification hashes have to ship, or the
+ * client could not check a submission at all, so someone willing to script it
+ * can hash a borrowed flag against each variant's salt and find the match in
+ * about N x 300 ms. This stops sharing in a group chat; it does not stop
+ * someone determined. See docs/architecture/anti-cheat.md.
+ */
+export const VARIANT_COUNT = 4;
+
 /** Suffix alphabet, kept inside the `[a-z0-9_]` flag grammar. */
 const ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
 const SUFFIX_LENGTH = 6;
@@ -119,25 +135,33 @@ export function resolveSuffixes(key, existing, rotate = false) {
   const previous = rotate ? {} : (existing?.suffixes ?? {});
   const suffixes = {};
   let minted = 0;
+
   for (const slug of Object.keys(key.flags)) {
-    const kept = previous[slug];
-    if (typeof kept === "string" && kept.length > 0) {
-      suffixes[slug] = kept;
-    } else {
-      suffixes[slug] = mintSuffix();
+    // Older deployment files held one suffix per slug rather than a list.
+    const kept = Array.isArray(previous[slug])
+      ? previous[slug]
+      : typeof previous[slug] === "string"
+        ? [previous[slug]]
+        : [];
+
+    suffixes[slug] = Array.from({ length: VARIANT_COUNT }, (_, i) => {
+      if (typeof kept[i] === "string" && kept[i].length > 0) return kept[i];
       minted++;
-    }
+      return mintSuffix();
+    });
   }
   return { suffixes, minted };
 }
 
-/** `{ slug: resolvedFlag }` for the whole key. */
+/** `{ slug: [flagForVariant0, flagForVariant1, ...] }` for the whole key. */
 export function resolveFlags(key, suffixes) {
   return Object.fromEntries(
     Object.entries(key.flags).map(([slug, base]) => {
-      const suffix = suffixes[slug];
-      if (!suffix) throw new Error(`no deployment suffix for "${slug}" -- run pnpm gen`);
-      return [slug, applySuffix(base, suffix)];
+      const list = suffixes[slug];
+      if (!Array.isArray(list) || list.length === 0) {
+        throw new Error(`no deployment suffixes for "${slug}" -- run pnpm gen`);
+      }
+      return [slug, list.map((suffix) => applySuffix(base, suffix))];
     }),
   );
 }

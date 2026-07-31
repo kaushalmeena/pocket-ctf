@@ -37,6 +37,7 @@ import {
   readSampleKey,
   resolveFlags,
   resolveSuffixes,
+  VARIANT_COUNT,
   writeDeployment,
 } from "./answers.mjs";
 import { builderFor, slugs } from "./lib/discover.mjs";
@@ -74,7 +75,7 @@ async function publicSeal(secret, plaintext) {
 }
 
 /** Key material for hint N. Mirrored in src/lib/hints.ts. */
-const hintSecret = (slug, index) => `pocket-ctf/hint/${slug}/${index}`;
+const hintSecret = (slug, variant, index) => `pocket-ctf/hint/${slug}/${variant}/${index}`;
 
 /* ------------------------------------------------------------------ *
  * Answer key
@@ -99,7 +100,15 @@ const existingDeployment = sample ? null : readDeployment(ROOT);
 // The demo set uses a fixed, obvious suffix: reproducible so regenerating does
 // not churn the committed files, and visible so nobody mistakes it for live.
 const { suffixes, minted } = sample
-  ? { suffixes: Object.fromEntries(order.map((s) => [s, "sample"])), minted: 0 }
+  ? {
+      suffixes: Object.fromEntries(
+        order.map((s) => [
+          s,
+          Array.from({ length: VARIANT_COUNT }, (_, i) => (i === 0 ? "sample" : `sample${i}`)),
+        ]),
+      ),
+      minted: 0,
+    }
   : resolveSuffixes(key, existingDeployment, rotate);
 
 const flags = resolveFlags(key, suffixes);
@@ -139,8 +148,8 @@ if (!rotate) {
   }
 }
 
-async function saltsFor(slug, flag) {
-  const old = previous?.[slug];
+async function saltsFor(slug, variant, flag) {
+  const old = previous?.[slug]?.variants?.[variant];
   if (old?.verifySalt && old?.tokenSalt && old?.sealSalt) {
     const stillValid =
       toHex(await derive(flag, PURPOSE.verify, fromHex(old.verifySalt))) === old.verifyHash;
@@ -170,51 +179,58 @@ const payloads = {};
 let reusedCount = 0;
 
 for (const slug of order) {
-  const flag = normalizeFlag(flags[slug]);
-  if (!/^pctf\{[a-z0-9_]+\}$/.test(flag)) {
-    throw new Error(`${slug}: flag must match pctf{[a-z0-9_]+} -- got "${flag}"`);
-  }
-
-  const { verifySalt, tokenSalt, sealSalt, reused } = await saltsFor(slug, flag);
-  if (reused) reusedCount++;
-
-  // Always fresh, even when the salts are reused: encrypting different
-  // plaintext under the same AES-GCM key and nonce is a real break, and the
-  // writeup is exactly what changes between runs.
-  const sealIv = rand(12);
-
-  const token = toHex(await derive(flag, PURPOSE.token, tokenSalt));
-  const writeup = key.writeups?.[slug] ?? "_No writeup was written for this challenge._";
-
-  /*
-   * Hints ship encrypted rather than as plaintext strings.
-   *
-   * A hint must be readable *before* the challenge is solved, so its key cannot
-   * depend on the flag -- it comes from the slug and index, both public. This is
-   * obfuscation, not secrecy. What it buys is that the text is not in the
-   * repository, and that taking a hint means clicking the button that charges
-   * you points for it.
-   */
-  const hints = [];
-  for (const [i, text] of (key.hints?.[slug] ?? []).entries()) {
-    hints.push(await publicSeal(hintSecret(slug, i), text));
-  }
-
-  registry[slug] = {
-    verifySalt: toHex(verifySalt),
-    verifyHash: toHex(await derive(flag, PURPOSE.verify, verifySalt)),
-    tokenSalt: toHex(tokenSalt),
-    // sha256 of the token, not the token: a tampered localStorage entry cannot
-    // be made to validate without deriving the token, which needs the flag.
-    tokenHash: await sha256Hex(token),
-    sealSalt: toHex(sealSalt),
-    sealIv: toHex(sealIv),
-    writeup: await seal(flag, sealSalt, writeup, sealIv),
-    hints,
-  };
-
   const { build } = await builderFor(slug);
-  payloads[slug] = await build({ flag, seal: publicSeal, slug });
+  const variants = [];
+  const payloadVariants = [];
+
+  for (const [variant, resolved] of flags[slug].entries()) {
+    const flag = normalizeFlag(resolved);
+    if (!/^pctf\{[a-z0-9_]+\}$/.test(flag)) {
+      throw new Error(`${slug}: flag must match pctf{[a-z0-9_]+} -- got "${flag}"`);
+    }
+
+    const { verifySalt, tokenSalt, sealSalt, reused } = await saltsFor(slug, variant, flag);
+    if (reused) reusedCount++;
+
+    // Always fresh, even when the salts are reused: encrypting different
+    // plaintext under the same AES-GCM key and nonce is a real break, and the
+    // writeup is exactly what changes between runs.
+    const sealIv = rand(12);
+    const token = toHex(await derive(flag, PURPOSE.token, tokenSalt));
+    const writeup = key.writeups?.[slug] ?? "_No writeup was written for this challenge._";
+
+    /*
+     * Hints ship encrypted rather than as plaintext strings.
+     *
+     * A hint must be readable *before* the challenge is solved, so its key
+     * cannot depend on the flag -- it comes from the slug, variant and index,
+     * all of which the browser knows. This is obfuscation, not secrecy. What it
+     * buys is that the text is not in the repository, and that taking a hint
+     * means clicking the button that charges you points for it.
+     */
+    const hints = [];
+    for (const [i, text] of (key.hints?.[slug] ?? []).entries()) {
+      hints.push(await publicSeal(hintSecret(slug, variant, i), text));
+    }
+
+    variants.push({
+      verifySalt: toHex(verifySalt),
+      verifyHash: toHex(await derive(flag, PURPOSE.verify, verifySalt)),
+      tokenSalt: toHex(tokenSalt),
+      // sha256 of the token, not the token: a tampered localStorage entry cannot
+      // be made to validate without deriving the token, which needs the flag.
+      tokenHash: await sha256Hex(token),
+      sealSalt: toHex(sealSalt),
+      sealIv: toHex(sealIv),
+      writeup: await seal(flag, sealSalt, writeup, sealIv),
+      hints,
+    });
+
+    payloadVariants.push(await build({ flag, seal: publicSeal, slug, variant }));
+  }
+
+  registry[slug] = { variants };
+  payloads[slug] = { variants: payloadVariants };
 }
 
 /* ------------------------------------------------------------------ *
@@ -380,9 +396,15 @@ if (!sample) {
       "deployment's flags. Suffixes come from `deployment.secret.json`; changing",
       "that file (or running `pnpm gen --rotate`) changes every flag below.",
       "",
-      "| # | Challenge | Flag |",
-      "| - | --------- | ---- |",
-      ...order.map((slug, i) => `| ${i + 1} | ${slug} | \`${flags[slug]}\` |`),
+      `Each challenge ships ${VARIANT_COUNT} variants and every browser draws one at`,
+      "random, so any of the flags listed for a challenge is correct -- for the",
+      "player who happened to draw that variant.",
+      "",
+      "| Challenge | Variant | Flag |",
+      "| --------- | ------- | ---- |",
+      ...order.flatMap((slug) =>
+        flags[slug].map((flag, v) => `| ${slug} | ${v} | \`${flag}\` |`),
+      ),
       "",
     ].join("\n"),
   );

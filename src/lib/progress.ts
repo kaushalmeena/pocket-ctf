@@ -15,6 +15,7 @@
 import { CHALLENGE_BY_SLUG, CHALLENGES, pointsAfterHints } from "./challenges";
 import registry from "./generated/registry.json";
 import { derive, fromHex, normalizeFlag, PURPOSE, sha256Hex, toHex, unseal } from "./kdf.js";
+import { storage } from "./storage";
 
 const STORAGE_KEY = "pctf:progress";
 const SCHEMA_VERSION = 2;
@@ -31,6 +32,8 @@ export type SolveRecord = {
   hintsUsed: number;
   /** Time from first visit to solve, in ms. */
   elapsedMs: number;
+  /** Which variant was solved. Absent on records predating variants. */
+  variant?: number;
   /**
    * Interactions with the puzzle observed before solving -- pressing play on the
    * morse audio, copying the poem, and so on.
@@ -56,6 +59,16 @@ export type ProgressState = {
   attempts: Record<string, { wrong: number; lastAt: number }>;
   /** Puzzle interactions seen per challenge, deduplicated. */
   engaged: Record<string, string[]>;
+  /**
+   * Which variant of each challenge this browser drew.
+   *
+   * Every challenge ships several, each with its own flag and its own puzzle
+   * data, and one is chosen at random the first time a challenge is opened. A
+   * flag passed between players therefore only validates if both happened to
+   * draw the same variant. See docs/architecture/anti-cheat.md for what this
+   * does and does not buy.
+   */
+  variants: Record<string, number>;
   /** Honeypot flags submitted. Presence of any is its own little badge. */
   decoysTripped: number;
   createdAt: number;
@@ -69,15 +82,38 @@ export function emptyProgress(): ProgressState {
     openedAt: {},
     attempts: {},
     engaged: {},
+    variants: {},
     decoysTripped: 0,
     createdAt: Date.now(),
   };
 }
 
-type RegistryEntry = (typeof registry.challenges)[keyof typeof registry.challenges];
+type ChallengeEntry = (typeof registry.challenges)[keyof typeof registry.challenges];
+type RegistryEntry = ChallengeEntry["variants"][number];
 
-function entryFor(slug: string): RegistryEntry | undefined {
-  return (registry.challenges as Record<string, RegistryEntry>)[slug];
+/** How many variants this deployment shipped for a challenge. */
+export function variantCount(slug: string): number {
+  return (registry.challenges as Record<string, ChallengeEntry>)[slug]?.variants.length ?? 0;
+}
+
+/** Pick one at random. Called once per challenge, on first open. */
+export function pickVariant(slug: string): number {
+  const count = variantCount(slug);
+  if (count <= 1) return 0;
+  // Rejection-free is fine here: the bias from a 2^32 modulus over a handful of
+  // variants is far below anything that matters for picking a puzzle.
+  const [draw] = crypto.getRandomValues(new Uint32Array(1));
+  return (draw ?? 0) % count;
+}
+
+function entryFor(slug: string, variant: number): RegistryEntry | undefined {
+  const challenge = (registry.challenges as Record<string, ChallengeEntry>)[slug];
+  return challenge?.variants[variant];
+}
+
+/** The variant this browser drew, defaulting to the first. */
+export function variantOf(state: ProgressState, slug: string): number {
+  return state.variants[slug] ?? 0;
 }
 
 /* ------------------------------------------------------------------ *
@@ -97,7 +133,7 @@ export async function loadProgress(): Promise<{
   const rejected: string[] = [];
   let parsed: Partial<ProgressState> | null = null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = storage.get(STORAGE_KEY);
     if (raw) parsed = JSON.parse(raw);
   } catch {
     parsed = null;
@@ -107,7 +143,7 @@ export async function loadProgress(): Promise<{
   const state: ProgressState = { ...emptyProgress(), ...parsed, solves: {} };
 
   for (const [slug, record] of Object.entries(parsed.solves ?? {})) {
-    const entry = entryFor(slug);
+    const entry = entryFor(slug, record?.variant ?? state.variants[slug] ?? 0);
     if (!entry || typeof record?.token !== "string") {
       rejected.push(slug);
       continue;
@@ -125,12 +161,7 @@ export async function loadProgress(): Promise<{
 }
 
 export function saveProgress(state: ProgressState) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Private browsing, quota, or a disabled store. The game still plays;
-    // it just won't be there tomorrow.
-  }
+  storage.set(STORAGE_KEY, JSON.stringify(state));
 }
 
 /* ------------------------------------------------------------------ *
@@ -178,7 +209,8 @@ export async function checkFlag(
   input: string,
 ): Promise<SubmitResult> {
   const challenge = CHALLENGE_BY_SLUG[slug];
-  const entry = entryFor(slug);
+  const variant = variantOf(state, slug);
+  const entry = entryFor(slug, variant);
   if (!challenge || !entry) return { status: "unknown-challenge" };
   if (state.solves[slug]) return { status: "already" };
 
@@ -206,6 +238,7 @@ export async function checkFlag(
       tries: state.attempts[slug]?.wrong ?? 0,
       hintsUsed,
       elapsedMs: Math.max(0, Date.now() - openedAt),
+      variant,
       signals: state.engaged[slug] ?? [],
     };
     return { status: "solved", record, points: pointsAfterHints(challenge, hintsUsed) };
@@ -234,8 +267,8 @@ export async function revealWriteup(
   state: ProgressState,
   slug: string,
 ): Promise<string | null> {
-  const entry = entryFor(slug);
   const record = state.solves[slug];
+  const entry = entryFor(slug, record?.variant ?? variantOf(state, slug));
   if (!entry || !record) return null;
   return unsealWithKey(record.sealKey, entry.writeup, entry.sealIv);
 }

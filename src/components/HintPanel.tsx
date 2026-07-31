@@ -5,7 +5,7 @@ import { revealHintText } from "~/lib/hints";
 import { useProgress } from "~/lib/store";
 
 export function HintPanel(props: { challenge: Challenge }) {
-  const { state, revealHint } = useProgress();
+  const { state, revealHint, variant } = useProgress();
 
   /**
    * Decrypted hint text, keyed by index.
@@ -25,7 +25,11 @@ export function HintPanel(props: { challenge: Challenge }) {
 
   const load = async (index: number) => {
     if (text()[index] !== undefined) return;
-    const decrypted = await revealHintText(props.challenge.slug, index);
+    const decrypted = await revealHintText(
+      props.challenge.slug,
+      variant(props.challenge.slug),
+      index,
+    );
     setText((prev) => ({ ...prev, [index]: decrypted ?? "This hint could not be decrypted." }));
   };
 

@@ -22,10 +22,18 @@ export const isSample = registry.sample === true;
 
 const key = isSample ? readSampleKey(ROOT) : readKey(ROOT);
 
+/** How many variants this deployment shipped. */
+export const variantCount = registry.challenges[registry.order[0]].variants.length;
+
 const suffixes = isSample
-  ? Object.fromEntries(registry.order.map((s) => [s, "sample"]))
+  ? Object.fromEntries(
+      registry.order.map((s) => [
+        s,
+        Array.from({ length: variantCount }, (_, i) => (i === 0 ? "sample" : `sample${i}`)),
+      ]),
+    )
   : (readDeployment(ROOT)?.suffixes ?? {});
 
-/** `{ slug: resolvedFlag }` for this deployment. */
+/** `{ slug: [flagPerVariant] }` for this deployment. */
 export const flags = resolveFlags(key, suffixes);
 export const answerKey = key;

@@ -7,6 +7,7 @@ import {
   onMount,
   useContext,
 } from "solid-js";
+import { storage } from "./storage";
 
 export type Theme = "light" | "dark";
 
@@ -61,7 +62,7 @@ export function ThemeProvider(props: { children: JSX.Element }) {
      * make an ordinary page load cross-fade its colours as though someone had
      * hit the switch.
      */
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    const stored = storage.get(STORAGE_KEY) as Theme | null;
     setFollowsSystem(stored === null);
     setTheme(stored ?? (mq.matches ? "dark" : "light"));
 
@@ -75,7 +76,7 @@ export function ThemeProvider(props: { children: JSX.Element }) {
 
   const toggle = () => {
     const next: Theme = theme() === "dark" ? "light" : "dark";
-    localStorage.setItem(STORAGE_KEY, next);
+    storage.set(STORAGE_KEY, next);
     setFollowsSystem(false);
     apply(next);
   };
