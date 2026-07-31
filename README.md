@@ -135,11 +135,22 @@ so a puzzle that cannot be solved fails the build:
 pnpm test
 ```
 
-To lint, typecheck, scan for leaked flags and run the self-test together:
+To lint, typecheck, scan for leaked flags and run the suite together:
 
 ```bash
 pnpm check
 ```
+
+`pnpm check` runs against whatever challenge data is live, which on a fresh clone
+is the committed demo set. Once you have generated your own flags, verify *that*
+deployment — every challenge solved from its shipped payload, and every answer
+put through the same check the browser performs:
+
+```bash
+pnpm self-test
+```
+
+It refuses to run on the demo set, so a green result is always about your flags.
 
 ### Building
 

@@ -22,6 +22,7 @@
     "predev": "node scripts/bootstrap.mjs",
     "prebuild": "node scripts/bootstrap.mjs",
     "test": "vitest run",
+    "self-test": "node scripts/self-test.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {

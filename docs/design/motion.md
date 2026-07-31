@@ -48,8 +48,8 @@ the bar would never legitimately appear.
 
 **Overscroll is disabled** on `html` and `body`. Challenge pages involve a lot of
 scrolling between the puzzle and the submission box, and an accidental
-pull-to-refresh mid-solve is worse than annoying — `one-frame-window` fires its
-reveal on load.
+pull-to-refresh mid-solve throws away work — several puzzles build state in the
+page that a reload discards.
 
 `prefers-reduced-motion: reduce` collapses all of it to near-instant rather than
 merely faster, and drops the press transform.

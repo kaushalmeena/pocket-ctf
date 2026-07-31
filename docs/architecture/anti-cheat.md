@@ -120,25 +120,26 @@ sharer's client can derive too and hand over with the flag. Worse, if the client
 could *compute* its own flag, the flag would exist in the client, which destroys
 the property everything else rests on.
 
-Two things help, and one does not:
+One thing helps, and one does not:
 
 - **Doesn't help: a per-browser identity.** Anything in localStorage is
   transferable, so binding a flag to a browser id just means sharing the id too.
 - **Helps a little: shipping N variants** of each challenge and picking one per
   browser. A borrowed flag then fails unless both players drew the same variant.
-  It is an N-fold speed bump rather than a wall — the variant index lives in
-  localStorage and can be edited — and it multiplies the payload budget and the
-  authoring work. Not implemented; it is the obvious next step if you need it.
-- **Implemented: recording proof of engagement.** Two challenges cannot yield
-  their flag without an interaction the app observes — exchanging the verdicts,
-  and loading the unlisted page. Solving either with nothing recorded is the
-  signature of a flag from elsewhere, and the progress page labels it *hands
-  off*. It also gates the **Hands On** badge.
+  This is implemented — four variants each, so a shared flag is wrong three times
+  in four.
 
-That last one is a fingerprint, not a lock. Only the two unambiguous challenges
-are judged: the Morse timings can legitimately be read instead of heard, and the
-one-frame reveal can be breakpointed on first load without pressing replay, so
-treating a missing interaction as suspicious there would libel honest players.
+Be clear about how weak that is. It is an N-fold speed bump rather than a wall,
+for two reasons that cannot be engineered away here. The variant index lives in
+localStorage, so a determined player can edit it to match a friend's. And all
+four verification hashes have to ship, because any browser might draw any
+variant — so the answer to "is this the flag for *some* variant" is always
+present in the bundle. What variants really buy is that casually passing a flag
+to the person next to you usually fails, which is the common case.
+
+The cost is real too: four variants means four payloads per challenge and four
+times the generation work, which is why `VARIANT_COUNT` is a knob in
+`scripts/answers.mjs` rather than a hardcoded number.
 
 **If you need sharing actually prevented, you need a server.** It can issue
 per-player flags, hold the check where the client cannot see it, rate-limit
@@ -156,14 +157,14 @@ Being explicit about the boundary:
 - **Someone with the repo can read `flags.secret.json`** if you give them the
   file. Don't.
 - **Someone determined can read the bundle and reimplement a challenge's
-  decryption.** For `one-frame-window` that *is* the intended solve.
-- **Hints are readable in `src/lib/challenges.ts`.** They cost points in the app
-  and nothing in the repo. Moving them into the answer key and shipping them
-  sealed would fix it; it is the largest remaining gap.
-- **`scripts/selftest.mjs` is a working solver for all eleven.** That is a
-  spoiler rather than a hole now that live payloads aren't committed — the
-  solvers need data only the deployed site has — but read it and you have read
-  the answers.
+  decoding.** For several of these that *is* the intended solve; the puzzle is
+  the transform, not its concealment.
+- **Every challenge ships a working solver, in `src/challenges/<slug>/solve.mjs`.**
+  Those are spoilers rather than holes — they need the payload a deployment
+  generates, which is not committed — but read one and you have read that
+  challenge's answer.
+- **The variant you drew is visible.** It is a localStorage integer, so a player
+  can see which of the four they got and change it. See above.
 - **The submission throttle is client-side.** Anyone willing to call the
   derivation directly skips it. The 310,000 rounds are the real cost; the backoff
   only slows the lazy path.

@@ -18,10 +18,6 @@ content in a fixed-width box fixes it.
 a disclosure, so it behaves like one for keyboard and assistive tech, and it picks
 up the animated height for free. Decryption happens in `onToggle`, on first open.
 
-**Masks match what they hide.** The one-frame reveal's placeholder is built from
-the flag's length, so the text swaps into precisely the bar's footprint — no
-reflow, and one less tell about when the reveal happened.
-
 ## Accessibility
 
 - Every icon-only control has an `aria-label`; the theme switch is a
