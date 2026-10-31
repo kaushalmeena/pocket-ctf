@@ -51,7 +51,7 @@ export const rot13 = (s) =>
 
 export const b64 = (s) => Buffer.from(s, "utf8").toString("base64");
 export const unb64 = (s) => Buffer.from(s, "base64").toString("utf8");
-export const reverse = (s) => [...s].reverse().join("");
+export const reverse = (s) => [...s].toReversed().join("");
 
 /** @param {string} s @returns {string} bits, MSB first, 8 per character */
 export const toBits = (s) =>

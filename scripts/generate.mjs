@@ -20,6 +20,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import {
   derive,
   fromHex,
@@ -420,14 +421,12 @@ if (!sample) {
 }
 
 const rel = (f) => relative(ROOT, join(OUT_DIR, f));
-console.log(
-  `✔ ${order.length} challenges, ${honeypots.length} decoys` +
-    (sample
-      ? " -- SAMPLE set, flags end in _sample and are public"
-      : rotate
-        ? " -- suffixes and salts ROTATED: every flag changed, all progress invalid"
-        : `, ${reusedCount} salt set(s) reused so existing progress still verifies`),
-);
+const mode = sample
+  ? " -- SAMPLE set, flags end in _sample and are public"
+  : rotate
+    ? " -- suffixes and salts ROTATED: every flag changed, all progress invalid"
+    : `, ${reusedCount} salt set(s) reused so existing progress still verifies`;
+console.log(`✔ ${order.length} challenges, ${honeypots.length} decoys${mode}`);
 console.log(`  ${rel("registry.json")}`);
 console.log(`  ${rel("payloads.json")}`);
 console.log("  public/robots.txt");
