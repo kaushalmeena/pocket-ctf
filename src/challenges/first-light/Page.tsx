@@ -1,5 +1,7 @@
 import { For } from "solid-js";
+
 import { useProgress } from "~/lib/store";
+
 import { meta } from "./meta";
 
 type Payload = { shards: { k: number; v: string }[] };

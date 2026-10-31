@@ -1,4 +1,5 @@
 import { inflateSync } from "node:zlib";
+
 import { fromBits } from "../../../scripts/lib/encoding.mjs";
 
 /** Re-inflate the IDAT and walk the scanlines (filter type 0 throughout). */

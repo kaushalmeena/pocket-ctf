@@ -14,15 +14,15 @@ data first.
 
 ## Reading the codebase
 
-| Working on                                     | Read                                            |
-| ---------------------------------------------- | ----------------------------------------------- |
-| The build-time pipeline, the shared KDF        | [build-pipeline.md](docs/build-pipeline.md)     |
-| Adding or removing a challenge                 | [challenges.md](docs/challenges.md)             |
-| Anti-cheat measures and their limits           | [anti-cheat.md](docs/anti-cheat.md)             |
-| Hosting, env vars, per-route indexing          | [deployment.md](docs/deployment.md)             |
-| Principles, the single-accent colour rule      | [foundations.md](docs/foundations.md)           |
-| What animates, the icon set                    | [motion.md](docs/motion.md)                     |
-| Component patterns, accessibility, copy voice  | [components.md](docs/components.md)             |
+| Working on                                    | Read                                        |
+| --------------------------------------------- | ------------------------------------------- |
+| The build-time pipeline, the shared KDF       | [build-pipeline.md](docs/build-pipeline.md) |
+| Adding or removing a challenge                | [challenges.md](docs/challenges.md)         |
+| Anti-cheat measures and their limits          | [anti-cheat.md](docs/anti-cheat.md)         |
+| Hosting, env vars, per-route indexing         | [deployment.md](docs/deployment.md)         |
+| Principles, the single-accent colour rule     | [foundations.md](docs/foundations.md)       |
+| What animates, the icon set                   | [motion.md](docs/motion.md)                 |
+| Component patterns, accessibility, copy voice | [components.md](docs/components.md)         |
 
 ## Conventions
 

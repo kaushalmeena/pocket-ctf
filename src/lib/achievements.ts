@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-solid";
 import type { Component } from "solid-js";
+
 import { CHALLENGES } from "./challenges";
 import type { ProgressState, Stats } from "./progress";
 

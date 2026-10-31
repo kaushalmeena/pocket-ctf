@@ -41,7 +41,7 @@ rather than progressively more explicit. Taglines intrigue without instructing â
 "A dull poem that counts its own pauses" tells you where to look without telling
 you what to do.
 
-Writeups explain *why the technique works*, not just which keys to press, because
+Writeups explain _why the technique works_, not just which keys to press, because
 the technique is the thing worth keeping. Where a design has a limit, the copy
 says so: the progress page explains that "hands off" is a fingerprint rather than
 a lock, and the home page states plainly that hints cost points and wrong answers

@@ -33,9 +33,9 @@ another challenge's real token fails too, because the salts differ.
 Try it — the site will tell you what it discarded:
 
 ```js
-const p = JSON.parse(localStorage.getItem('pctf:progress'));
-p.solves['prime-cuts'] = { ...p.solves['first-light'] };  // replay a real token
-localStorage.setItem('pctf:progress', JSON.stringify(p));
+const p = JSON.parse(localStorage.getItem("pctf:progress"));
+p.solves["prime-cuts"] = { ...p.solves["first-light"] }; // replay a real token
+localStorage.setItem("pctf:progress", JSON.stringify(p));
 // reload: "1 stored solve failed verification and was discarded"
 ```
 
@@ -54,7 +54,7 @@ proof-of-solve tokens concatenated, so the page cannot describe its own task
 until ten genuine solves exist.
 
 The unlisted vault page derives its decryption key from `location.pathname`, so
-neither the flag *nor the path* appears as a literal anywhere.
+neither the flag _nor the path_ appears as a literal anywhere.
 
 ### 4. Guessing is expensive
 
@@ -71,7 +71,7 @@ makes grepping a trap rather than a shortcut.
 
 ### 6. Every deployment has different flags
 
-The answer key holds *base* flags. `pnpm gen` mints a random six-character
+The answer key holds _base_ flags. `pnpm gen` mints a random six-character
 suffix per challenge and splices it in, so the submitted flag is
 `pctf{some_words_x7fq2p}`.
 
@@ -90,7 +90,7 @@ answer decrypts to nothing, which is stricter than merely checking it would be.
 ### 7. A public repository gives nothing away
 
 This was a real hole, found by cloning the repo and trying it. The generated
-files used to be committed, and they were *this deployment's* payloads — so a
+files used to be committed, and they were _this deployment's_ payloads — so a
 clone with no secret files could recover live flags in one command.
 
 So `src/lib/generated/{registry,payloads}.json`, `public/robots.txt` and
@@ -117,7 +117,7 @@ baked into the bundle at build time. Every browser that loads the site gets the
 same two values, so every browser accepts the same flag. A per-player flag would
 need per-player check material — and any material the client can derive, the
 sharer's client can derive too and hand over with the flag. Worse, if the client
-could *compute* its own flag, the flag would exist in the client, which destroys
+could _compute_ its own flag, the flag would exist in the client, which destroys
 the property everything else rests on.
 
 One thing helps, and one does not:
@@ -133,7 +133,7 @@ Be clear about how weak that is. It is an N-fold speed bump rather than a wall,
 for two reasons that cannot be engineered away here. The variant index lives in
 localStorage, so a determined player can edit it to match a friend's. And all
 four verification hashes have to ship, because any browser might draw any
-variant — so the answer to "is this the flag for *some* variant" is always
+variant — so the answer to "is this the flag for _some_ variant" is always
 present in the bundle. What variants really buy is that casually passing a flag
 to the person next to you usually fails, which is the common case.
 
@@ -157,7 +157,7 @@ Being explicit about the boundary:
 - **Someone with the repo can read `flags.secret.json`** if you give them the
   file. Don't.
 - **Someone determined can read the bundle and reimplement a challenge's
-  decoding.** For several of these that *is* the intended solve; the puzzle is
+  decoding.** For several of these that _is_ the intended solve; the puzzle is
   the transform, not its concealment.
 - **Every challenge ships a working solver, in `src/challenges/<slug>/solve.mjs`.**
   Those are spoilers rather than holes — they need the payload a deployment

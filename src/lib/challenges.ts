@@ -13,6 +13,7 @@ import {
   pathFor,
 } from "~/challenges/registry";
 import type { Category, ChallengeMeta } from "~/challenges/types";
+
 import registry from "./generated/registry.json";
 
 export type { Category, Difficulty } from "~/challenges/types";

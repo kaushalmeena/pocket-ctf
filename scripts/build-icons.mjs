@@ -19,6 +19,7 @@
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { encodeRaw, encodeRgba } from "./png-write.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");

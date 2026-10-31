@@ -1,5 +1,6 @@
 import { TriangleAlert } from "lucide-solid";
 import { Show } from "solid-js";
+
 import registry from "~/lib/generated/registry.json";
 
 /**

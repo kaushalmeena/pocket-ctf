@@ -12,7 +12,7 @@ unmissable; if buttons and links were green too, it would be noise.
 
 **Nothing decorative that could be mistaken for a clue.** In a CTF, ornament is
 actively harmful — a stray glyph or an unexplained colour reads as a puzzle
-element. Every visual element on a challenge page either *is* the puzzle or is
+element. Every visual element on a challenge page either _is_ the puzzle or is
 plainly chrome.
 
 **Generated data gets its own treatment.** Hex blobs, base64, 124-digit integers
@@ -32,7 +32,7 @@ The class is set by a **synchronous inline script, first thing in `<head>`**
 before first paint, so a dark-mode visitor never sees a white flash — on the
 first load or on any navigation.
 
-Absence of a stored preference means *follow the OS*, and the media query stays
+Absence of a stored preference means _follow the OS_, and the media query stays
 live until the switch is touched. There is no third "system" button: it was more
 chrome than the choice deserved.
 
@@ -41,7 +41,7 @@ chrome than the choice deserved.
 The knob position and icon opacity come from `dark:` variants, not from the
 `theme()` signal. Prerendered HTML cannot know a visitor's preference, so
 anything driven by JS state ships in the light position and gets corrected at
-hydration — which happens *after* first paint, so the visitor watches the switch
+hydration — which happens _after_ first paint, so the visitor watches the switch
 flip itself on every load. The `dark` class is already correct before paint, so
 CSS simply draws the knob in the right place and the transition only ever fires
 on a real click.

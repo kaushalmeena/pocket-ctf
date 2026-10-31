@@ -40,6 +40,6 @@ export type ChallengeMeta = {
  */
 export type ChallengeModule = {
   meta: ChallengeMeta;
-  // biome-ignore lint/suspicious/noExplicitAny: payload shape is per-challenge
+  // oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
   Page: Component<{ payload: any }>;
 };

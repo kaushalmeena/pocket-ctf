@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/solid-router";
 import { Flag } from "lucide-solid";
 import { Show } from "solid-js";
+
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { TOTAL_POINTS } from "~/lib/challenges";
 import { useProgress } from "~/lib/store";
@@ -28,7 +29,7 @@ export function SiteHeader() {
         <div class="ml-auto flex items-center gap-3">
           <Show when={ready()}>
             <span
-              class="hidden font-mono text-xs text-zinc-500 tabular-nums sm:inline dark:text-zinc-500"
+              class="hidden font-mono text-xs text-zinc-500 tabular-nums sm:inline"
               title={`${stats().solved} of ${stats().total} solved`}
             >
               {stats().score}

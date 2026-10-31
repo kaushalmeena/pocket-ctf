@@ -1,4 +1,5 @@
 import type { JSX } from "solid-js";
+
 import type { Category, Difficulty } from "~/lib/challenges";
 
 const DIFFICULTY_STYLES: Record<Difficulty, string> = {

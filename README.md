@@ -25,7 +25,7 @@ so the answers genuinely are not in the bundle you downloaded.
   audio, prime factorisation, repeating-key XOR, an LFSR stream cipher, a
   bytecode VM, CSS, SVG, IndexedDB forensics and browser devtools.
 - **No plaintext flags** — each one exists only as a salted hash; the zero-width
-  poem, stego PNG, prime product and XOR ciphertext are all computed *from* the
+  poem, stego PNG, prime product and XOR ciphertext are all computed _from_ the
   flag, so there is nowhere for an answer to sit.
 - **Tamper-proof progress** — a solve stores a proof-of-solve token, not a
   boolean. Editing localStorage gets you nothing, and the site tells you what it
@@ -61,15 +61,15 @@ so the answers genuinely are not in the bundle you downloaded.
 
 ## Tech Stack
 
-| Area          | Tools                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| **Framework** | [Solid](https://www.solidjs.com) · [TanStack Start](https://tanstack.com/start)           |
-| **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                 |
-| **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (PBKDF2, AES-GCM) |
-| **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                   |
-| **Testing**   | [Vitest](https://vitest.dev)                                                              |
-| **Tooling**   | [Biome](https://biomejs.dev) · [pnpm](https://pnpm.io)                                    |
-| **Hosting**   | Any static host — the build is a folder of files                                          |
+| Area          | Tools                                                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Framework** | [Solid](https://www.solidjs.com) · [TanStack Start](https://tanstack.com/start)                                                 |
+| **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                                                       |
+| **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (PBKDF2, AES-GCM)                                       |
+| **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                                                         |
+| **Testing**   | [Vitest](https://vitest.dev)                                                                                                    |
+| **Tooling**   | [oxlint](https://oxc.rs/docs/guide/usage/linter) · [oxfmt](https://oxc.rs/docs/guide/usage/formatter) · [pnpm](https://pnpm.io) |
+| **Hosting**   | Any static host — the build is a folder of files                                                                                |
 
 ## Getting Started
 
@@ -142,7 +142,7 @@ pnpm check
 ```
 
 `pnpm check` runs against whatever challenge data is live, which on a fresh clone
-is the committed demo set. Once you have generated your own flags, verify *that*
+is the committed demo set. Once you have generated your own flags, verify _that_
 deployment — every challenge solved from its shipped payload, and every answer
 put through the same check the browser performs:
 

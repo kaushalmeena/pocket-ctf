@@ -1,4 +1,5 @@
 import { useProgress } from "~/lib/store";
+
 import { meta } from "./meta";
 
 /**
@@ -6,7 +7,7 @@ import { meta } from "./meta";
  * couple every challenge to one shared union, which is the coupling the
  * one-directory-per-challenge layout exists to remove.
  */
-// biome-ignore lint/suspicious/noExplicitAny: payload shape is per-challenge
+// oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
 type Payload = any;
 
 export default function Page(props: { payload: Payload }) {

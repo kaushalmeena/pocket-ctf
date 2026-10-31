@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { Check, TriangleAlert } from "lucide-solid";
 import { For, Show } from "solid-js";
+
 import { CategoryPill, DifficultyPill } from "~/components/Pill";
 import { CHALLENGES, type Challenge, TOTAL_POINTS } from "~/lib/challenges";
 import { pageSeo } from "~/lib/seo";
@@ -88,9 +89,7 @@ function Row(props: { challenge: Challenge }) {
               {props.challenge.title}
             </span>
           </span>
-          <span class="mt-0.5 block text-sm text-zinc-500 dark:text-zinc-500">
-            {props.challenge.tagline}
-          </span>
+          <span class="mt-0.5 block text-sm text-zinc-500">{props.challenge.tagline}</span>
           <span class="mt-2 flex flex-wrap items-center gap-1.5">
             <CategoryPill category={props.challenge.category} />
             <DifficultyPill difficulty={props.challenge.difficulty} />

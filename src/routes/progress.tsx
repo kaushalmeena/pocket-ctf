@@ -8,6 +8,7 @@ import {
   Upload,
 } from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
+
 import { Pill } from "~/components/Pill";
 import { ACHIEVEMENTS, earnedAchievements } from "~/lib/achievements";
 import { CATEGORY_LABELS, type Category, CHALLENGES } from "~/lib/challenges";
@@ -175,7 +176,7 @@ function ProgressPage() {
                         class="block text-sm font-medium"
                         classList={{
                           "text-zinc-900 dark:text-zinc-100": has(),
-                          "text-zinc-500 dark:text-zinc-500": !has(),
+                          "text-zinc-500": !has(),
                         }}
                       >
                         {hide() ? "Hidden badge" : achievement.title}
@@ -187,7 +188,7 @@ function ProgressPage() {
                           />
                         </Show>
                       </span>
-                      <span class="block text-xs text-zinc-500 dark:text-zinc-500">
+                      <span class="block text-xs text-zinc-500">
                         {hide()
                           ? "You'll know it when you earn it. You won't be proud."
                           : achievement.description}
@@ -204,7 +205,7 @@ function ProgressPage() {
           <Show
             when={stats().solved > 0}
             fallback={
-              <p class="text-sm text-zinc-500 dark:text-zinc-500">
+              <p class="text-sm text-zinc-500">
                 Nothing yet. That is the correct amount for someone who has just arrived.
               </p>
             }
@@ -314,7 +315,7 @@ function ProgressPage() {
 function Stat(props: { label: string; value: string; sub?: string }) {
   return (
     <div class="rounded-xl border border-zinc-200 px-3 py-2.5 dark:border-zinc-800">
-      <p class="text-xs text-zinc-500 dark:text-zinc-500">{props.label}</p>
+      <p class="text-xs text-zinc-500">{props.label}</p>
       <p class="pt-0.5 font-mono text-lg text-zinc-900 tabular-nums dark:text-zinc-100">
         {props.value}
         <Show when={props.sub}>

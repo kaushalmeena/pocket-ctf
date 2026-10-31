@@ -2,6 +2,7 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/solid-router";
 import type { JSX } from "solid-js";
 import { Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
+
 import { NotFound } from "~/components/NotFound";
 import { SampleDataNotice } from "~/components/SampleDataNotice";
 import { SiteFooter } from "~/components/SiteFooter";
@@ -9,6 +10,7 @@ import { SiteHeader } from "~/components/SiteHeader";
 import { SITE_TAGLINE } from "~/lib/seo";
 import { ProgressProvider } from "~/lib/store";
 import { THEME_BOOTSTRAP, ThemeProvider } from "~/lib/theme";
+
 import appCss from "../app.css?url";
 
 export const Route = createRootRoute({

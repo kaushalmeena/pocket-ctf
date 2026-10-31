@@ -7,6 +7,7 @@ import {
   onMount,
   useContext,
 } from "solid-js";
+
 import { storage } from "./storage";
 
 export type Theme = "light" | "dark";

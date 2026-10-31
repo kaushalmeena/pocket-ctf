@@ -26,9 +26,9 @@ PBKDF2 (310,000 rounds, SHA-256, 16-byte salt):
 | Derivation | Purpose                                                       |
 | ---------- | ------------------------------------------------------------- |
 | `verify`   | Checked against a submission                                  |
-| `token`    | Stored as proof of solve; the registry ships only its SHA-256  |
+| `token`    | Stored as proof of solve; the registry ships only its SHA-256 |
 | `seal`     | AES-GCM key encrypting that challenge's writeup               |
-| payload    | The puzzle itself, computed *from* the flag                   |
+| payload    | The puzzle itself, computed _from_ the flag                   |
 
 That last row is the load-bearing one. Challenge content is **derived from the
 flag**, not written alongside it: the zero-width poem, the stego PNG's pixel
@@ -36,7 +36,7 @@ plane, the 124-digit prime product, the XOR ciphertext and the Morse timings are
 all functions of their flag. There is nowhere for a plaintext answer to sit.
 
 `src/lib/kdf.js` is deliberately plain JavaScript with no imports, because Node
-(the generator) and the browser (the verifier) load *that exact file*. If they
+(the generator) and the browser (the verifier) load _that exact file_. If they
 ever drifted, every hash in the registry would silently stop matching.
 
 ### Regenerating without resetting everyone
@@ -45,7 +45,7 @@ Players store `PBKDF2(flag, tokenSalt)` as proof of solve, so a new `tokenSalt`
 silently invalidates their progress. `pnpm gen` therefore **reuses each
 challenge's existing salts** whenever that challenge's flag is unchanged, which
 it establishes by re-deriving the old `verifyHash`. Fixing a typo in one writeup
-no longer wipes the scoreboard. A flag that *does* change gets fresh salts,
+no longer wipes the scoreboard. A flag that _does_ change gets fresh salts,
 because its old hash would no longer match anything.
 
 The AES-GCM IV is always regenerated, even when the salts are kept. Encrypting

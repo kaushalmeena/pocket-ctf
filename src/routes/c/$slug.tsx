@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/solid-router";
 import { Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
+
 import { pageFor } from "~/challenges/registry";
 import { ChallengeShell } from "~/components/ChallengeShell";
 import { LoadingBar } from "~/components/LoadingBar";

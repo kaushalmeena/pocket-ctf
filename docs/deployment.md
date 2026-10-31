@@ -82,7 +82,7 @@ sitemap advertise `http://localhost:3000`. `pnpm gen` warns about that too.
 ## SEO and indexing
 
 There is a genuine conflict here: being findable matters for the landing page,
-and being *unfindable* matters for the challenges. An indexed challenge page puts
+and being _unfindable_ matters for the challenges. An indexed challenge page puts
 its payload into a search cache, and an indexed writeup hands over answers to
 anyone who types the right query.
 

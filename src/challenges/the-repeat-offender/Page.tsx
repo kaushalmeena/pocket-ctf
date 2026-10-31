@@ -1,5 +1,7 @@
 import { createMemo, createSignal, For } from "solid-js";
+
 import { useProgress } from "~/lib/store";
+
 import { meta } from "./meta";
 
 /**
@@ -7,7 +9,7 @@ import { meta } from "./meta";
  * couple every challenge to one shared union, which is the coupling the
  * one-directory-per-challenge layout exists to remove.
  */
-// biome-ignore lint/suspicious/noExplicitAny: payload shape is per-challenge
+// oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
 type Payload = any;
 
 export default function Page(props: { payload: Payload }) {
@@ -46,7 +48,7 @@ export default function Page(props: { payload: Payload }) {
       <section class="space-y-3 rounded-xl border border-zinc-200 p-5 dark:border-zinc-800">
         <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Column view</h2>
-          <p class="text-xs text-zinc-500 dark:text-zinc-500">
+          <p class="text-xs text-zinc-500">
             every byte here was XORed with the same single byte of the key
           </p>
         </div>
@@ -61,7 +63,7 @@ export default function Page(props: { payload: Payload }) {
                   noteEngagement(meta.slug, "inspected-column");
                 }}
                 aria-pressed={column() === i}
-                class="size-7 rounded-md font-mono text-xs transition-colors aria-pressed:bg-zinc-900 aria-pressed:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
+                class="size-7 rounded-md font-mono text-xs transition-colors hover:bg-zinc-100 aria-pressed:bg-zinc-900 aria-pressed:text-white dark:hover:bg-zinc-800 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
               >
                 {i}
               </button>
@@ -71,7 +73,7 @@ export default function Page(props: { payload: Payload }) {
 
         <p class="blob mb-0">{columnBytes().join(" ")}</p>
 
-        <p class="text-xs text-zinc-500 dark:text-zinc-500">
+        <p class="text-xs text-zinc-500">
           Column {column()}: {columnBytes().length} bytes, positions {column()},{" "}
           {column() + keyLength}, {column() + keyLength * 2}, and so on. One unknown byte stands
           between this and readable text.

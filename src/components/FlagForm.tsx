@@ -1,5 +1,6 @@
 import { CircleCheck, CornerDownLeft, LoaderCircle } from "lucide-solid";
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
+
 import type { Challenge } from "~/lib/challenges";
 import { lockoutRemaining } from "~/lib/progress";
 import { useProgress } from "~/lib/store";

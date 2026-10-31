@@ -1,4 +1,5 @@
 import registry from "~/lib/generated/registry.json";
+
 import type { ChallengeMeta, ChallengeModule } from "./types";
 
 /**

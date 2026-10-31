@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { slugs, solverFor } from "../scripts/lib/discover.mjs";
 import { normalizeFlag } from "../src/lib/kdf.js";
 import { flags, payloads, registry, variantCount } from "./helpers.mjs";

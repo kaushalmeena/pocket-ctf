@@ -18,6 +18,7 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { hasKey, KEY_ENV } from "./answers.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");

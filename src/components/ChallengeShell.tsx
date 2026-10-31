@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/solid-router";
 import { ArrowLeft, ArrowRight, ChevronRight, Clock, ScrollText } from "lucide-solid";
 import { createEffect, createSignal, type JSX, onCleanup, onMount, Show } from "solid-js";
+
 import { FlagForm } from "~/components/FlagForm";
 import { HintPanel } from "~/components/HintPanel";
 import { Markdown } from "~/components/Markdown";
@@ -60,7 +61,7 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
         <div class="flex items-center gap-2 text-xs">
           <Link
             to="/challenges"
-            class="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-100"
+            class="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
           >
             <ArrowLeft aria-hidden="true" size={13} />
             All challenges
@@ -143,7 +144,7 @@ export function ChallengeShell(props: { challenge: Challenge; children: JSX.Elem
                 class="group flex items-center justify-between rounded-xl border border-zinc-200 px-4 py-3.5 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
               >
                 <span>
-                  <span class="block text-xs text-zinc-500 dark:text-zinc-500">Next up</span>
+                  <span class="block text-xs text-zinc-500">Next up</span>
                   <span class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {n().title}
                   </span>

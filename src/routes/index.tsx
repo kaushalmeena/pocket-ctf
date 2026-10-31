@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { ArrowRight, ChevronRight } from "lucide-solid";
 import { For, Show } from "solid-js";
+
 import { CHALLENGES, TOTAL_POINTS } from "~/lib/challenges";
 import { pageSeo, SITE_DESCRIPTION, structuredData } from "~/lib/seo";
 import { useProgress } from "~/lib/store";
@@ -188,7 +189,7 @@ function Home() {
             )}
           </For>
         </div>
-        <p class="pt-3 text-sm text-zinc-500 dark:text-zinc-500">
+        <p class="pt-3 text-sm text-zinc-500">
           {TOTAL_POINTS} points available. Nothing is locked behind anything else — they run
           roughly easiest to hardest, but start wherever you like.
         </p>

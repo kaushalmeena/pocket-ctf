@@ -1,5 +1,6 @@
 import { Lightbulb, LoaderCircle } from "lucide-solid";
 import { createSignal, For, Show } from "solid-js";
+
 import { type Challenge, HINT_COST_RATIO, pointsAfterHints } from "~/lib/challenges";
 import { revealHintText } from "~/lib/hints";
 import { useProgress } from "~/lib/store";
@@ -52,7 +53,7 @@ export function HintPanel(props: { challenge: Challenge }) {
         <span class="font-mono text-xs text-zinc-400 dark:text-zinc-600">
           {used()}/{total()} revealed
         </span>
-        <span class="ml-auto font-mono text-xs text-zinc-500 dark:text-zinc-500">
+        <span class="ml-auto font-mono text-xs text-zinc-500">
           worth {worth()}
           <Show when={worth() < props.challenge.points}>
             <span class="text-zinc-300 line-through dark:text-zinc-700">

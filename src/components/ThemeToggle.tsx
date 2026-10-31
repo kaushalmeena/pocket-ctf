@@ -1,4 +1,5 @@
 import { Moon, Sun } from "lucide-solid";
+
 import { useTheme } from "~/lib/theme";
 
 /**
@@ -32,16 +33,12 @@ export function ThemeToggle() {
       // Exempts this control from the page-wide colour-only transition that is
       // applied while the theme changes -- see app.css.
       data-theme-switch
-      class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-zinc-200
-        bg-zinc-100 transition-colors duration-200 hover:border-zinc-300
-        dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
+      class="relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-zinc-200 bg-zinc-100 transition-colors duration-200 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
     >
       {/* The sliding knob. */}
       <span
         aria-hidden="true"
-        class="absolute left-0.5 flex size-6 items-center justify-center rounded-full bg-white
-          text-[0.7rem] shadow-sm transition-transform duration-300 ease-out
-          dark:translate-x-5 dark:bg-zinc-950"
+        class="absolute left-0.5 flex size-6 items-center justify-center rounded-full bg-white text-[0.7rem] shadow-sm transition-transform duration-300 ease-out dark:translate-x-5 dark:bg-zinc-950"
       >
         {/* Both icons stay mounted and cross-fade, so the swap has something to
             animate between rather than popping. */}

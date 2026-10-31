@@ -1,5 +1,6 @@
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
 import { defineConfig } from "vite";
