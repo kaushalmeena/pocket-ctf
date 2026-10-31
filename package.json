@@ -2,29 +2,29 @@
   "name": "pocket-ctf",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "description": "An offline, browser-based CTF: twelve hand-built puzzles, zero plaintext flags.",
-  "packageManager": "pnpm@10.8.1",
+  "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
     "typecheck": "tsc --noEmit",
     "gen": "node scripts/generate.mjs",
     "gen:env": "node scripts/env-write.mjs",
     "gen:sample": "node scripts/generate.mjs --sample",
     "icons": "node scripts/build-icons.mjs",
     "verify:flags": "node scripts/leak-scan.mjs",
-    "check": "pnpm lint && pnpm typecheck && pnpm verify:flags && pnpm test",
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm verify:flags && pnpm test",
     "postinstall": "node scripts/bootstrap.mjs",
     "predev": "node scripts/bootstrap.mjs",
     "prebuild": "node scripts/bootstrap.mjs",
     "test": "vitest run",
     "self-test": "node scripts/self-test.mjs",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@tanstack/solid-router": "^1.170.43",
@@ -33,9 +33,11 @@
     "solid-js": "^1.9.14"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.6",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.1.2",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "oxlint-tailwindcss": "^1.17.1",
     "tailwindcss": "^4.3.3",
     "terser": "^5.49.0",
     "typescript": "^5.9.2",
@@ -46,6 +48,7 @@
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "pnpm@10.8.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",

@@ -1,0 +1,44 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "import", "jsx-a11y", "vitest"],
+  "jsPlugins": ["oxlint-tailwindcss"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "src/app.css"
+    }
+  },
+  "rules": {
+    "prefer-const": "error",
+    "prefer-template": "error",
+    "typescript/no-explicit-any": "warn",
+    "import/no-cycle": "error",
+    "import/no-unassigned-import": "off",
+    "no-await-in-loop": "off",
+    "no-unassigned-vars": "off",
+    "jsx-a11y/no-autofocus": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/control-has-associated-label": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "tailwindcss/no-unknown-classes": "error",
+    "tailwindcss/no-conflicting-classes": "error",
+    "tailwindcss/no-duplicate-classes": "error",
+    "tailwindcss/no-contradicting-variants": "error",
+    "tailwindcss/no-deprecated-classes": "error",
+    "tailwindcss/enforce-canonical": "warn",
+    "tailwindcss/prefer-scale-token": "warn",
+    "tailwindcss/no-unnecessary-arbitrary-value": "warn"
+  },
+  "ignorePatterns": ["dist/**", ".tanstack/**", ".nitro/**", "src/routeTree.gen.ts"]
+}
