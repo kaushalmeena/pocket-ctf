@@ -5,8 +5,6 @@ import {
   board,
   buyClue,
   claimEgg,
-  recoveryCode,
-  restore,
   standing,
   transmit,
   trophyCase,
@@ -73,20 +71,11 @@ export const setHandle = createServerFn({ method: "POST" })
     return { error, me: await standing(player) };
   });
 
-/** Shown once; asking again cancels the previous one. */
-export const getRecoveryCode = createServerFn({ method: "POST" }).handler(async () =>
-  recoveryCode(await currentPlayer()),
-);
-
-export const redeemRecoveryCode = createServerFn({ method: "POST" })
-  .validator(text(40))
-  .handler(async ({ data }) => restore(await currentPlayer(), data));
-
-export const getVault = createServerFn({ method: "GET" })
-  .validator(text(80))
-  .handler(({ data }) => plants.vault(data));
-
 /** Anyone's public profile, by handle. Counts and metals, never titles. */
 export const getProfile = createServerFn({ method: "GET" })
   .validator(text(40))
   .handler(({ data }) => profileOf(data));
+
+export const getVault = createServerFn({ method: "GET" })
+  .validator(text(80))
+  .handler(({ data }) => plants.vault(data));

@@ -1,3 +1,5 @@
+import { asc, count, desc, eq, gt, max, sql, sum } from "drizzle-orm";
+
 import { flagDigest, normalizeFlag } from "~/lib/kdf.js";
 import type { BoardRow, Me, Reply, Slot, Trophy, TrophyCase } from "~/lib/types";
 
@@ -14,7 +16,8 @@ import {
 } from "./catalogue";
 import { db } from "./db";
 import { fragmentOf } from "./finale";
-import { issueRecovery, persist, type Player, recover, variantOf } from "./players";
+import { persist, type Player, variantOf } from "./players";
+import { clues as cluesTable, eggs, players, solves } from "./schema";
 import { runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
 
@@ -87,12 +90,12 @@ export async function awardEgg(player: Player, egg: string): Promise<Trophy[]> {
   const known = EGGS[egg];
   if (!known) return [];
   await persist(player);
-  const client = await db();
-  const result = await client.execute({
-    sql: "INSERT OR IGNORE INTO eggs (player_id, egg, found_at) VALUES (?, ?, ?)",
-    args: [player.id, egg, Date.now()],
-  });
-  return result.rowsAffected > 0 ? [{ tier: "secret", ...known }] : [];
+  const inserted = await db()
+    .insert(eggs)
+    .values({ playerId: player.id, egg, foundAt: Date.now() })
+    .onConflictDoNothing()
+    .returning({ egg: eggs.egg });
+  return inserted.length > 0 ? [{ tier: "secret", ...known }] : [];
 }
 
 export async function claimEgg(player: Player, egg: string): Promise<Trophy[]> {
@@ -112,66 +115,50 @@ type SolveRow = {
 };
 
 async function solvesOf(player: Player): Promise<Map<string, SolveRow>> {
-  const client = await db();
-  const result = await client.execute({
-    sql: "SELECT slug, points, clues, first_blood, solved_at FROM solves WHERE player_id = ?",
-    args: [player.id],
-  });
+  if (!player.stored) return new Map();
+  const rows = await db().select().from(solves).where(eq(solves.playerId, player.id));
   return new Map(
-    result.rows
+    rows
       // A solve for a challenge that has since been removed is not a trophy.
-      .filter((row) => BY_SLUG.has(String(row.slug)))
-      .map((row) => [
-        String(row.slug),
-        {
-          slug: String(row.slug),
-          points: Number(row.points),
-          clues: Number(row.clues),
-          firstBlood: Number(row.first_blood) === 1,
-          solvedAt: Number(row.solved_at),
-        },
-      ]),
+      .filter((row) => BY_SLUG.has(row.slug))
+      .map((row) => [row.slug, row]),
   );
 }
 
 async function cluesOf(player: Player): Promise<Map<string, number>> {
-  const client = await db();
-  const result = await client.execute({
-    sql: "SELECT slug, taken FROM clues WHERE player_id = ?",
-    args: [player.id],
-  });
-  return new Map(result.rows.map((row) => [String(row.slug), Number(row.taken)]));
+  if (!player.stored) return new Map();
+  const rows = await db().select().from(cluesTable).where(eq(cluesTable.playerId, player.id));
+  return new Map(rows.map((row) => [row.slug, row.taken]));
+}
+
+/** How many players have a strictly higher score. */
+export async function playersAhead(score: number) {
+  const totals = db()
+    .select({ score: sum(solves.points).mapWith(Number).as("score") })
+    .from(solves)
+    .groupBy(solves.playerId)
+    .as("totals");
+  const [row] = await db().select({ n: count() }).from(totals).where(gt(totals.score, score));
+  return row?.n ?? 0;
 }
 
 export async function standing(player: Player): Promise<Me> {
-  const client = await db();
-  const solves = await solvesOf(player);
-  const score = [...solves.values()].reduce((sum, s) => sum + s.points, 0);
-  const eggs = await client.execute({
-    sql: "SELECT COUNT(*) AS n FROM eggs WHERE player_id = ?",
-    args: [player.id],
-  });
-
-  let rank: number | null = null;
-  if (solves.size > 0) {
-    const ahead = await client.execute({
-      sql: `SELECT COUNT(*) AS n FROM (
-              SELECT SUM(points) AS score FROM solves GROUP BY player_id HAVING score > ?
-            )`,
-      args: [score],
-    });
-    rank = Number(ahead.rows[0]?.n ?? 0) + 1;
-  }
+  const owned = await solvesOf(player);
+  const score = [...owned.values()].reduce((total, s) => total + s.points, 0);
+  const [secrets] = player.stored
+    ? await db().select({ n: count() }).from(eggs).where(eq(eggs.playerId, player.id))
+    : [{ n: 0 }];
 
   return {
     handle: player.handle,
     named: player.named,
-    found: solves.size,
+    account: player.account,
+    found: owned.size,
     total: CHALLENGES.length,
     score,
     maxScore: MAX_SCORE,
-    secrets: Number(eggs.rows[0]?.n ?? 0),
-    rank,
+    secrets: secrets?.n ?? 0,
+    rank: owned.size > 0 ? (await playersAhead(score)) + 1 : null,
   };
 }
 
@@ -203,11 +190,6 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     trophies: Trophy[] = [],
     clear = false,
   ): Promise<Reply> => ({ tone, lines, trophies, clear, me: await standing(player) });
-
-  if (/^restore\b/i.test(input)) {
-    const result = await restore(player, input.slice("restore".length));
-    return reply(result.ok ? "ok" : "err", [result.message]);
-  }
 
   if (!/^pctf\b|^pctf\{/i.test(input)) {
     const out = await runCommand(player, input);
@@ -251,22 +233,28 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
 
   const challenge = BY_SLUG.get(hit.slug)!;
   await persist(player);
-  const client = await db();
   const clues = (await cluesOf(player)).get(hit.slug) ?? 0;
   const points = worth(challenge.points, clues);
 
-  const prior = await client.execute({
-    sql: "SELECT COUNT(*) AS n FROM solves WHERE slug = ?",
-    args: [hit.slug],
-  });
-  const firstBlood = Number(prior.rows[0]?.n ?? 0) === 0;
+  const [prior] = await db()
+    .select({ n: count() })
+    .from(solves)
+    .where(eq(solves.slug, hit.slug));
+  const firstBlood = (prior?.n ?? 0) === 0;
 
-  const inserted = await client.execute({
-    sql: `INSERT OR IGNORE INTO solves (player_id, slug, points, clues, first_blood, solved_at)
-          VALUES (?, ?, ?, ?, ?, ?)`,
-    args: [player.id, hit.slug, points, clues, firstBlood ? 1 : 0, Date.now()],
-  });
-  if (inserted.rowsAffected === 0) {
+  const inserted = await db()
+    .insert(solves)
+    .values({
+      playerId: player.id,
+      slug: hit.slug,
+      points,
+      clues,
+      firstBlood,
+      solvedAt: Date.now(),
+    })
+    .onConflictDoNothing()
+    .returning({ slug: solves.slug });
+  if (inserted.length === 0) {
     return reply("info", [`Already in your case: ${challenge.title}. It only counts once.`]);
   }
   await forgive(player);
@@ -298,34 +286,6 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
 }
 
 /* ------------------------------------------------------------------ *
- * Recovery
- * ------------------------------------------------------------------ */
-
-export const recoveryCode = (player: Player) => issueRecovery(player);
-
-/**
- * Redeem a recovery code. Throttled like a flag, because it is one: a string
- * that is worth something to whoever guesses it.
- */
-export async function restore(player: Player, code: string) {
-  const locked = await lockedFor(player);
-  if (locked > 0) {
-    return {
-      ok: false,
-      message: `Too many misses. Try again in ${Math.ceil(locked / 1000)}s.`,
-    };
-  }
-  if (!(await recover(player, code))) {
-    await noteMiss(player);
-    return { ok: false, message: "No player answers to that code." };
-  }
-  return {
-    ok: true,
-    message: `Welcome back, ${player.handle}. Everything is where you left it.`,
-  };
-}
-
-/* ------------------------------------------------------------------ *
  * Trophy case
  * ------------------------------------------------------------------ */
 
@@ -343,8 +303,7 @@ async function revealedClues(player: Player, slug: string, taken: number) {
 }
 
 export async function trophyCase(player: Player): Promise<TrophyCase> {
-  const client = await db();
-  const [solves, clues, me] = [
+  const [owned, clues, me] = [
     await solvesOf(player),
     await cluesOf(player),
     await standing(player),
@@ -352,7 +311,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
 
   const slots: Slot[] = [];
   for (const challenge of CHALLENGES) {
-    const solve = solves.get(challenge.slug);
+    const solve = owned.get(challenge.slug);
     if (solve) {
       slots.push({
         found: true,
@@ -379,17 +338,20 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
     });
   }
 
-  const eggs = await client.execute({
-    sql: "SELECT egg, found_at FROM eggs WHERE player_id = ? ORDER BY found_at",
-    args: [player.id],
-  });
+  const found = player.stored
+    ? await db()
+        .select()
+        .from(eggs)
+        .where(eq(eggs.playerId, player.id))
+        .orderBy(asc(eggs.foundAt))
+    : [];
 
   return {
     me,
     slots,
-    secrets: eggs.rows
-      .filter((row) => EGGS[String(row.egg)])
-      .map((row) => ({ ...EGGS[String(row.egg)]!, foundAt: Number(row.found_at) })),
+    secrets: found
+      .filter((row) => EGGS[row.egg])
+      .map((row) => ({ ...EGGS[row.egg]!, foundAt: row.foundAt })),
     secretsTotal: Object.keys(EGGS).length,
     platinum: me.found === me.total ? PLATINUM : null,
   };
@@ -404,12 +366,13 @@ export async function buyClue(player: Player, index: number): Promise<TrophyCase
     const taken = (await cluesOf(player)).get(challenge.slug) ?? 0;
     if (taken < clueCount(challenge.slug)) {
       await persist(player);
-      const client = await db();
-      await client.execute({
-        sql: `INSERT INTO clues (player_id, slug, taken) VALUES (?, ?, 1)
-              ON CONFLICT (player_id, slug) DO UPDATE SET taken = taken + 1`,
-        args: [player.id, challenge.slug],
-      });
+      await db()
+        .insert(cluesTable)
+        .values({ playerId: player.id, slug: challenge.slug, taken: 1 })
+        .onConflictDoUpdate({
+          target: [cluesTable.playerId, cluesTable.slug],
+          set: { taken: sql`${cluesTable.taken} + 1` },
+        });
     }
   }
   return trophyCase(player);
@@ -427,21 +390,22 @@ export async function writeup(player: Player, index: number): Promise<string | n
  * ------------------------------------------------------------------ */
 
 export async function board(player: Player): Promise<BoardRow[]> {
-  const client = await db();
-  const result = await client.execute(
-    `SELECT p.id, p.handle, COUNT(*) AS found, SUM(s.points) AS score, MAX(s.solved_at) AS last_at
-       FROM solves s JOIN players p ON p.id = s.player_id
-      GROUP BY p.id
-      ORDER BY score DESC, last_at ASC
-      LIMIT 50`,
-  );
-  return result.rows.map((row, i) => ({
+  const score = sum(solves.points).mapWith(Number);
+  const lastAt = max(solves.solvedAt).mapWith(Number);
+  const rows = await db()
+    .select({ id: players.id, handle: players.handle, found: count(), score, lastAt })
+    .from(solves)
+    .innerJoin(players, eq(players.id, solves.playerId))
+    .groupBy(players.id, players.handle)
+    .orderBy(desc(score), asc(lastAt))
+    .limit(50);
+  return rows.map((row, i) => ({
     rank: i + 1,
-    handle: String(row.handle),
-    found: Number(row.found),
-    score: Number(row.score),
-    lastAt: Number(row.last_at),
-    you: String(row.id) === player.id,
-    platinum: Number(row.found) >= CHALLENGES.length,
+    handle: row.handle,
+    found: row.found,
+    score: row.score,
+    lastAt: row.lastAt,
+    you: row.id === player.id,
+    platinum: row.found >= CHALLENGES.length,
   }));
 }

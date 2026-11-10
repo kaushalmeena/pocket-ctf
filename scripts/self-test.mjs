@@ -56,7 +56,7 @@ const number = (html, pattern) => Number(html.replace(/<!--.*?-->/g, "").match(p
  * ------------------------------------------------------------------ */
 
 const home = await text("/");
-if (!jar.has("pctf_sid")) {
+if (!jar.has("pctf_deal")) {
   console.error(`✗ ${BASE} set no session cookie -- is this a Pocket CTF instance?`);
   process.exit(1);
 }

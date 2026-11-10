@@ -1,5 +1,6 @@
 import { getCookie, setResponseStatus } from "@tanstack/solid-start/server";
 
+import { GITHUB_ENABLED } from "./auth";
 import { IS_SAMPLE, vaultFlag } from "./catalogue";
 import { FINALE, finaleKey } from "./finale";
 import { awardEgg, standing } from "./game";
@@ -29,6 +30,7 @@ export async function shell() {
   return {
     me: await standing(player),
     sample: IS_SAMPLE,
+    github: GITHUB_ENABLED,
     // Written into IndexedDB by every page, and never displayed.
     drawer: { name: drawer.dbName, store: drawer.store, records: drawer.records },
   };

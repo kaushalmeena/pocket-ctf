@@ -87,7 +87,7 @@ function RootLayout() {
   const me = () => shell().me;
 
   return (
-    <GameProvider initial={me}>
+    <GameProvider initial={me} github={() => shell().github}>
       <div class="flex min-h-dvh flex-col">
         <Show when={shell().sample}>
           <p class="bg-amber-100 px-5 py-1.5 text-center text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">

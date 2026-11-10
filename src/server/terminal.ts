@@ -82,7 +82,6 @@ export async function runCommand(player: Player, input: string): Promise<Output>
         "ls            look around",
         "cat <file>    read something",
         "whoami        who the site thinks you are",
-        "restore <c>   pick up your progress with a recovery code",
         "clear         wipe this",
         "",
         "Not every command is listed. Not every file is, either.",
@@ -107,6 +106,7 @@ export async function runCommand(player: Player, input: string): Promise<Output>
       lines: [
         player.handle,
         player.named ? "" : "(the site made that name up. change it in the trophy case.)",
+        player.account ? `claimed with github as ${player.account}` : "",
       ].filter(Boolean),
     };
   }

@@ -22,6 +22,8 @@ export type Toast = Trophy & { id: number };
 
 type Game = {
   me: Accessor<Me>;
+  /** Whether this server can link progress to GitHub. */
+  github: Accessor<boolean>;
   /** Trophies queued for the corner of the screen, oldest first. */
   toasts: Accessor<Toast[]>;
   award: (trophies: Trophy[]) => void;
@@ -39,7 +41,11 @@ const Ctx = createContext<Game>();
 
 let nextId = 1;
 
-export function GameProvider(props: { initial: Accessor<Me>; children: JSX.Element }) {
+export function GameProvider(props: {
+  initial: Accessor<Me>;
+  github: Accessor<boolean>;
+  children: JSX.Element;
+}) {
   const [me, setMe] = createSignal<Me>(props.initial());
   const [toasts, setToasts] = createSignal<Toast[]>([]);
 
@@ -73,7 +79,19 @@ export function GameProvider(props: { initial: Accessor<Me>; children: JSX.Eleme
   };
 
   return (
-    <Ctx.Provider value={{ me, toasts, award, dismiss, send, claim, rename, sync: setMe }}>
+    <Ctx.Provider
+      value={{
+        me,
+        github: props.github,
+        toasts,
+        award,
+        dismiss,
+        send,
+        claim,
+        rename,
+        sync: setMe,
+      }}
+    >
       {props.children}
     </Ctx.Provider>
   );

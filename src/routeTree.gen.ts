@@ -30,6 +30,7 @@ import { Route as ApiPulseRouteImport } from './routes/api/pulse'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as GoHopRouteImport } from './routes/go/$hop'
 import { Route as VaultKeyRouteImport } from './routes/vault/$key'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as UHandleIndexRouteImport } from './routes/u/$handle/index'
 import { Route as UHandleCardDotpngRouteImport } from './routes/u/$handle/card[.]png'
 
@@ -139,6 +140,11 @@ const VaultKeyRoute = VaultKeyRouteImport.update({
   path: '/vault/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UHandleIndexRoute = UHandleIndexRouteImport.update({
   id: '/u/$handle/',
   path: '/u/$handle/',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/u/$handle/card.png': typeof UHandleCardDotpngRoute
   '/u/$handle/': typeof UHandleIndexRoute
 }
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/u/$handle/card.png': typeof UHandleCardDotpngRoute
   '/u/$handle': typeof UHandleIndexRoute
 }
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/u/$handle/card.png': typeof UHandleCardDotpngRoute
   '/u/$handle/': typeof UHandleIndexRoute
 }
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/api/auth/$'
     | '/u/$handle/card.png'
     | '/u/$handle/'
   fileRoutesByTo: FileRoutesByTo
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/api/auth/$'
     | '/u/$handle/card.png'
     | '/u/$handle'
   id:
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/api/auth/$'
     | '/u/$handle/card.png'
     | '/u/$handle/'
   fileRoutesById: FileRoutesById
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   ApiStatusRoute: typeof ApiStatusRoute
   GoHopRoute: typeof GoHopRoute
   VaultKeyRoute: typeof VaultKeyRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   UHandleCardDotpngRoute: typeof UHandleCardDotpngRoute
   UHandleIndexRoute: typeof UHandleIndexRoute
 }
@@ -479,6 +492,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof VaultKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$handle/': {
       id: '/u/$handle/'
       path: '/u/$handle'
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiStatusRoute: ApiStatusRoute,
   GoHopRoute: GoHopRoute,
   VaultKeyRoute: VaultKeyRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   UHandleCardDotpngRoute: UHandleCardDotpngRoute,
   UHandleIndexRoute: UHandleIndexRoute,
 }

@@ -1,36 +1,41 @@
 import { createHash, randomBytes } from "node:crypto";
 
 import { getCookie, getRequest, setCookie } from "@tanstack/solid-start/server";
+import { eq, sql } from "drizzle-orm";
 
+import { auth } from "./auth";
 import { payloadOf, variantCount } from "./catalogue";
 import { db } from "./db";
+import { players } from "./schema";
 
 /**
  * Who is asking.
  *
- * There are no accounts and no passwords. A visitor is a random token in an
- * http-only cookie, and everything about them -- id, handle, the seed that
- * deals their puzzles -- can be derived from that token alone.
+ * Identity is Better Auth's (see auth.ts). What this adds is the part before
+ * there is any identity at all: looking at the site writes nothing. A visitor
+ * with no session is dealt their puzzles from a random `pctf_deal` cookie, and
+ * their handle and seed are derived from it, so a crawler -- or a script that
+ * throws its cookies away every request -- leaves the database as it found it.
  *
- * That is what lets enrolment be lazy. Looking at the site writes nothing: a
- * visitor only gets a row once they do something worth keeping, such as
- * submitting a flag or buying a clue. A crawler, or a script minting a fresh
- * cookie per request, leaves the database exactly as it found it.
+ * The first time they do something worth keeping, {@link persist} signs them
+ * in as an anonymous Better Auth user and saves the seed they were dealt, so
+ * the puzzles they have been looking at stay theirs.
  */
 
 export type Player = {
+  /** Better Auth's user id once stored; derived from the deal cookie before. */
   id: string;
   handle: string;
   named: boolean;
   /** Decides which variant of each challenge this player is dealt. */
   seed: string;
-  /** Whether a row exists yet. See {@link persist}. */
+  /** Whether a player row (and a Better Auth user) exists yet. */
   stored: boolean;
-  /** Hash of the session token this request arrived with. */
-  session: string;
+  /** The name on a linked GitHub account, once claimed. */
+  account: string | null;
 };
 
-const SESSION_COOKIE = "pctf_sid";
+const DEAL_COOKIE = "pctf_deal";
 const TOKEN_SHAPE = /^[0-9a-f]{64}$/;
 const YEAR = 60 * 60 * 24 * 365;
 
@@ -88,59 +93,78 @@ function handleFrom(bytes: Buffer) {
   return `${adjective}-${animal}-${1000 + (bytes.readUInt16BE(2) % 9000)}`;
 }
 
-/** Everything a visitor is, worked out from their token and nothing else. */
+/** The deal cookie, minting one if the visitor has none. */
+function dealToken() {
+  const existing = getCookie(DEAL_COOKIE) ?? "";
+  if (TOKEN_SHAPE.test(existing)) return existing;
+  const token = randomBytes(32).toString("hex");
+  setCookie(DEAL_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: YEAR,
+  });
+  return token;
+}
+
+/** A visitor nobody has saved yet, worked out from their deal cookie alone. */
 function sketch(token: string): Player {
   const digest = createHash("sha256").update(`pocket-ctf/player:${token}`).digest();
   return {
-    id: digest.toString("hex").slice(0, 24),
+    id: `visitor:${digest.toString("hex").slice(0, 24)}`,
     handle: handleFrom(digest.subarray(12)),
     named: false,
     seed: sha256(`pocket-ctf/seed:${token}`).slice(0, 32),
     stored: false,
-    session: sha256(token),
+    account: null,
   };
 }
 
-type Row = Record<string, unknown>;
+/**
+ * Insert the hunt's row for a Better Auth user, dealt from `from`. The derived
+ * handle can collide with one somebody chose, so it is tried, then varied.
+ */
+async function insertPlayer(id: string, from: Player) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const handle = attempt === 0 ? from.handle : handleFrom(randomBytes(4));
+    const [row] = await db()
+      .insert(players)
+      .values({ id, handle, seed: from.seed, createdAt: Date.now() })
+      .onConflictDoNothing()
+      .returning();
+    if (row) return row;
+    // Either the id exists already (a race with another request) or the handle
+    // was taken. Only the first is a reason to stop.
+    const [mine] = await db().select().from(players).where(eq(players.id, id));
+    if (mine) return mine;
+  }
+  throw new Error("could not find a free handle");
+}
 
 async function resolve(): Promise<Player> {
-  let token = getCookie(SESSION_COOKIE) ?? "";
-  if (!TOKEN_SHAPE.test(token)) {
-    token = randomBytes(32).toString("hex");
-    setCookie(SESSION_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: YEAR,
-    });
-    return sketch(token);
-  }
+  const visitor = sketch(dealToken());
+  const signedIn = await auth().api.getSession({ headers: getRequest().headers });
+  if (!signedIn) return visitor;
 
-  const session = sha256(token);
-  const client = await db();
-  const found = await client.execute({
-    sql: `SELECT p.id, p.handle, p.named, p.seed
-            FROM sessions s JOIN players p ON p.id = s.player_id
-           WHERE s.token_hash = ?`,
-    args: [session],
-  });
-  const row = found.rows[0] as Row | undefined;
-  if (!row) return sketch(token);
+  const { user } = signedIn;
+  const [row] = await db().select().from(players).where(eq(players.id, user.id));
+  // A GitHub sign-in from a browser that never saved anything: deal them in now.
+  const player = row ?? (await insertPlayer(user.id, visitor));
   return {
-    id: String(row.id),
-    handle: String(row.handle),
-    named: Number(row.named) === 1,
-    seed: String(row.seed),
+    id: player.id,
+    handle: player.handle,
+    named: player.named,
+    seed: player.seed,
     stored: true,
-    session,
+    account: user.isAnonymous ? null : user.name,
   };
 }
 
 /*
  * One page load runs several server functions against the same request, and on
  * a first visit none of them has a cookie yet. Without this they would each
- * mint their own token and the last Set-Cookie would win.
+ * mint their own deal and the last Set-Cookie would win.
  */
 const perRequest = new WeakMap<Request, Promise<Player>>();
 
@@ -158,35 +182,15 @@ export function currentPlayer(): Promise<Player> {
 }
 
 /**
- * Give the player a row, if they do not have one. Called before anything is
- * written on their behalf, and nowhere else.
+ * Give the visitor an identity, if they have none: an anonymous Better Auth
+ * user, signed in on this response, with the seed they were dealt. Called
+ * before anything is written on their behalf, and nowhere else.
  */
 export async function persist(player: Player): Promise<void> {
   if (player.stored) return;
-  const client = await db();
-
-  // The derived handle can collide with one somebody chose. Try it, then vary.
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const handle = attempt === 0 ? player.handle : handleFrom(randomBytes(4));
-    await client.execute({
-      sql: "INSERT OR IGNORE INTO players (id, handle, seed, created_at) VALUES (?, ?, ?, ?)",
-      args: [player.id, handle, player.seed, Date.now()],
-    });
-    const row = await client.execute({
-      sql: "SELECT handle FROM players WHERE id = ?",
-      args: [player.id],
-    });
-    if (row.rows[0]) {
-      player.handle = String(row.rows[0].handle);
-      break;
-    }
-  }
-
-  await client.execute({
-    sql: "INSERT OR IGNORE INTO sessions (token_hash, player_id, created_at) VALUES (?, ?, ?)",
-    args: [player.session, player.id, Date.now()],
-  });
-  player.stored = true;
+  const { user } = await auth().api.signInAnonymous({ headers: getRequest().headers });
+  const row = await insertPlayer(user.id, player);
+  Object.assign(player, { id: row.id, handle: row.handle, stored: true });
 }
 
 /** Which of a challenge's variants this player was dealt. Stable for life. */
@@ -240,83 +244,20 @@ export async function rename(player: Player, wanted: string): Promise<string | n
   if (!HANDLE_SHAPE.test(handle)) {
     return "Handles are 3 to 20 letters, digits, dashes or underscores.";
   }
+  const [taken] = await db()
+    .select({ id: players.id })
+    .from(players)
+    .where(sql`lower(${players.handle}) = lower(${handle})`);
+  if (taken && taken.id !== player.id) return "Somebody already answers to that.";
+
   await persist(player);
-  const client = await db();
   try {
-    await client.execute({
-      sql: "UPDATE players SET handle = ?, named = 1 WHERE id = ?",
-      args: [handle, player.id],
-    });
+    await db().update(players).set({ handle, named: true }).where(eq(players.id, player.id));
   } catch {
+    // Lost a race for it.
     return "Somebody already answers to that.";
   }
   player.handle = handle;
   player.named = true;
   return null;
-}
-
-/* ------------------------------------------------------------------ *
- * Recovery codes
- * ------------------------------------------------------------------ */
-
-/** No 0/O, 1/I/L: the code is meant to survive being read off a screen. */
-const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-const CODE_GROUPS = 5;
-
-const canonical = (code: string) => code.toUpperCase().replace(/[^A-Z0-9]/g, "");
-
-/**
- * Mint a recovery code and return it, once.
- *
- * Progress hangs off a cookie, so clearing site data or changing browser would
- * otherwise lose it. Only the hash is kept, exactly as with session tokens:
- * the code cannot be shown again, and asking for another cancels this one.
- */
-export async function issueRecovery(player: Player): Promise<string> {
-  await persist(player);
-  let raw = "";
-  while (raw.length < CODE_GROUPS * 4) {
-    const byte = randomBytes(1)[0]!;
-    // Rejection-sampled, so every character is uniform over the alphabet.
-    if (byte < 256 - (256 % CODE_ALPHABET.length))
-      raw += CODE_ALPHABET[byte % CODE_ALPHABET.length];
-  }
-  const client = await db();
-  await client.execute({
-    sql: "UPDATE players SET recovery_hash = ? WHERE id = ?",
-    args: [sha256(`pocket-ctf/recovery:${raw}`), player.id],
-  });
-  return raw.match(/.{4}/g)!.join("-");
-}
-
-/**
- * Point this browser's session at the player a recovery code belongs to.
- * Whoever the browser was before is left as they were, still reachable from
- * any other session of theirs.
- */
-export async function recover(player: Player, code: string): Promise<boolean> {
-  const raw = canonical(code);
-  if (raw.length !== CODE_GROUPS * 4) return false;
-  const client = await db();
-  const found = await client.execute({
-    sql: "SELECT id, handle, named, seed FROM players WHERE recovery_hash = ?",
-    args: [sha256(`pocket-ctf/recovery:${raw}`)],
-  });
-  const row = found.rows[0];
-  if (!row) return false;
-
-  await client.execute({
-    sql: `INSERT INTO sessions (token_hash, player_id, created_at) VALUES (?, ?, ?)
-          ON CONFLICT (token_hash) DO UPDATE SET player_id = excluded.player_id`,
-    args: [player.session, String(row.id), Date.now()],
-  });
-  // The rest of this request should already see the recovered player.
-  Object.assign(player, {
-    id: String(row.id),
-    handle: String(row.handle),
-    named: Number(row.named) === 1,
-    seed: String(row.seed),
-    stored: true,
-  });
-  return true;
 }

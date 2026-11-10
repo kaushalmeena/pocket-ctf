@@ -22,7 +22,7 @@ ANSWERS.secret.md
 src/lib/generated/registry.json
 src/lib/generated/payloads.json
 
-# The player database. Local development keeps it in a file.
-data/
 .output
 .vercel
+# Neon CLI's link to this project; `neon init` recreates it.
+.neon

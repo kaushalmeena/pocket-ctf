@@ -1,9 +1,13 @@
 import { deflateSync } from "node:zlib";
 
+import { eq, sql } from "drizzle-orm";
+
 import type { Tier } from "~/challenges/types";
 
 import { CHALLENGES, MAX_SCORE } from "./catalogue";
 import { db } from "./db";
+import { playersAhead } from "./game";
+import { players, solves } from "./schema";
 
 /**
  * A player's public face: a profile anyone can open, and the picture a link
@@ -27,37 +31,28 @@ export type Profile = {
 };
 
 export async function profileOf(handle: string): Promise<Profile | null> {
-  const client = await db();
-  const who = await client.execute({
-    sql: "SELECT id, handle FROM players WHERE handle = ?",
-    args: [handle],
-  });
-  const row = who.rows[0];
-  if (!row) return null;
+  const [who] = await db()
+    .select({ id: players.id, handle: players.handle })
+    .from(players)
+    .where(sql`lower(${players.handle}) = lower(${handle})`);
+  if (!who) return null;
 
-  const solves = await client.execute({
-    sql: "SELECT slug, points FROM solves WHERE player_id = ?",
-    args: [String(row.id)],
-  });
-  const held = new Map(solves.rows.map((s) => [String(s.slug), Number(s.points)]));
+  const rows = await db()
+    .select({ slug: solves.slug, points: solves.points })
+    .from(solves)
+    .where(eq(solves.playerId, who.id));
+  const held = new Map(rows.map((s) => [s.slug, s.points]));
   const slots = CHALLENGES.map((c) => ({ tier: c.tier, held: held.has(c.slug) }));
   const found = slots.filter((s) => s.held).length;
-  const score = CHALLENGES.reduce((sum, c) => sum + (held.get(c.slug) ?? 0), 0);
-
-  const ahead = await client.execute({
-    sql: `SELECT COUNT(*) AS n FROM (
-            SELECT SUM(points) AS score FROM solves GROUP BY player_id HAVING score > ?
-          )`,
-    args: [score],
-  });
+  const score = CHALLENGES.reduce((total, c) => total + (held.get(c.slug) ?? 0), 0);
 
   return {
-    handle: String(row.handle),
+    handle: who.handle,
     found,
     total: CHALLENGES.length,
     score,
     maxScore: MAX_SCORE,
-    rank: Number(ahead.rows[0]?.n ?? 0) + 1,
+    rank: (await playersAhead(score)) + 1,
     slots,
     platinum: found === CHALLENGES.length,
   };

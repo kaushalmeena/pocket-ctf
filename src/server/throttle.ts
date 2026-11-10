@@ -1,7 +1,9 @@
 import { getRequestIP } from "@tanstack/solid-start/server";
+import { eq, inArray, lt, sql } from "drizzle-orm";
 
 import { db } from "./db";
 import { type Player, sha256 } from "./players";
+import { throttle } from "./schema";
 
 /**
  * Backoff for wrong answers.
@@ -40,50 +42,55 @@ function keysFor(player: Player): Key[] {
 
 /** Milliseconds until this player may guess again. Zero if they may now. */
 export async function lockedFor(player: Player, now = Date.now()): Promise<number> {
-  const client = await db();
+  const keys = keysFor(player);
+  const rows = await db()
+    .select()
+    .from(throttle)
+    .where(
+      inArray(
+        throttle.key,
+        keys.map((k) => k.key),
+      ),
+    );
   let longest = 0;
-  for (const { key, free } of keysFor(player)) {
-    const found = await client.execute({
-      sql: "SELECT wrong, last_at FROM throttle WHERE key = ?",
-      args: [key],
-    });
-    const row = found.rows[0];
-    if (!row) continue;
-    const [wrong, lastAt] = [Number(row.wrong), Number(row.last_at)];
-    if (wrong < free || now - lastAt > FORGET_MS) continue;
-    const penalty = Math.min(MAX_LOCKOUT_MS, 2 ** (wrong - free) * 1000);
-    longest = Math.max(longest, lastAt + penalty - now);
+  for (const row of rows) {
+    const free = keys.find((k) => k.key === row.key)?.free ?? FREE.player;
+    if (row.wrong < free || now - row.lastAt > FORGET_MS) continue;
+    const penalty = Math.min(MAX_LOCKOUT_MS, 2 ** (row.wrong - free) * 1000);
+    longest = Math.max(longest, row.lastAt + penalty - now);
   }
   return Math.max(0, longest);
 }
 
 /** Record a miss. Returns how many this player has now made in a row. */
 export async function noteMiss(player: Player, now = Date.now()): Promise<number> {
-  const client = await db();
   let own = 1;
   for (const { key } of keysFor(player)) {
-    const result = await client.execute({
-      sql: `INSERT INTO throttle (key, wrong, last_at) VALUES (?, 1, ?)
-            ON CONFLICT (key) DO UPDATE SET
-              wrong = CASE WHEN ? - last_at > ? THEN 1 ELSE wrong + 1 END,
-              last_at = excluded.last_at
-            RETURNING wrong`,
-      args: [key, now, now, FORGET_MS],
-    });
-    if (key.startsWith("p:")) own = Number(result.rows[0]?.wrong ?? 1);
+    const [row] = await db()
+      .insert(throttle)
+      .values({ key, wrong: 1, lastAt: now })
+      .onConflictDoUpdate({
+        target: throttle.key,
+        set: {
+          // A run of misses is forgotten after a quiet spell.
+          wrong: sql`CASE WHEN ${now} - ${throttle.lastAt} > ${FORGET_MS} THEN 1 ELSE ${throttle.wrong} + 1 END`,
+          lastAt: now,
+        },
+      })
+      .returning({ wrong: throttle.wrong });
+    if (key.startsWith("p:")) own = row?.wrong ?? 1;
   }
   // Housekeeping, on the path that is already slow by design.
-  if (own === 1) {
-    await client.execute({
-      sql: "DELETE FROM throttle WHERE last_at < ?",
-      args: [now - 86_400_000],
-    });
-  }
+  if (own === 1)
+    await db()
+      .delete(throttle)
+      .where(lt(throttle.lastAt, now - 86_400_000));
   return own;
 }
 
 /** A right answer wipes the player's own slate. The address keeps its count. */
 export async function forgive(player: Player): Promise<void> {
-  const client = await db();
-  await client.execute({ sql: "DELETE FROM throttle WHERE key = ?", args: [`p:${player.id}`] });
+  await db()
+    .delete(throttle)
+    .where(eq(throttle.key, `p:${player.id}`));
 }

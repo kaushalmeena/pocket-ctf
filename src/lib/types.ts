@@ -29,6 +29,8 @@ export type Me = {
   handle: string;
   /** False while the handle is the one the server made up. */
   named: boolean;
+  /** The GitHub name this progress is claimed under, or null if it is not. */
+  account: string | null;
   found: number;
   total: number;
   score: number;
