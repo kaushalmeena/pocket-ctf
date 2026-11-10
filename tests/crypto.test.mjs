@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   derive,
+  flagDigest,
   fromHex,
   normalizeFlag,
   PURPOSE,
+  SEALED,
   seal,
-  sha256Hex,
   toHex,
   unseal,
 } from "../src/lib/kdf.js";
@@ -31,20 +32,18 @@ describe("flag normalization", () => {
 });
 
 describe("key derivation", () => {
-  it("separates purposes, so one flag's three values cannot be confused", async () => {
+  it("separates purposes, so two uses of one secret cannot be confused", async () => {
     const salt = rand(16);
-    const [v, t, s] = await Promise.all([
-      derive("pctf{x}", PURPOSE.verify, salt),
-      derive("pctf{x}", PURPOSE.token, salt),
-      derive("pctf{x}", PURPOSE.seal, salt),
+    const [a, b] = await Promise.all([
+      derive("a secret", PURPOSE.seal, salt),
+      derive("a secret", "pocket-ctf/test/other", salt),
     ]);
-    expect(toHex(v)).not.toBe(toHex(t));
-    expect(toHex(t)).not.toBe(toHex(s));
+    expect(toHex(a)).not.toBe(toHex(b));
   });
 
-  it("separates salts, so the same flag differs across deployments", async () => {
-    const a = await derive("pctf{x}", PURPOSE.verify, rand(16));
-    const b = await derive("pctf{x}", PURPOSE.verify, rand(16));
+  it("separates salts, so the same secret seals differently each time", async () => {
+    const a = await derive("a secret", PURPOSE.seal, rand(16));
+    const b = await derive("a secret", PURPOSE.seal, rand(16));
     expect(toHex(a)).not.toBe(toHex(b));
   });
 });
@@ -66,55 +65,52 @@ describe("sealed content", () => {
 });
 
 describe("the registry", () => {
-  it("verifies each flag and no other", async () => {
+  it("recognises each flag by its digest, and nothing near it", async () => {
     for (const { entry, flag: raw } of eachVariant()) {
       const flag = normalizeFlag(raw);
-      const good = toHex(await derive(flag, PURPOSE.verify, fromHex(entry.verifySalt)));
-      const bad = toHex(await derive(`${flag}x`, PURPOSE.verify, fromHex(entry.verifySalt)));
-      expect(good).toBe(entry.verifyHash);
-      expect(bad).not.toBe(entry.verifyHash);
+      expect(await flagDigest(flag, registry.pepper)).toBe(entry.digest);
+      expect(await flagDigest(`${flag}x`, registry.pepper)).not.toBe(entry.digest);
     }
   });
 
-  it("stores only a digest of the proof-of-solve token", async () => {
-    for (const { entry, flag: raw } of eachVariant()) {
-      const flag = normalizeFlag(raw);
-      const token = toHex(await derive(flag, PURPOSE.token, fromHex(entry.tokenSalt)));
-      expect(await sha256Hex(token)).toBe(entry.tokenHash);
-      // The token itself must not be recoverable from what ships.
-      expect(JSON.stringify(entry)).not.toContain(token);
+  it("gives every flag its own digest", () => {
+    // A submission names no challenge, so the digest is the only thing that
+    // says which one it solved. Two alike would make one of them unreachable.
+    const digests = [...eachVariant()].map(({ entry }) => entry.digest);
+    expect(new Set(digests).size).toBe(digests.length);
+  });
+
+  it("depends on this deployment's pepper", async () => {
+    const [{ entry, flag }] = [...eachVariant()];
+    const elsewhere = toHex(rand(32));
+    expect(await flagDigest(normalizeFlag(flag), elsewhere)).not.toBe(entry.digest);
+  });
+
+  it("holds no flag in plaintext", () => {
+    const serialized = JSON.stringify(registry);
+    for (const { flag } of eachVariant()) {
+      expect(serialized).not.toContain(normalizeFlag(flag));
     }
   });
 
-  it("will not let one challenge's token validate another", async () => {
-    const [a, b] = registry.order;
-    const entryA = registry.challenges[a].variants[0];
-    const tokenA = toHex(
-      await derive(normalizeFlag(flags[a][0]), PURPOSE.token, fromHex(entryA.tokenSalt)),
-    );
-    expect(await sha256Hex(tokenA)).not.toBe(registry.challenges[b].variants[0].tokenHash);
-  });
-
-  it("decrypts each writeup with its flag, and with nothing else", async () => {
-    for (const { entry, flag: raw } of eachVariant()) {
-      const flag = normalizeFlag(raw);
+  it("opens each writeup with its own key, and with nothing else", async () => {
+    for (const { slug, variant, entry } of eachVariant()) {
+      const { salt, iv, ct } = entry.writeup;
       const opened = await unseal(
-        flag,
-        fromHex(entry.sealSalt),
-        entry.writeup,
-        fromHex(entry.sealIv),
+        SEALED.writeup(slug, variant),
+        fromHex(salt),
+        ct,
+        fromHex(iv),
       );
       expect(opened).toBeTypeOf("string");
       expect(
-        await unseal(`${flag}x`, fromHex(entry.sealSalt), entry.writeup, fromHex(entry.sealIv)),
+        await unseal(SEALED.writeup(slug, variant + 1), fromHex(salt), ct, fromHex(iv)),
       ).toBeNull();
     }
   });
 });
 
 describe("hints", () => {
-  const hintSecret = (slug, variant, index) => `pocket-ctf/hint/${slug}/${variant}/${index}`;
-
   it("decrypt to the authored text, in every variant", async () => {
     for (const { slug, variant, entry } of eachVariant()) {
       const sealed = entry.hints ?? [];
@@ -122,7 +118,7 @@ describe("hints", () => {
       expect(sealed.length).toBe(authored.length);
       for (const [i, h] of sealed.entries()) {
         const text = await unseal(
-          hintSecret(slug, variant, i),
+          SEALED.hint(slug, variant, i),
           fromHex(h.salt),
           h.ct,
           fromHex(h.iv),
@@ -147,28 +143,17 @@ describe("hints", () => {
 });
 
 describe("decoys", () => {
-  it("look like real entries but belong to no challenge", () => {
-    const phantoms = registry.$decoys ?? {};
-    expect(Object.keys(phantoms).length).toBeGreaterThan(0);
-    for (const [name, entry] of Object.entries(phantoms)) {
-      // Same shape, so dumping the JSON does not separate them at a glance.
-      expect(entry).toHaveProperty("verifySalt");
-      expect(entry).toHaveProperty("verifyHash");
-      // But no page, no payload, and no route.
-      expect(registry.order).not.toContain(name);
+  it("are recognised, so submitting one can be answered", async () => {
+    const planted = Object.keys(answerKey.honeypots ?? {});
+    expect(planted.length).toBeGreaterThan(0);
+    const known = new Set(registry.honeypots.map((h) => h.digest));
+    for (const decoy of planted) {
+      expect(known.has(await flagDigest(normalizeFlag(decoy), registry.pepper))).toBe(true);
     }
   });
 
-  it("cannot be satisfied by any flag", async () => {
-    // Their verifyHash is the hash of a non-flag string, so no submission
-    // matching the flag grammar can ever validate against one.
-    for (const [name, entry] of Object.entries(registry.$decoys ?? {})) {
-      for (const { slug, flag } of eachVariant()) {
-        const attempt = toHex(
-          await derive(normalizeFlag(flag), PURPOSE.verify, fromHex(entry.verifySalt)),
-        );
-        expect(attempt, `${slug} matched decoy ${name}`).not.toBe(entry.verifyHash);
-      }
-    }
+  it("are never mistaken for a real flag", () => {
+    const real = new Set([...eachVariant()].map(({ entry }) => entry.digest));
+    for (const { digest } of registry.honeypots) expect(real.has(digest)).toBe(false);
   });
 });

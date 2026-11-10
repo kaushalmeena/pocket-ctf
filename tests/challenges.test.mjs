@@ -25,7 +25,7 @@ describe("every challenge is solvable from shipped data", () => {
     it(`${slug} solves to its flag, in all ${variantCount} variants`, async () => {
       const { solve } = await solverFor(slug);
       for (const [variant, payload] of payloads[slug].variants.entries()) {
-        const recovered = await solve({ payload });
+        const recovered = await solve({ payload, slug, variant });
         expect(recovered, `${slug} variant ${variant}`).toBe(
           normalizeFlag(flags[slug][variant]),
         );

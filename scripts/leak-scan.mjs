@@ -117,7 +117,11 @@ const targets = [
   "vite.config.ts",
   "flags.sample.json",
 ];
-if (statSyncSafe(join(ROOT, "dist"))) targets.push("dist");
+// Whatever a build left behind: `.output` is what a Node host runs, `.vercel`
+// what a Vercel build uploads, and `dist` the intermediate both are made from.
+for (const built of ["dist", ".output", ".vercel/output"]) {
+  if (statSyncSafe(join(ROOT, built))) targets.push(built);
+}
 
 const files = targets.flatMap((t) => walk(join(ROOT, t), []));
 /** @type {{ file: string; flag: string; kind: "leak" | "decoy" | "illustration" }[]} */

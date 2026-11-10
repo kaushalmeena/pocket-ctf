@@ -2,9 +2,9 @@ import type { ChallengeMeta } from "../types";
 
 export const meta: ChallengeMeta = {
   slug: "invisible-ink",
-  title: "Invisible Ink",
-  tagline: "A dull poem that counts its own pauses.",
-  category: "stego",
-  difficulty: "easy",
+  title: "Between the Lines",
+  tier: "bronze",
   points: 75,
+  quip: "Eleven lines about nothing, and you counted the nothing.",
+  whereabouts: "Get lost. Properly lost — somewhere this site has no page for.",
 };

@@ -4,22 +4,23 @@
     "first-light": "pctf{demo_look_closer}",
     "invisible-ink": "pctf{demo_between_the_words}",
     "russian-dolls": "pctf{demo_peel_it_back}",
-    "chromatic-aberration": "pctf{demo_lowest_bit}",
+    "clearance": "pctf{demo_trust_the_cookie}",
     "dots-and-dashes": "pctf{demo_short_and_long}",
-    "prime-cuts": "pctf{demo_factorise_me}",
-    "the-repeat-offender": "pctf{demo_repeating_key}",
     "stylesheet-secrets": "pctf{demo_cascade_order}",
-    "vector-tracing": "pctf{demo_path_parity}",
     "local-records": "pctf{demo_open_the_drawer}",
-    "instruction-set": "pctf{demo_run_the_bytecode}",
-    "feedback-loop": "pctf{demo_shift_register}"
+    "wrong-verb": "pctf{demo_other_verbs}",
+    "chromatic-aberration": "pctf{demo_lowest_bit}",
+    "vector-tracing": "pctf{demo_path_parity}",
+    "feedback-loop": "pctf{demo_shift_register}",
+    "the-repeat-offender": "pctf{demo_repeating_key}",
+    "instruction-set": "pctf{demo_run_the_bytecode}"
   },
   "hints": {},
   "writeups": {},
   "honeypots": {
-    "pctf{n1ce_try_but_no}": "That one was painted on the page in twenty-four-point type. Flags that want to be found aren't flags.",
+    "pctf{n1ce_try_but_no}": "That one is printed on the front page as an example. Flags that want to be found aren't flags.",
     "pctf{grep_is_not_a_solution}": "Found in a source comment, was it? Comments are where developers put things they've stopped thinking about.",
-    "pctf{th4ts_a_decoy_friend}": "A plausible-looking string in a payload file. Plausible is doing a lot of work in that sentence.",
-    "pctf{i_read_the_registry}": "The registry holds hashes. If a readable flag appeared there, someone put it there on purpose."
+    "pctf{th4ts_a_decoy_friend}": "A cookie literally named `flag`. Plausible is doing a lot of work in that sentence.",
+    "pctf{x_marks_the_header}": "A response header called X-Flag. If it were that easy, the trophy would be made of cardboard."
   }
 }
