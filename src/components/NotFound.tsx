@@ -1,57 +1,50 @@
 import { Link } from "@tanstack/solid-router";
-import { ArrowRight, Compass } from "lucide-solid";
+import { ArrowLeft } from "lucide-solid";
+import { createResource, Show } from "solid-js";
+
+import { getLost } from "~/lib/api";
 
 /**
- * Shown for any path the router cannot match, including an unknown challenge
- * slug.
+ * Shown for any path the router cannot match.
  *
- * It says outright that nothing is hidden here. In a CTF a bare "Not Found" is
- * an invitation -- players reasonably wonder whether a 404 is itself a puzzle,
- * and this site did once hide a challenge behind an unlisted URL. Being explicit
- * costs a sentence and saves someone an afternoon.
+ * On a site where guessing addresses is part of the game, this is the page a
+ * player sees most. It has a poem on it, to pass the time.
  */
 export function NotFound() {
-  return (
-    <div class="space-y-5 py-8">
-      <p class="flex items-center gap-2 font-mono text-xs tracking-widest text-zinc-400 uppercase dark:text-zinc-600">
-        <Compass aria-hidden="true" size={13} />
-        404
-      </p>
+  const [lost] = createResource(() => getLost());
 
-      <h1 class="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-        There is nothing at this address.
+  return (
+    <div class="animate-rise mx-auto max-w-2xl space-y-6 py-6">
+      <p class="eyebrow">404 · not here</p>
+
+      <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        Nothing at this address.
       </h1>
 
-      <p class="prose-mini max-w-xl">
-        Not a puzzle, not a hint, and not a challenge you were supposed to find by guessing.
-        Every challenge on this site is listed on the challenges page and reachable from it —
-        none of them is hidden behind a URL you have to discover.
+      <p class="prose-mini">
+        A good guess, though, and guessing is allowed. Since you have come all this way, here is
+        a poem. It is not a very good poem.
       </p>
 
-      <p class="prose-mini max-w-xl">
-        If you typed the address, check the spelling. If you followed a link from within the
-        site, that is a bug worth reporting.
-      </p>
+      <Show when={lost()}>
+        {(found) => (
+          <blockquote class="carrier border-l-2 border-accent-500/60 py-1 pl-5 text-zinc-600 dark:text-zinc-400">
+            {found().poem}
+          </blockquote>
+        )}
+      </Show>
 
-      <div class="flex flex-wrap gap-3 pt-1">
-        <Link
-          to="/challenges"
-          class="group inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-        >
-          All challenges
-          <ArrowRight
-            aria-hidden="true"
-            size={15}
-            class="transition-transform duration-200 group-hover:translate-x-0.5"
-          />
-        </Link>
-        <Link
-          to="/"
-          class="inline-flex items-center rounded-lg border border-zinc-300 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-        >
-          Start over
-        </Link>
-      </div>
+      <Link
+        to="/"
+        class="group inline-flex items-center gap-2 text-sm font-medium text-zinc-900 dark:text-zinc-100"
+      >
+        <ArrowLeft
+          aria-hidden="true"
+          size={15}
+          class="transition-transform duration-200 group-hover:-translate-x-0.5"
+        />
+        Back to the front page
+      </Link>
     </div>
   );
 }

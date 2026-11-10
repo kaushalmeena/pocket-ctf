@@ -10,63 +10,233 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChallengesRouteImport } from './routes/challenges'
-import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as CSlugRouteImport } from './routes/c/$slug'
+import { Route as AvatarDotpngRouteImport } from './routes/avatar[.]png'
+import { Route as BoardRouteImport } from './routes/board'
+import { Route as DeadDropRouteImport } from './routes/dead-drop'
+import { Route as GhostDotcssRouteImport } from './routes/ghost[.]css'
+import { Route as HumansDottxtRouteImport } from './routes/humans[.]txt'
+import { Route as MachineRouteImport } from './routes/machine'
+import { Route as RadioRouteImport } from './routes/radio'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as TeapotRouteImport } from './routes/teapot'
+import { Route as TrophiesRouteImport } from './routes/trophies'
+import { Route as DotwellKnownSecurityDottxtRouteImport } from './routes/[.]well-known/security[.]txt'
+import { Route as ApiFlagRouteImport } from './routes/api/flag'
+import { Route as ApiPulseRouteImport } from './routes/api/pulse'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChallengesRoute = ChallengesRouteImport.update({
-  id: '/challenges',
-  path: '/challenges',
+const AvatarDotpngRoute = AvatarDotpngRouteImport.update({
+  id: '/avatar.png',
+  path: '/avatar.png',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProgressRoute = ProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
+const BoardRoute = BoardRouteImport.update({
+  id: '/board',
+  path: '/board',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CSlugRoute = CSlugRouteImport.update({
-  id: '/c/$slug',
-  path: '/c/$slug',
+const DeadDropRoute = DeadDropRouteImport.update({
+  id: '/dead-drop',
+  path: '/dead-drop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GhostDotcssRoute = GhostDotcssRouteImport.update({
+  id: '/ghost.css',
+  path: '/ghost.css',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HumansDottxtRoute = HumansDottxtRouteImport.update({
+  id: '/humans.txt',
+  path: '/humans.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MachineRoute = MachineRouteImport.update({
+  id: '/machine',
+  path: '/machine',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RadioRoute = RadioRouteImport.update({
+  id: '/radio',
+  path: '/radio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeapotRoute = TeapotRouteImport.update({
+  id: '/teapot',
+  path: '/teapot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrophiesRoute = TrophiesRouteImport.update({
+  id: '/trophies',
+  path: '/trophies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotwellKnownSecurityDottxtRoute =
+  DotwellKnownSecurityDottxtRouteImport.update({
+    id: '/.well-known/security.txt',
+    path: '/.well-known/security.txt',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiFlagRoute = ApiFlagRouteImport.update({
+  id: '/api/flag',
+  path: '/api/flag',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPulseRoute = ApiPulseRouteImport.update({
+  id: '/api/pulse',
+  path: '/api/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/challenges': typeof ChallengesRoute
-  '/progress': typeof ProgressRoute
-  '/c/$slug': typeof CSlugRoute
+  '/avatar.png': typeof AvatarDotpngRoute
+  '/board': typeof BoardRoute
+  '/dead-drop': typeof DeadDropRoute
+  '/ghost.css': typeof GhostDotcssRoute
+  '/humans.txt': typeof HumansDottxtRoute
+  '/machine': typeof MachineRoute
+  '/radio': typeof RadioRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staff': typeof StaffRoute
+  '/teapot': typeof TeapotRoute
+  '/trophies': typeof TrophiesRoute
+  '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/flag': typeof ApiFlagRoute
+  '/api/pulse': typeof ApiPulseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/challenges': typeof ChallengesRoute
-  '/progress': typeof ProgressRoute
-  '/c/$slug': typeof CSlugRoute
+  '/avatar.png': typeof AvatarDotpngRoute
+  '/board': typeof BoardRoute
+  '/dead-drop': typeof DeadDropRoute
+  '/ghost.css': typeof GhostDotcssRoute
+  '/humans.txt': typeof HumansDottxtRoute
+  '/machine': typeof MachineRoute
+  '/radio': typeof RadioRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staff': typeof StaffRoute
+  '/teapot': typeof TeapotRoute
+  '/trophies': typeof TrophiesRoute
+  '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/flag': typeof ApiFlagRoute
+  '/api/pulse': typeof ApiPulseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/challenges': typeof ChallengesRoute
-  '/progress': typeof ProgressRoute
-  '/c/$slug': typeof CSlugRoute
+  '/avatar.png': typeof AvatarDotpngRoute
+  '/board': typeof BoardRoute
+  '/dead-drop': typeof DeadDropRoute
+  '/ghost.css': typeof GhostDotcssRoute
+  '/humans.txt': typeof HumansDottxtRoute
+  '/machine': typeof MachineRoute
+  '/radio': typeof RadioRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/staff': typeof StaffRoute
+  '/teapot': typeof TeapotRoute
+  '/trophies': typeof TrophiesRoute
+  '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/flag': typeof ApiFlagRoute
+  '/api/pulse': typeof ApiPulseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/challenges' | '/progress' | '/c/$slug'
+  fullPaths:
+    | '/'
+    | '/avatar.png'
+    | '/board'
+    | '/dead-drop'
+    | '/ghost.css'
+    | '/humans.txt'
+    | '/machine'
+    | '/radio'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/staff'
+    | '/teapot'
+    | '/trophies'
+    | '/.well-known/security.txt'
+    | '/api/flag'
+    | '/api/pulse'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/challenges' | '/progress' | '/c/$slug'
-  id: '__root__' | '/' | '/challenges' | '/progress' | '/c/$slug'
+  to:
+    | '/'
+    | '/avatar.png'
+    | '/board'
+    | '/dead-drop'
+    | '/ghost.css'
+    | '/humans.txt'
+    | '/machine'
+    | '/radio'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/staff'
+    | '/teapot'
+    | '/trophies'
+    | '/.well-known/security.txt'
+    | '/api/flag'
+    | '/api/pulse'
+  id:
+    | '__root__'
+    | '/'
+    | '/avatar.png'
+    | '/board'
+    | '/dead-drop'
+    | '/ghost.css'
+    | '/humans.txt'
+    | '/machine'
+    | '/radio'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/staff'
+    | '/teapot'
+    | '/trophies'
+    | '/.well-known/security.txt'
+    | '/api/flag'
+    | '/api/pulse'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChallengesRoute: typeof ChallengesRoute
-  ProgressRoute: typeof ProgressRoute
-  CSlugRoute: typeof CSlugRoute
+  AvatarDotpngRoute: typeof AvatarDotpngRoute
+  BoardRoute: typeof BoardRoute
+  DeadDropRoute: typeof DeadDropRoute
+  GhostDotcssRoute: typeof GhostDotcssRoute
+  HumansDottxtRoute: typeof HumansDottxtRoute
+  MachineRoute: typeof MachineRoute
+  RadioRoute: typeof RadioRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StaffRoute: typeof StaffRoute
+  TeapotRoute: typeof TeapotRoute
+  TrophiesRoute: typeof TrophiesRoute
+  DotwellKnownSecurityDottxtRoute: typeof DotwellKnownSecurityDottxtRoute
+  ApiFlagRoute: typeof ApiFlagRoute
+  ApiPulseRoute: typeof ApiPulseRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -78,25 +248,109 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/challenges': {
-      id: '/challenges'
-      path: '/challenges'
-      fullPath: '/challenges'
-      preLoaderRoute: typeof ChallengesRouteImport
+    '/avatar.png': {
+      id: '/avatar.png'
+      path: '/avatar.png'
+      fullPath: '/avatar.png'
+      preLoaderRoute: typeof AvatarDotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/progress': {
-      id: '/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
+    '/board': {
+      id: '/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof BoardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/c/$slug': {
-      id: '/c/$slug'
-      path: '/c/$slug'
-      fullPath: '/c/$slug'
-      preLoaderRoute: typeof CSlugRouteImport
+    '/dead-drop': {
+      id: '/dead-drop'
+      path: '/dead-drop'
+      fullPath: '/dead-drop'
+      preLoaderRoute: typeof DeadDropRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ghost.css': {
+      id: '/ghost.css'
+      path: '/ghost.css'
+      fullPath: '/ghost.css'
+      preLoaderRoute: typeof GhostDotcssRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/humans.txt': {
+      id: '/humans.txt'
+      path: '/humans.txt'
+      fullPath: '/humans.txt'
+      preLoaderRoute: typeof HumansDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/machine': {
+      id: '/machine'
+      path: '/machine'
+      fullPath: '/machine'
+      preLoaderRoute: typeof MachineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/radio': {
+      id: '/radio'
+      path: '/radio'
+      fullPath: '/radio'
+      preLoaderRoute: typeof RadioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teapot': {
+      id: '/teapot'
+      path: '/teapot'
+      fullPath: '/teapot'
+      preLoaderRoute: typeof TeapotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trophies': {
+      id: '/trophies'
+      path: '/trophies'
+      fullPath: '/trophies'
+      preLoaderRoute: typeof TrophiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/security.txt': {
+      id: '/.well-known/security.txt'
+      path: '/.well-known/security.txt'
+      fullPath: '/.well-known/security.txt'
+      preLoaderRoute: typeof DotwellKnownSecurityDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/flag': {
+      id: '/api/flag'
+      path: '/api/flag'
+      fullPath: '/api/flag'
+      preLoaderRoute: typeof ApiFlagRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/pulse': {
+      id: '/api/pulse'
+      path: '/api/pulse'
+      fullPath: '/api/pulse'
+      preLoaderRoute: typeof ApiPulseRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -104,19 +358,32 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChallengesRoute: ChallengesRoute,
-  ProgressRoute: ProgressRoute,
-  CSlugRoute: CSlugRoute,
+  AvatarDotpngRoute: AvatarDotpngRoute,
+  BoardRoute: BoardRoute,
+  DeadDropRoute: DeadDropRoute,
+  GhostDotcssRoute: GhostDotcssRoute,
+  HumansDottxtRoute: HumansDottxtRoute,
+  MachineRoute: MachineRoute,
+  RadioRoute: RadioRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StaffRoute: StaffRoute,
+  TeapotRoute: TeapotRoute,
+  TrophiesRoute: TrophiesRoute,
+  DotwellKnownSecurityDottxtRoute: DotwellKnownSecurityDottxtRoute,
+  ApiFlagRoute: ApiFlagRoute,
+  ApiPulseRoute: ApiPulseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/solid-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/solid-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }
