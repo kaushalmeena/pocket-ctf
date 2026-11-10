@@ -16,13 +16,23 @@ const DEFAULT_URL = "file:./data/pocket-ctf.db";
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS players (
      id TEXT PRIMARY KEY,
-     token_hash TEXT NOT NULL UNIQUE,
      handle TEXT NOT NULL UNIQUE COLLATE NOCASE,
      named INTEGER NOT NULL DEFAULT 0,
      seed TEXT NOT NULL,
-     wrong INTEGER NOT NULL DEFAULT 0,
-     last_wrong_at INTEGER NOT NULL DEFAULT 0,
+     recovery_hash TEXT,
      created_at INTEGER NOT NULL
+   )`,
+  // A player can be signed in from several browsers; each holds its own token.
+  `CREATE TABLE IF NOT EXISTS sessions (
+     token_hash TEXT PRIMARY KEY,
+     player_id TEXT NOT NULL REFERENCES players(id),
+     created_at INTEGER NOT NULL
+   )`,
+  // Wrong-answer counts, per player and per address. See throttle.ts.
+  `CREATE TABLE IF NOT EXISTS throttle (
+     key TEXT PRIMARY KEY,
+     wrong INTEGER NOT NULL,
+     last_at INTEGER NOT NULL
    )`,
   `CREATE TABLE IF NOT EXISTS solves (
      player_id TEXT NOT NULL REFERENCES players(id),
@@ -46,6 +56,7 @@ const SCHEMA = [
      PRIMARY KEY (player_id, egg)
    )`,
   "CREATE INDEX IF NOT EXISTS solves_by_slug ON solves (slug)",
+  "CREATE UNIQUE INDEX IF NOT EXISTS players_by_recovery ON players (recovery_hash)",
 ];
 
 async function open(): Promise<Client> {

@@ -13,8 +13,9 @@ import {
   writeupText,
 } from "./catalogue";
 import { db } from "./db";
-import { type Player, variantOf } from "./players";
+import { persist, type Player, variantOf } from "./players";
 import { runCommand } from "./terminal";
+import { forgive, lockedFor, noteMiss } from "./throttle";
 
 /**
  * The rules of the hunt: what a submission is worth, what a clue costs, and
@@ -84,6 +85,7 @@ const PLATINUM: Trophy = {
 export async function awardEgg(player: Player, egg: string): Promise<Trophy[]> {
   const known = EGGS[egg];
   if (!known) return [];
+  await persist(player);
   const client = await db();
   const result = await client.execute({
     sql: "INSERT OR IGNORE INTO eggs (player_id, egg, found_at) VALUES (?, ?, ?)",
@@ -178,20 +180,6 @@ export async function standing(player: Player): Promise<Me> {
 
 const FLAG_SHAPE = /^pctf\{[a-z0-9_]{2,64}\}$/;
 
-/** Wrong answers before the throttle engages. */
-const FREE_MISSES = 5;
-const MAX_LOCKOUT_MS = 60_000;
-
-/**
- * Exponential backoff after a run of misses. This, and the random suffix on
- * every flag, is what stands between the submission box and a wordlist.
- */
-function lockoutRemaining(player: Player, now = Date.now()) {
-  if (player.wrong < FREE_MISSES) return 0;
-  const penalty = Math.min(MAX_LOCKOUT_MS, 2 ** (player.wrong - FREE_MISSES) * 1000);
-  return Math.max(0, player.lastWrongAt + penalty - now);
-}
-
 const MISSES = [
   "No flag by that name. Whatever that was, it wasn't hidden here.",
   "Not one of ours. It has the right shape and the wrong everything else.",
@@ -199,15 +187,6 @@ const MISSES = [
   "That is a string in braces. A flag is a string in braces that was hidden.",
   "Wrong. The site remains unimpressed, but it admires the confidence.",
 ];
-
-async function noteMiss(player: Player) {
-  const client = await db();
-  await client.execute({
-    sql: "UPDATE players SET wrong = wrong + 1, last_wrong_at = ? WHERE id = ?",
-    args: [Date.now(), player.id],
-  });
-  player.wrong += 1;
-}
 
 /**
  * Everything typed at the prompt arrives here: flags, and anything else.
@@ -230,7 +209,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     return reply("info", out.lines, trophies, out.clear);
   }
 
-  const locked = lockoutRemaining(player);
+  const locked = await lockedFor(player);
   if (locked > 0) {
     return reply("err", [
       `Too many misses. The prompt is sulking for another ${Math.ceil(locked / 1000)}s.`,
@@ -251,8 +230,8 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
 
   const hit = FLAGS.get(digest);
   if (!hit) {
-    await noteMiss(player);
-    return reply("err", [MISSES[player.wrong % MISSES.length]!]);
+    const misses = await noteMiss(player);
+    return reply("err", [MISSES[misses % MISSES.length]!]);
   }
 
   // Real, but dealt to another player: every challenge ships several variants.
@@ -265,6 +244,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
   }
 
   const challenge = BY_SLUG.get(hit.slug)!;
+  await persist(player);
   const client = await db();
   const clues = (await cluesOf(player)).get(hit.slug) ?? 0;
   const points = worth(challenge.points, clues);
@@ -283,8 +263,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
   if (inserted.rowsAffected === 0) {
     return reply("info", [`Already in your case: ${challenge.title}. It only counts once.`]);
   }
-  await client.execute({ sql: "UPDATE players SET wrong = 0 WHERE id = ?", args: [player.id] });
-  player.wrong = 0;
+  await forgive(player);
 
   const trophies: Trophy[] = [
     { tier: challenge.tier, title: challenge.title, quip: challenge.quip, points, firstBlood },
@@ -379,6 +358,7 @@ export async function buyClue(player: Player, index: number): Promise<TrophyCase
   if (challenge && !(await solvesOf(player)).has(challenge.slug)) {
     const taken = (await cluesOf(player)).get(challenge.slug) ?? 0;
     if (taken < clueCount(challenge.slug)) {
+      await persist(player);
       const client = await db();
       await client.execute({
         sql: `INSERT INTO clues (player_id, slug, taken) VALUES (?, ?, 1)

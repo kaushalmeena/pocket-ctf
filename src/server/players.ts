@@ -9,9 +9,13 @@ import { db } from "./db";
  * Who is asking.
  *
  * There are no accounts and no passwords. A visitor is a random token in an
- * http-only cookie; the database keeps only its hash, so a leaked table cannot
- * be replayed as sessions. The handle is a label on that row -- the server
- * invents one on arrival and the player can swap it for their own.
+ * http-only cookie, and everything about them -- id, handle, the seed that
+ * deals their puzzles -- can be derived from that token alone.
+ *
+ * That is what lets enrolment be lazy. Looking at the site writes nothing: a
+ * visitor only gets a row once they do something worth keeping, such as
+ * submitting a flag or buying a clue. A crawler, or a script minting a fresh
+ * cookie per request, leaves the database exactly as it found it.
  */
 
 export type Player = {
@@ -20,118 +24,87 @@ export type Player = {
   named: boolean;
   /** Decides which variant of each challenge this player is dealt. */
   seed: string;
-  wrong: number;
-  lastWrongAt: number;
+  /** Whether a row exists yet. See {@link persist}. */
+  stored: boolean;
+  /** Hash of the session token this request arrived with. */
+  session: string;
 };
 
 const SESSION_COOKIE = "pctf_sid";
+const TOKEN_SHAPE = /^[0-9a-f]{64}$/;
 const YEAR = 60 * 60 * 24 * 365;
 
-const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
+export const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
 const ADJECTIVES = [
-  "quiet",
-  "idle",
-  "lucid",
-  "dusty",
-  "brisk",
-  "sly",
-  "odd",
-  "amber",
-  "feral",
-  "polite",
-  "sleepy",
-  "nimble",
-  "static",
-  "hollow",
-  "patient",
-  "wry",
-  "lunar",
-  "salty",
-  "velvet",
-  "rogue",
+  "quiet", "idle", "lucid", "dusty", "brisk", "sly", "odd", "amber", "feral", "polite",
+  "sleepy", "nimble", "static", "hollow", "patient", "wry", "lunar", "salty", "velvet", "rogue",
 ];
 const ANIMALS = [
-  "otter",
-  "heron",
-  "lynx",
-  "moth",
-  "newt",
-  "ibis",
-  "gecko",
-  "raven",
-  "stoat",
-  "marmot",
-  "wombat",
-  "tapir",
-  "finch",
-  "badger",
-  "puffin",
-  "mantis",
-  "ferret",
-  "walrus",
-  "magpie",
-  "shrew",
+  "otter", "heron", "lynx", "moth", "newt", "ibis", "gecko", "raven", "stoat", "marmot",
+  "wombat", "tapir", "finch", "badger", "puffin", "mantis", "ferret", "walrus", "magpie", "shrew",
 ];
 
-const pick = <T>(list: readonly T[]) => list[randomBytes(1)[0]! % list.length]!;
+/** A handle from four bytes: the same bytes always give the same name. */
+function handleFrom(bytes: Buffer) {
+  const adjective = ADJECTIVES[bytes[0]! % ADJECTIVES.length];
+  const animal = ANIMALS[bytes[1]! % ANIMALS.length];
+  return `${adjective}-${animal}-${1000 + (bytes.readUInt16BE(2) % 9000)}`;
+}
 
-const inventHandle = () =>
-  `${pick(ADJECTIVES)}-${pick(ANIMALS)}-${1000 + (randomBytes(2).readUInt16BE() % 9000)}`;
+/** Everything a visitor is, worked out from their token and nothing else. */
+function sketch(token: string): Player {
+  const digest = createHash("sha256").update(`pocket-ctf/player:${token}`).digest();
+  return {
+    id: digest.toString("hex").slice(0, 24),
+    handle: handleFrom(digest.subarray(12)),
+    named: false,
+    seed: sha256(`pocket-ctf/seed:${token}`).slice(0, 32),
+    stored: false,
+    session: sha256(token),
+  };
+}
 
 type Row = Record<string, unknown>;
 
-const fromRow = (row: Row): Player => ({
-  id: String(row.id),
-  handle: String(row.handle),
-  named: Number(row.named) === 1,
-  seed: String(row.seed),
-  wrong: Number(row.wrong),
-  lastWrongAt: Number(row.last_wrong_at),
-});
-
-async function enroll(): Promise<Player> {
-  const client = await db();
-  const token = randomBytes(32).toString("hex");
-  const player: Player = {
-    id: randomBytes(12).toString("hex"),
-    handle: inventHandle(),
-    named: false,
-    seed: randomBytes(16).toString("hex"),
-    wrong: 0,
-    lastWrongAt: 0,
-  };
-  await client.execute({
-    sql: "INSERT INTO players (id, token_hash, handle, seed, created_at) VALUES (?, ?, ?, ?, ?)",
-    args: [player.id, sha256(token), player.handle, player.seed, Date.now()],
-  });
-  setCookie(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: YEAR,
-  });
-  return player;
-}
-
 async function resolve(): Promise<Player> {
-  const token = getCookie(SESSION_COOKIE);
-  if (token) {
-    const client = await db();
-    const found = await client.execute({
-      sql: "SELECT * FROM players WHERE token_hash = ?",
-      args: [sha256(token)],
+  let token = getCookie(SESSION_COOKIE) ?? "";
+  if (!TOKEN_SHAPE.test(token)) {
+    token = randomBytes(32).toString("hex");
+    setCookie(SESSION_COOKIE, token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: YEAR,
     });
-    if (found.rows[0]) return fromRow(found.rows[0] as Row);
+    return sketch(token);
   }
-  return enroll();
+
+  const session = sha256(token);
+  const client = await db();
+  const found = await client.execute({
+    sql: `SELECT p.id, p.handle, p.named, p.seed
+            FROM sessions s JOIN players p ON p.id = s.player_id
+           WHERE s.token_hash = ?`,
+    args: [session],
+  });
+  const row = found.rows[0] as Row | undefined;
+  if (!row) return sketch(token);
+  return {
+    id: String(row.id),
+    handle: String(row.handle),
+    named: Number(row.named) === 1,
+    seed: String(row.seed),
+    stored: true,
+    session,
+  };
 }
 
 /*
  * One page load runs several server functions against the same request, and on
  * a first visit none of them has a cookie yet. Without this they would each
- * enroll their own player and the last Set-Cookie would win.
+ * mint their own token and the last Set-Cookie would win.
  */
 const perRequest = new WeakMap<Request, Promise<Player>>();
 
@@ -148,6 +121,38 @@ export function currentPlayer(): Promise<Player> {
   return pending;
 }
 
+/**
+ * Give the player a row, if they do not have one. Called before anything is
+ * written on their behalf, and nowhere else.
+ */
+export async function persist(player: Player): Promise<void> {
+  if (player.stored) return;
+  const client = await db();
+
+  // The derived handle can collide with one somebody chose. Try it, then vary.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const handle = attempt === 0 ? player.handle : handleFrom(randomBytes(4));
+    await client.execute({
+      sql: "INSERT OR IGNORE INTO players (id, handle, seed, created_at) VALUES (?, ?, ?, ?)",
+      args: [player.id, handle, player.seed, Date.now()],
+    });
+    const row = await client.execute({
+      sql: "SELECT handle FROM players WHERE id = ?",
+      args: [player.id],
+    });
+    if (row.rows[0]) {
+      player.handle = String(row.rows[0].handle);
+      break;
+    }
+  }
+
+  await client.execute({
+    sql: "INSERT OR IGNORE INTO sessions (token_hash, player_id, created_at) VALUES (?, ?, ?)",
+    args: [player.session, player.id, Date.now()],
+  });
+  player.stored = true;
+}
+
 /** Which of a challenge's variants this player was dealt. Stable for life. */
 export function variantOf(player: Player, slug: string): number {
   const draw = createHash("sha256").update(`${player.seed}:${slug}`).digest().readUInt32BE();
@@ -157,11 +162,20 @@ export function variantOf(player: Player, slug: string): number {
 /** The puzzle data this player was dealt for a challenge. */
 export const dealt = (player: Player, slug: string) => payloadOf(slug, variantOf(player, slug));
 
+/** A per-player value nobody else can compute: `length` hex characters. */
+export const secretOf = (player: Player, purpose: string, length: number) =>
+  sha256(`${player.seed}:pocket-ctf/${purpose}`).slice(0, length);
+
 /* ------------------------------------------------------------------ *
  * Things a visitor is handed at the door
  * ------------------------------------------------------------------ */
 
 export const CLEARANCE_COOKIE = "clearance";
+
+const LAX = { sameSite: "lax", path: "/", maxAge: YEAR } as const;
+
+/** Set a cookie the page's own script is allowed to read. */
+export const leave = (name: string, value: string) => setCookie(name, value, LAX);
 
 /**
  * Three cookies besides the session, all readable from script on purpose.
@@ -171,13 +185,12 @@ export const CLEARANCE_COOKIE = "clearance";
  * through their cookies looking for the word "flag".
  */
 function leavePocketLitter(player: Player) {
-  const lax = { sameSite: "lax", path: "/", maxAge: YEAR } as const;
   const blob: string | undefined = dealt(player, "russian-dolls")?.blob;
-  if (blob && getCookie("matryoshka") !== blob) setCookie("matryoshka", blob, lax);
+  if (blob && getCookie("matryoshka") !== blob) leave("matryoshka", blob);
   if (!getCookie(CLEARANCE_COOKIE)) {
-    setCookie(CLEARANCE_COOKIE, btoa(JSON.stringify({ role: "visitor" })), lax);
+    leave(CLEARANCE_COOKIE, btoa(JSON.stringify({ role: "visitor" })));
   }
-  if (!getCookie("flag")) setCookie("flag", "pctf{th4ts_a_decoy_friend}", lax);
+  if (!getCookie("flag")) leave("flag", "pctf{th4ts_a_decoy_friend}");
 }
 
 /* ------------------------------------------------------------------ *
@@ -191,6 +204,7 @@ export async function rename(player: Player, wanted: string): Promise<string | n
   if (!HANDLE_SHAPE.test(handle)) {
     return "Handles are 3 to 20 letters, digits, dashes or underscores.";
   }
+  await persist(player);
   const client = await db();
   try {
     await client.execute({
