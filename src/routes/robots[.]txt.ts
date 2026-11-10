@@ -15,6 +15,7 @@ User-agent: *
 Allow: /$
 Disallow: /trophies
 Disallow: /board
+Disallow: /u/
 Disallow: /api/
 
 # Staff only. Nothing to see. Certainly nothing to index.

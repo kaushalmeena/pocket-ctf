@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
-import { Droplet } from "lucide-solid";
+import { Droplet, Share2 } from "lucide-solid";
 import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
 
 import { Markdown } from "~/components/Markdown";
@@ -203,6 +203,20 @@ function Profile(props: { view: TrophyCase }) {
 
   const platinum = () => props.view.platinum;
 
+  const [copied, setCopied] = createSignal(false);
+
+  /** A link to the public profile, whose preview image is the trophy card. */
+  const handleShare = async () => {
+    const link = `${window.location.origin}/u/${encodeURIComponent(me().handle)}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.open(link, "_blank", "noopener");
+    }
+  };
+
   return (
     <section class="space-y-5">
       <div class="flex flex-wrap items-center gap-5">
@@ -262,6 +276,16 @@ function Profile(props: { view: TrophyCase }) {
             {me().found}/{me().total} flags · {me().score}/{me().maxScore} pts
             <Show when={me().rank}> · rank #{me().rank}</Show>
           </p>
+          <Show when={me().found > 0}>
+            <button
+              type="button"
+              onClick={handleShare}
+              class="inline-flex items-center gap-1.5 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+            >
+              <Share2 size={11} aria-hidden="true" />
+              {copied() ? "Link copied" : "Share your card"}
+            </button>
+          </Show>
         </div>
       </div>
 

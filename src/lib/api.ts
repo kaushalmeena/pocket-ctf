@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/solid-start";
 
+import { profileOf } from "~/server/card";
 import {
   board,
   buyClue,
@@ -84,3 +85,8 @@ export const redeemRecoveryCode = createServerFn({ method: "POST" })
 export const getVault = createServerFn({ method: "GET" })
   .validator(text(80))
   .handler(({ data }) => plants.vault(data));
+
+/** Anyone's public profile, by handle. Counts and metals, never titles. */
+export const getProfile = createServerFn({ method: "GET" })
+  .validator(text(40))
+  .handler(({ data }) => profileOf(data));

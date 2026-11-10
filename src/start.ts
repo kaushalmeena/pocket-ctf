@@ -1,4 +1,4 @@
-import { createMiddleware, createStart } from "@tanstack/solid-start";
+import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/solid-start";
 
 /**
  * Headers every response carries.
@@ -23,4 +23,14 @@ const responseHeaders = createMiddleware().server(async ({ next }) => {
   return result;
 });
 
-export const startInstance = createStart(() => ({ requestMiddleware: [responseHeaders] }));
+/*
+ * Server functions are same-origin RPC: the prompt, clue purchases, renames
+ * and recovery all go through them. This refuses any that arrive from another
+ * site. The plain `/api/*` routes are left open on purpose -- they are part of
+ * the hunt, and are meant to be poked at with curl.
+ */
+const csrf = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
+
+export const startInstance = createStart(() => ({
+  requestMiddleware: [csrf, responseHeaders],
+}));

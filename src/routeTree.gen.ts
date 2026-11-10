@@ -30,6 +30,8 @@ import { Route as ApiPulseRouteImport } from './routes/api/pulse'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as GoHopRouteImport } from './routes/go/$hop'
 import { Route as VaultKeyRouteImport } from './routes/vault/$key'
+import { Route as UHandleIndexRouteImport } from './routes/u/$handle/index'
+import { Route as UHandleCardDotpngRouteImport } from './routes/u/$handle/card[.]png'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -137,6 +139,16 @@ const VaultKeyRoute = VaultKeyRouteImport.update({
   path: '/vault/$key',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UHandleIndexRoute = UHandleIndexRouteImport.update({
+  id: '/u/$handle/',
+  path: '/u/$handle/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UHandleCardDotpngRoute = UHandleCardDotpngRouteImport.update({
+  id: '/u/$handle/card.png',
+  path: '/u/$handle/card.png',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -160,6 +172,8 @@ export interface FileRoutesByFullPath {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/u/$handle/card.png': typeof UHandleCardDotpngRoute
+  '/u/$handle/': typeof UHandleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -183,6 +197,8 @@ export interface FileRoutesByTo {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/u/$handle/card.png': typeof UHandleCardDotpngRoute
+  '/u/$handle': typeof UHandleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -207,6 +223,8 @@ export interface FileRoutesById {
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
+  '/u/$handle/card.png': typeof UHandleCardDotpngRoute
+  '/u/$handle/': typeof UHandleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -232,6 +250,8 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/u/$handle/card.png'
+    | '/u/$handle/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -255,6 +275,8 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/u/$handle/card.png'
+    | '/u/$handle'
   id:
     | '__root__'
     | '/'
@@ -278,6 +300,8 @@ export interface FileRouteTypes {
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
+    | '/u/$handle/card.png'
+    | '/u/$handle/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -302,6 +326,8 @@ export interface RootRouteChildren {
   ApiStatusRoute: typeof ApiStatusRoute
   GoHopRoute: typeof GoHopRoute
   VaultKeyRoute: typeof VaultKeyRoute
+  UHandleCardDotpngRoute: typeof UHandleCardDotpngRoute
+  UHandleIndexRoute: typeof UHandleIndexRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -453,6 +479,20 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof VaultKeyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$handle/': {
+      id: '/u/$handle/'
+      path: '/u/$handle'
+      fullPath: '/u/$handle/'
+      preLoaderRoute: typeof UHandleIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$handle/card.png': {
+      id: '/u/$handle/card.png'
+      path: '/u/$handle/card.png'
+      fullPath: '/u/$handle/card.png'
+      preLoaderRoute: typeof UHandleCardDotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -478,6 +518,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiStatusRoute: ApiStatusRoute,
   GoHopRoute: GoHopRoute,
   VaultKeyRoute: VaultKeyRoute,
+  UHandleCardDotpngRoute: UHandleCardDotpngRoute,
+  UHandleIndexRoute: UHandleIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
