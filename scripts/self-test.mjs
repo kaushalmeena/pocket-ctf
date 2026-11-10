@@ -1,118 +1,211 @@
 #!/usr/bin/env node
 /**
- * Verifies *this deployment* -- the one built from your real answer key -- by
- * playing every challenge and then checking the answer the way the site will.
+ * Play the whole hunt against a running instance, as a stranger would.
  *
- * `pnpm test` covers the same ground, but it runs against whatever data is live,
- * which on a fresh clone is the committed demo set. It therefore passes green
- * without telling you anything about the flags you are about to hand players.
- * This refuses to run on the demo set for exactly that reason.
+ *   pnpm self-test                      # http://localhost:3000
+ *   pnpm self-test https://ctf.example.com
  *
- * Two questions, in order:
+ * It arrives with no cookies and no knowledge of the answer key, finds every
+ * flag from what the server actually sends -- markup, headers, cookies, files,
+ * endpoints -- recovers each with that challenge's own reference solver, and
+ * submits it. If a flag cannot be reached or is not accepted, this fails.
  *
- *   1. Can each challenge be solved from what a player receives? Every
- *      challenge's own reference solver is driven against its shipped payload,
- *      with no access to the key.
- *   2. Will the site accept the result? The recovered flag goes through the same
- *      salted derivation the browser performs, compared against the hash in the
- *      registry. A generator that hashed something subtly different from what
- *      the puzzle encodes is caught here, rather than by a player who has solved
- *      it and is being told they are wrong.
+ * `pnpm test` proves each puzzle is solvable from its generated data. This
+ * proves the data is really planted where the hunt says it is, for the variant
+ * the server dealt, and that the server takes the answer.
  *
- * Requires flags.secret.json and seeds.secret.json. Run with
- * `pnpm self-test`.
+ * It enrolls one new player per run, and that player ends up on the board.
  */
 
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { solverFor } from "./lib/discover.mjs";
 
-import { derive, fromHex, normalizeFlag, PURPOSE, toHex } from "../src/lib/kdf.js";
-import { hasKey, readDeployment, readKey, resolveFlags } from "./answers.mjs";
-import { slugs, solverFor } from "./lib/discover.mjs";
+const BASE = (process.argv[2] ?? "http://localhost:3000").replace(/\/$/, "");
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const read = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
+/* ------------------------------------------------------------------ *
+ * A browser's worth of state
+ * ------------------------------------------------------------------ */
 
-const die = (message) => {
-  console.error(`✗ ${message}`);
+const jar = new Map();
+
+async function visit(path, init = {}) {
+  const cookie = [...jar].map(([k, v]) => `${k}=${v}`).join("; ");
+  const response = await fetch(`${BASE}${path}`, {
+    redirect: "manual",
+    ...init,
+    headers: { ...init.headers, ...(cookie ? { cookie } : {}) },
+  });
+  for (const line of response.headers.getSetCookie()) {
+    const pair = line.split(";")[0];
+    jar.set(pair.slice(0, pair.indexOf("=")), pair.slice(pair.indexOf("=") + 1));
+  }
+  return response;
+}
+
+const text = async (path) => (await visit(path)).text();
+
+/** The first long hex run in a page: every ciphertext blob is one. */
+const hexBlob = (html) => html.match(/>([0-9a-f]{40,})</)?.[1];
+
+const number = (html, pattern) => Number(html.replace(/<!--.*?-->/g, "").match(pattern)?.[1]);
+
+/* ------------------------------------------------------------------ *
+ * Where each flag is, and how to lift its puzzle off the site
+ * ------------------------------------------------------------------ */
+
+const home = await text("/");
+if (!jar.has("pctf_sid")) {
+  console.error(`✗ ${BASE} set no session cookie -- is this a Pocket CTF instance?`);
   process.exit(1);
+}
+
+const HUNT = {
+  // Loose characters in the front page's markup.
+  "first-light": () => ({
+    shards: [...home.matchAll(/data-k="(\d+)" data-v="([^"]*)"/g)].map((m) => ({
+      k: Number(m[1]),
+      v: m[2],
+    })),
+  }),
+
+  // The poem on any page that does not exist.
+  "invisible-ink": async () => {
+    const lost = await text("/a-page-that-does-not-exist");
+    return { poem: lost.slice(lost.indexOf("<blockquote"), lost.indexOf("</blockquote>")) };
+  },
+
+  // A cookie handed over on arrival.
+  "russian-dolls": () => ({ blob: decodeURIComponent(jar.get("matryoshka") ?? "") }),
+
+  // The staff room believes whatever the clearance cookie says.
+  clearance: async () => {
+    const before = jar.get("clearance");
+    jar.set("clearance", btoa(JSON.stringify({ role: "staff" })));
+    const room = await text("/staff");
+    jar.set("clearance", before);
+    // Not the first flag-shaped string on the page: that one is in a source
+    // comment, and it is bait.
+    return { found: room.match(/class="blob[^>]*>(pctf\{[a-z0-9_]+\})</)?.[1] };
+  },
+
+  // The rhythm the footer light keeps.
+  "dots-and-dashes": async () => (await visit("/api/pulse")).json(),
+
+  // The same endpoint, asked with a verb the site never sends.
+  "wrong-verb": async () => {
+    const allowed = (await visit("/api/pulse", { method: "OPTIONS" })).headers.get("allow");
+    if (!allowed?.includes("PUT")) throw new Error(`OPTIONS advertised "${allowed}"`);
+    return { found: (await (await visit("/api/pulse", { method: "PUT" })).json()).flag };
+  },
+
+  // A stylesheet every page links and none uses.
+  "stylesheet-secrets": async () => ({ stylesheet: await text("/ghost.css") }),
+
+  // Records every page files in IndexedDB, as shipped in the page data.
+  "local-records": () => ({
+    records: [...home.matchAll(/seq:(\d+),data:"([^"]+)"/g)].map((m) => ({
+      seq: Number(m[1]),
+      data: m[2],
+    })),
+  }),
+
+  // The portrait each player is issued.
+  "chromatic-aberration": async () => {
+    const png = Buffer.from(await (await visit("/avatar.png")).arrayBuffer());
+    return {
+      size: png.readUInt32BE(16),
+      dataUri: `data:image/png;base64,${png.toString("base64")}`,
+    };
+  },
+
+  // The drawing on the front page.
+  "vector-tracing": () => ({ path: home.match(/<path d="(M [^"]+)"/)?.[1] }),
+
+  // Named in a dotfile the prompt will show to anyone who lists them.
+  "feedback-loop": async () => {
+    const listing = await say("cat .radio");
+    const path = listing.lines.join(" ").match(/\/[a-z-]+/)?.[0];
+    const page = await text(path);
+    return {
+      ciphertextHex: hexBlob(page),
+      width: number(page, /Register width: <code[^>]*>(\d+)/),
+      taps: page.replace(/<!--.*?-->/g, "").match(/polynomial: <code[^>]*>(0x[0-9a-f]+)/)?.[1],
+    };
+  },
+
+  // The contact address in security.txt.
+  "the-repeat-offender": async () => {
+    const contact = (await text("/.well-known/security.txt")).match(
+      /Contact: \S+?(\/[a-z-]+)\s/,
+    );
+    const page = await text(contact[1]);
+    return {
+      ciphertextHex: hexBlob(page),
+      keyLength: number(page, /<strong[^>]*>(\d+)\s*bytes/),
+    };
+  },
+
+  // The Link header on every response.
+  "instruction-set": async () => {
+    const link = (await visit("/")).headers.get("link")?.match(/<([^>]+)>/)?.[1];
+    return { bytecode: hexBlob(await text(link)) };
+  },
 };
 
-if (!hasKey(ROOT)) die("flags.secret.json is missing -- there is no deployment to verify.");
-
-const registry = read("src/lib/generated/registry.json");
-if (registry.sample === true) {
-  die(
-    "the live data is the demo set, so this would prove nothing about your flags.\n" +
-      "  Run `pnpm gen` with flags.secret.json in place first.",
-  );
+async function say(line) {
+  const response = await visit("/api/flag", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ flag: line }),
+  });
+  return response.json();
 }
 
-const deployment = readDeployment(ROOT);
-if (!deployment) die("seeds.secret.json is missing -- run `pnpm gen` first.");
+/* ------------------------------------------------------------------ *
+ * Play
+ * ------------------------------------------------------------------ */
 
-const payloads = read("src/lib/generated/payloads.json");
-const flags = resolveFlags(readKey(ROOT), deployment.suffixes);
-const discovered = slugs();
-
-const orphans = discovered.filter((slug) => !registry.challenges[slug]);
-if (orphans.length > 0) die(`no generated data for ${orphans.join(", ")} -- run \`pnpm gen\`.`);
-
-/** The check the browser performs on submit. */
-async function accepted(slug, variant, flag) {
-  const { verifySalt, verifyHash } = registry.challenges[slug].variants[variant];
-  const digest = await derive(normalizeFlag(flag), PURPOSE.verify, fromHex(verifySalt));
-  return toHex(digest) === verifyHash;
-}
+console.log(`Playing ${BASE} as a new visitor\n`);
 
 let failures = 0;
+let last;
 
-for (const slug of discovered) {
-  const { solve } = await solverFor(slug);
-  const problems = [];
-
-  for (const [variant, payload] of payloads[slug].variants.entries()) {
-    let recovered;
-    try {
-      recovered = await solve({ payload });
-    } catch (error) {
-      problems.push(`variant ${variant}: solver threw -- ${error.message}`);
-      continue;
-    }
-
-    const expected = normalizeFlag(flags[slug][variant]);
-    if (normalizeFlag(recovered ?? "") !== expected) {
-      problems.push(
-        `variant ${variant}: solved to ${recovered ?? "nothing"}, expected ${expected}`,
-      );
-      continue;
-    }
-
-    if (!(await accepted(slug, variant, recovered))) {
-      problems.push(
-        `variant ${variant}: solves correctly, but the site would reject the answer`,
-      );
-    }
-  }
-
-  failures += problems.length;
-  const count = payloads[slug].variants.length;
-  if (problems.length === 0) {
-    console.log(`  ✔ ${slug.padEnd(22)} solvable and accepted, all ${count} variants`);
-  } else {
-    console.log(`  ✗ ${slug}`);
-    for (const problem of problems) console.log(`      ${problem}`);
+for (const [slug, lift] of Object.entries(HUNT)) {
+  try {
+    const payload = await lift();
+    // Two flags are handed over by the server rather than derived; for the
+    // rest, the reference solver works from what was lifted off the site.
+    const flag = payload.found ?? (await (await solverFor(slug)).solve({ payload }));
+    last = await say(flag);
+    if (last.tone !== "ok") throw new Error(`submitted, and the site said: ${last.lines?.[0]}`);
+    const trophy = last.trophies[0];
+    console.log(
+      `  ✔ ${slug.padEnd(22)} ${trophy.tier.padEnd(7)} ${trophy.title} (+${trophy.points})`,
+    );
+  } catch (error) {
+    failures++;
+    console.log(`  ✗ ${slug.padEnd(22)} ${error.message}`);
   }
 }
 
 console.log("");
-if (failures > 0) {
-  die(
-    `${failures} problem${failures === 1 ? "" : "s"} across ${discovered.length} challenges.`,
+
+const expected = Object.keys(HUNT).length;
+if (last?.me && last.me.total !== expected) {
+  failures++;
+  console.log(
+    `  ✗ the site has ${last.me.total} flags but this script knows ${expected} hiding places`,
   );
 }
+
+if (failures > 0) {
+  console.error(
+    `✗ ${failures} problem${failures === 1 ? "" : "s"}. The hunt cannot be finished as it stands.`,
+  );
+  process.exit(1);
+}
+
+const platinum = last.trophies.some((t) => t.tier === "platinum");
 console.log(
-  `✔ all ${discovered.length} challenges solvable from shipped data, and every answer ` +
-    "accepted. This deployment is good to hand out.",
+  `✔ All ${expected} flags found and accepted as ${last.me.handle}: ` +
+    `${last.me.score}/${last.me.maxScore} points${platinum ? ", platinum awarded" : ""}.`,
 );
