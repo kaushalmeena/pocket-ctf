@@ -1,22 +1,10 @@
-import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/solid-start/plugin/vite";
+import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import viteSolid from "vite-plugin-solid";
-
-/**
- * One dynamic route serves every challenge, so the prerenderer has to be told
- * which slugs exist. Read from the same directories the app discovers, so a new
- * challenge is prerendered without touching this file.
- */
-function challengePages() {
-  const dir = fileURLToPath(new URL("./src/challenges", import.meta.url));
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => ({ path: `/c/${e.name}`, prerender: { enabled: true } }));
-}
 
 export default defineConfig({
   server: { port: 3000 },
@@ -42,17 +30,15 @@ export default defineConfig({
   },
   plugins: [
     // tanstackStart MUST come before the solid plugin.
-    tanstackStart({
-      // Every route is prerendered to real HTML so the finished CTF is a plain
-      // folder of files -- no backend, no network, openable from a USB stick.
-      // It also means "view source" is a legitimate move on a challenge page.
-      prerender: {
-        enabled: true,
-        crawlLinks: true,
-        failOnError: true,
-      },
-      pages: challengePages(),
-    }),
+    /*
+     * No prerendering. Every page is rendered per request, for one player: the
+     * markup, the cookies and the headers all carry puzzle data dealt to
+     * whoever is asking, so there is no static file that would be right twice.
+     */
+    tanstackStart(),
+    // Packages the server for wherever it runs -- a Node process by default,
+    // serverless functions on a host Nitro recognises. See docs/deployment.md.
+    nitro(),
     viteSolid({ ssr: true }),
     tailwindcss(),
   ],
@@ -62,18 +48,19 @@ export default defineConfig({
 
     /*
      * Terser rather than the default esbuild, for two things esbuild will not
-     * do: `mangle.toplevel` renames module-level bindings, and `drop_console`
-     * removes logging outright.
+     * do: `mangle.toplevel` renames module-level bindings.
      *
      * This is a speed bump, not a defence -- anyone determined will still read
-     * the bundle, and the design assumes they can (no flag is in it). What it
-     * changes is the cost of a casual skim: `verifyHash`, `tokenSalt` and
-     * `unsealPublic` stop being greppable names attached to obvious call sites.
+     * the bundle, and the design assumes they can: no flag, digest or puzzle
+     * list is in it, because all of that stays on the server. What it changes
+     * is the cost of a casual skim.
+     *
+     * `drop_console` is off on purpose. The console is one of the places a
+     * player is expected to look, and the site says hello there.
      */
     minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: true,
         drop_debugger: true,
         // Two passes so the constant folding from the first can be inlined by
         // the second; measurably smaller on a bundle this size.
