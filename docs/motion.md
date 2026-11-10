@@ -31,33 +31,40 @@ the background, which reads as lag rather than as a transition. It is temporary
 because a permanent global colour transition makes ordinary hovers sluggish.
 
 Two smaller pieces: `animate-rise` for content that appears on demand, and
-`animate-shake` on a wrong flag, retriggered by removing and re-adding the class.
+`animate-shake` on the prompt when a line is refused.
 
-**Waits get a delayed indeterminate bar.** `LoadingBar` covers the one real wait
-on a challenge page — reading storage and drawing this browser's variant — and
-does nothing for the first 120ms. That wait is usually a frame or two, and an
-indicator that appears and vanishes inside 100ms reads as a rendering glitch
-rather than as feedback. The `role="status"` region is present from the start
-regardless, so assistive tech is told immediately even when nothing is drawn.
-There is no percentage to report, so the bar sweeps rather than fills; under
-reduced motion it holds still at partial width, which still says "working".
+**Trophies slide in from the right** with a slight overshoot and leave the same
+way, 420ms in and 300ms out. It is the one piece of motion on the site that is
+meant to be noticed, so it is the only one with any bounce in it.
 
-A router-level navigation bar was considered and rejected: every route is
-prerendered and preloaded on intent, so navigations finish in a frame or two and
-the bar would never legitimately appear.
+**The footer light does not transition.** Everything else interactive fades
+between states; the lamp snaps on and off, because its timing is a message and
+an eased edge would smear a dot into a dash.
 
-**Overscroll is disabled** on `html` and `body`. Challenge pages involve a lot of
-scrolling between the puzzle and the submission box, and an accidental
-pull-to-refresh mid-solve throws away work — several puzzles build state in the
-page that a reload discards.
+**The logo wobbles** when tapped seven times, and **a scanline overlay**
+flickers over the whole page after the Konami code until the code is entered
+again. Both are rewards for doing something pointless, and neither does anything
+else.
+
+There is no loading indicator. The old challenge pages had one for the wait
+while the browser read storage and drew a variant; pages now arrive rendered,
+with the player's data already in them. The prompt's Send button shows an
+ellipsis while a line is in flight, and that is the only wait there is.
+
+**Overscroll is disabled** on `html` and `body`. An accidental pull-to-refresh
+wipes the prompt's scrollback mid-thought.
 
 `prefers-reduced-motion: reduce` collapses all of it to near-instant rather than
-merely faster, and drops the press transform.
+merely faster, and drops the press transform. Trophies still arrive and still
+leave; they just do not travel. The wobble and the scanline flicker stop. The
+footer light keeps blinking, because it is content rather than decoration — a
+player who cannot or would rather not watch it can read the same timings from
+the endpoint it polls, or click it and listen.
 
 ## Iconography
 
-[Lucide](https://lucide.dev) via `lucide-solid`, inlined as SVG so the site stays
-self-contained and offline. Icons are always paired with a label or carry an
+[Lucide](https://lucide.dev) via `lucide-solid`, inlined as SVG so no icon is a
+network request. Icons are always paired with a label or carry an
 `aria-label`; none of them is the sole carrier of meaning.
 
 The app mark is a pennant on a pole, echoing the wordmark's `flag` icon. Its

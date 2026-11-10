@@ -1,43 +1,60 @@
 # Deployment and indexing
 
-Shipping a real instance without ever committing the answers, and keeping the
-landing page findable while the challenges stay out of search results.
+Running the server, keeping the player database somewhere that survives, shipping
+a real instance without committing the answers, and keeping the front page
+findable while everything else stays out of search results.
 
 ## Deployment
 
-Every route is prerendered to static HTML. `pnpm build` writes `dist/client` — a
-plain folder of files with no server runtime, no API route and no server function
-anywhere in the project. Any static host will serve it, and so will
-`python3 -m http.server`.
+Nothing is prerendered. Every page is rendered per request, for one player: the
+markup, the cookies and the headers all carry puzzle data dealt to whoever is
+asking, so there is no static file that would be right twice.
+
+`pnpm build` writes `.output/` — a server and the static assets it serves.
 
 ```bash
 pnpm build
-pnpm preview                                   # or:
-python3 -m http.server 4173 --directory dist/client
+node .output/server/index.mjs        # PORT=3000 by default
+pnpm preview                         # the same build, through Vite
 ```
 
-### What a host needs
+[Nitro](https://nitro.build) does the packaging. With no preset it produces a
+plain Node server; on a host it recognises it produces that host's format
+instead.
 
-Nothing exotic, but three settings are worth checking:
+### Vercel
 
-| Setting                     | Why                                                                                                                                         |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Clean URLs**              | Pages are emitted as `c/first-light/index.html`. Hosts that do not resolve extensionless paths to `index.html` will 404 on every challenge. |
-| **404 page**                | Point it at `404.html` if your host asks. The app also renders its own not-found page for client-side navigation.                           |
-| **Immutable asset caching** | Everything under `/assets/` is content-hashed, so `Cache-Control: public, max-age=31536000, immutable` is safe and worth setting.           |
+Nitro detects Vercel's build environment and emits serverless functions without
+being asked, so there is no `vercel.json` and nothing to configure beyond the
+environment variables below. Vercel's own notes are at
+<https://vercel.com/docs/frameworks/full-stack/tanstack-start>.
 
-`vercel.json` in the repository root is a worked example of exactly these three
-settings, kept because that is where this instance runs. It is one host's syntax
-for host-agnostic requirements, not a dependency -- delete it and the build is
-unchanged. Without it Vercel publishes `dist` rather than `dist/client`, so the
-site lands one directory deep and every path 404s while the build still reports
-success.
+The earlier static build had a `vercel.json` pointing at `dist/client`. It is
+gone; if a project setting still names that output directory, clear it.
 
-Security headers are a host concern rather than an application one, since there
-is no server here to set them. `X-Content-Type-Options: nosniff`,
-`Referrer-Policy: strict-origin-when-cross-origin` and a restrictive
-`Permissions-Policy` are all sensible and none of them interfere with anything
-the site does.
+### The player database
+
+Players, solves, clues and secret trophies live in a
+[libSQL](https://github.com/tursodatabase/libsql) database — four tables,
+created on first use by `src/server/db.ts`. One client covers both places this
+runs:
+
+| `DATABASE_URL`               | Where                                                           |
+| ---------------------------- | --------------------------------------------------------------- |
+| unset, or `file:./data/x.db` | A SQLite file. Right for development and for a host with a disk |
+| `libsql://…` or `https://…`  | A hosted database, with `DATABASE_AUTH_TOKEN`                   |
+
+The default is `file:./data/pocket-ctf.db`, relative to wherever the server is
+started. `data/` is gitignored.
+
+**A serverless host needs the second row.** Functions there have no disk that
+outlives a request, so a `file:` database would be created empty on every cold
+start and the board would forget everyone. Create a hosted libSQL database —
+[Turso](https://turso.tech) is the usual one — and set both variables. The
+schema is applied on the first request; there is no migration step.
+
+Starting a fresh competition means an empty database, not a rebuild. Deleting
+the file, or dropping the four tables, is the reset.
 
 ### Supplying the answer key to a hosted build
 
@@ -65,7 +82,7 @@ newline, and leaving it unquoted sidesteps the apostrophe problem, since dotenv
 only strips quotes it finds at the start of a value.
 
 That file is your plaintext answer key. Delete it once the host has what it
-needs.
+needs. It does not include the database variables; set those separately.
 
 `scripts/bootstrap.mjs` runs on `postinstall` and `prebuild`. It generates from a
 real key when one is reachable — file or environment — and otherwise seeds the
@@ -73,34 +90,63 @@ demo set. So `pnpm build` does the right thing locally and on any host without a
 second command.
 
 **Both** secret variables are needed. With only `POCKET_CTF_FLAGS`, the generator
-mints fresh suffixes it cannot persist, so every deploy changes those flags and
-voids everyone's progress. It warns when it detects this.
+mints fresh suffixes it cannot persist, so every deploy changes every flag
+nobody has found yet. It warns when it detects this.
 
-`VITE_SITE_URL` is not secret, but leaving it unset means canonical tags and the
-sitemap advertise `http://localhost:3000`. `pnpm gen` warns about that too.
+These are build-time inputs. The flags and seeds are consumed by the generator
+and are not needed by the running server; only the database variables are read
+at run time.
+
+`VITE_SITE_URL` is not secret, but leaving it unset means the canonical tag, the
+sitemap and — less forgivably — the contact address in `security.txt` all
+advertise `http://localhost:3000`.
+
+### Headers and caching
+
+`src/start.ts` sets headers on every response: `X-Content-Type-Options`,
+`Referrer-Policy`, a restrictive `Permissions-Policy`, and
+`Cache-Control: private, no-store` wherever a route has not chosen its own. Two
+more are for players rather than browsers — a `Link` header and a decoy `X-Flag`
+— and a proxy that strips unknown headers will quietly remove a challenge.
+
+Do not put a shared cache in front of pages. Hashed files under `/assets/` are
+safe to cache forever; everything else is one player's.
+
+### Checking a deployment
+
+```bash
+pnpm self-test https://ctf.example.com
+```
+
+It plays the whole hunt against the live site as a new visitor and fails if any
+flag cannot be reached or is not accepted. It is the quickest way to find out
+that a proxy ate a header or the database is read-only. It leaves one finished
+player on the board; delete the row if that matters.
 
 ## SEO and indexing
 
-There is a genuine conflict here: being findable matters for the landing page,
-and being _unfindable_ matters for the challenges. An indexed challenge page puts
-its payload into a search cache, and an indexed writeup hands over answers to
-anyone who types the right query.
+There is a genuine conflict here: being findable matters for the front page, and
+being _unfindable_ matters for everything else. The unlisted pages are puzzles,
+and an indexed puzzle is a search result that says where it was hidden.
 
 So indexing is opt-in per route, declared in `src/lib/seo.ts`:
 
-| Route         | Indexed | Why                                             |
-| ------------- | ------- | ----------------------------------------------- |
-| `/`           | Yes     | Landing page: description, FAQ, structured data |
-| `/challenges` | Yes     | Titles and categories only; no puzzle content   |
-| `/c/*`        | No      | Carries the payloads and the sealed writeups    |
-| `/progress`   | No      | A localStorage scoreboard; nothing to index     |
-| `/vault/*`    | No      | Unlisted by design; `nofollow` as well          |
+| Route                               | Indexed | Why                                               |
+| ----------------------------------- | ------- | ------------------------------------------------- |
+| `/`                                 | Yes     | The introduction, with structured data            |
+| `/trophies`                         | No      | One player's trophy case                          |
+| `/board`                            | No      | Handles and scores; nothing a search should serve |
+| `/staff`, `/dead-drop`, `/radio`, … | No      | Unlisted by design; `nofollow` as well            |
 
-`robots.txt` states the same rules at the crawler level and links the sitemap,
-which lists only the two indexable URLs. The landing page carries `WebSite`,
-`SoftwareApplication` and `FAQPage` JSON-LD generated from the same copy the
-reader sees — there is no hidden keyword block, and nothing is written for a
-machine that a person would not want to read.
+`robots.txt` is a server route now rather than a generated file, and it does two
+jobs. It asks crawlers to stay out of `/trophies`, `/board`, `/api/` and
+`/staff` — and that last line is how players find the staff room, which is the
+oldest lesson there is about what `robots.txt` is for. The sitemap lists `/`
+alone.
+
+The front page carries `WebSite` and `SoftwareApplication` JSON-LD. There is no
+hidden keyword block, and nothing is written for a machine that a person would
+not want to read.
 
 ---
 

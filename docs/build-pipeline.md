@@ -4,57 +4,97 @@ How one answer key becomes a playable site, and why nothing readable survives
 the trip.
 
 Nothing about a challenge is written by hand twice. One answer key feeds a
-generator, and everything the site needs falls out of it.
+generator, and everything the server needs falls out of it.
 
 ```
 flags.secret.json          base flags you author        (gitignored)
-seeds.secret.json     random suffix per challenge  (gitignored, generated)
+seeds.secret.json          random suffix per variant    (gitignored, generated)
         │
         ├── scripts/answers.mjs      splices base + suffix -> the real flag
         │
         └── scripts/generate.mjs
-                 ├── src/lib/generated/registry.json   hashes, sealed writeups
+                 ├── src/lib/generated/registry.json   digests, sealed hints and writeups
                  ├── src/lib/generated/payloads.json   puzzle data
-                 ├── public/robots.txt                 names the unlisted path
-                 ├── public/sitemap.xml
                  └── ANSWERS.secret.md                 resolved flags, for you
 ```
 
-For each flag the generator derives four things, all with domain-separated
-PBKDF2 (310,000 rounds, SHA-256, 16-byte salt):
+Both generated files are read by the server and by nothing else. Neither is
+bundled for the browser — `src/server/catalogue.ts` is their only importer, and
+it is reachable only from server functions and server routes.
 
-| Derivation | Purpose                                                       |
-| ---------- | ------------------------------------------------------------- |
-| `verify`   | Checked against a submission                                  |
-| `token`    | Stored as proof of solve; the registry ships only its SHA-256 |
-| `seal`     | AES-GCM key encrypting that challenge's writeup               |
-| payload    | The puzzle itself, computed _from_ the flag                   |
+For each variant of each flag the generator produces four things:
+
+| Output    | How                                      | Purpose                                     |
+| --------- | ---------------------------------------- | ------------------------------------------- |
+| `digest`  | HMAC-SHA256 under a per-run pepper       | How the server recognises a submitted flag  |
+| `hints`   | AES-GCM, key from slug + variant + index | Sold one at a time from the trophy case     |
+| `writeup` | AES-GCM, key from slug + variant         | Released once the player holds that flag    |
+| payload   | That challenge's own `build.mjs`         | The puzzle itself, computed _from_ the flag |
 
 That last row is the load-bearing one. Challenge content is **derived from the
 flag**, not written alongside it: the zero-width poem, the stego PNG's pixel
-plane, the 124-digit prime product, the XOR ciphertext and the Morse timings are
-all functions of their flag. There is nowhere for a plaintext answer to sit.
+plane, the XOR ciphertext, the bytecode and the Morse timings are all functions
+of their flag. There is nowhere for a plaintext answer to sit.
+
+Two challenges are the exception that keeps the rule. `wrong-verb` and
+`clearance` have nothing to derive — the server hands the flag over when a
+request earns it — so their payload is the flag itself, sealed. The generated
+data therefore holds no readable flag for any challenge, and `pnpm verify:flags`
+can go on enforcing that without a carve-out.
+
+### Why the digest is fast
+
+The previous design verified in the browser, so each flag had its own salt and a
+310,000-round PBKDF2 hash: slow on purpose, because the attacker held the hash.
+
+A submission now names no challenge — the player was never told there were
+challenges — so it has to be looked up among every flag at once. One slow
+derivation per candidate would be several seconds of server CPU per guess, which
+is a denial-of-service lever attached to a form. So the registry keeps one
+HMAC-SHA256 digest per flag under a single pepper, the server computes one HMAC
+per submission, and the lookup is a `Map`.
+
+What bounds guessing is no longer the cost of a hash. It is the submission
+throttle, the random suffix on every flag, and the fact that the digests never
+leave the server. See [Anti-cheat](anti-cheat.md).
+
+### What sealing is, and is not
+
+Hints, writeups and the two vault flags are encrypted under keys built from a
+slug, a variant and an index (`SEALED` in `src/lib/kdf.js`) — all things the
+server knows. That is obfuscation, not secrecy, and it is worth saying so
+plainly: the server can open any of them whenever it likes.
+
+What it buys is that the text is not readable in the generated files or the
+repository, and that the only route to it is the endpoint that charges for it.
+Opening a seal costs one PBKDF2 run, so the server caches each result for the
+life of the process.
 
 `src/lib/kdf.js` is deliberately plain JavaScript with no imports, because Node
-(the generator) and the browser (the verifier) load _that exact file_. If they
-ever drifted, every hash in the registry would silently stop matching.
+(the generator) and the server load _that exact file_. If they ever drifted,
+every digest in the registry would silently stop matching.
 
-### Regenerating without resetting everyone
+### Regenerating never resets anyone
 
-Players store `PBKDF2(flag, tokenSalt)` as proof of solve, so a new `tokenSalt`
-silently invalidates their progress. `pnpm gen` therefore **reuses each
-challenge's existing salts** whenever that challenge's flag is unchanged, which
-it establishes by re-deriving the old `verifyHash`. Fixing a typo in one writeup
-no longer wipes the scoreboard. A flag that _does_ change gets fresh salts,
-because its old hash would no longer match anything.
+Progress used to be a proof-of-solve token in localStorage, derived under a salt
+the generator minted, so regenerating carelessly voided every player's solves
+and the pipeline went to some trouble to reuse salts.
 
-The AES-GCM IV is always regenerated, even when the salts are kept. Encrypting
-new plaintext under the same key and nonce is a real break, and the writeup is
-exactly what tends to change between runs.
+None of that machinery remains, because the thing it protected moved. A solve is
+a row in the database keyed by player and slug. The pepper is minted fresh on
+every run and nothing a player holds depends on it, so `pnpm gen` after fixing a
+typo in a writeup changes nothing anyone can see.
 
-`pnpm gen --rotate` deliberately invalidates everything: new suffixes, new salts,
-every flag changed, all saved progress void. That is what you want when standing
-up a fresh instance.
+Two things do still change what players experience:
+
+- **Changing a base flag** changes that flag for anyone who has not found it.
+  Existing solves stand; they are recorded against the slug, not the string.
+- **`pnpm gen --rotate`** mints new suffixes, so every unfound flag changes.
+  Solves already recorded still stand. That is what you want when standing up a
+  fresh instance, along with an empty database.
+
+Removing a challenge directory orphans its solve rows. The server ignores solves
+for slugs it no longer knows, so the score drops rather than the page breaking.
 
 ---
 
