@@ -64,10 +64,37 @@ as long as the build can reach the database. With no connection string at all
 it warns and steps aside, so a clone or CI can still build and test. Run it by
 hand with `pnpm db:migrate`; inspect the data with `pnpm db:studio`.
 
-**Branches.** Neon branches are cheap copies of a database. Pointing development
-at a branch rather than at production keeps test players off the real board;
-`neon checkout dev --create` makes one, and `neon.ts` sets new branches to
-expire after a week.
+**Branches.** Neon branches are instant copy-on-write clones, each with its own
+endpoint. This project keeps two:
+
+| Branch       | Used by                                     | Expires |
+| ------------ | ------------------------------------------- | ------- |
+| `production` | the deployed site; Neon's default branch    | never   |
+| `dev`        | `pnpm dev`, local play and `pnpm self-test` | never   |
+
+`.neon` pins the branch this checkout is on, and `.env` holds that branch's
+connection strings. Switch with `neon checkout <branch>`, which rewrites both:
+
+```bash
+neon checkout dev          # local work, the default for this repository
+neon checkout production   # only to inspect or migrate production by hand
+```
+
+Restart the dev server after switching; `.env` is read at startup. `neon.ts`
+exempts `dev` from expiry and gives any other new branch seven days, so
+`neon checkout feature-x --create` is safe to forget about.
+
+A migration should run on `dev` first, where a mistake costs nothing: generate
+it, let `pnpm dev` apply it, play. The deployed build then applies it to
+`production`, whose connection strings live in the host's settings, not in
+`.env`. To give `dev` a fresh copy of production -- new real data, or after
+breaking it -- reset it from its parent:
+
+```bash
+neon branches reset dev --parent
+```
+
+That discards everything on `dev`, test players included.
 
 Starting a fresh competition means an empty database, not a rebuild: truncate
 the hunt's tables (`players`, `solves`, `clues`, `eggs`, `throttle`), and
@@ -166,8 +193,8 @@ pnpm self-test https://ctf.example.com
 It plays the whole hunt against the live site as a new visitor and fails if any
 flag cannot be reached or is not accepted. It is the quickest way to find out
 that a proxy ate a header or a migration did not run. It leaves one finished
-player on the board; delete their rows if that matters, or run it against a Neon
-branch.
+player on the board. Against a local server that is the `dev` branch, which is
+the point of having one.
 
 ## SEO and indexing
 

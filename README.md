@@ -144,9 +144,11 @@ is the only readable copy, so keep a backup outside the repository.
 
 ```bash
 neon init
+neon checkout dev --create   # work on a copy, not on production
 ```
 
-Any Postgres will do: set the two variables by hand instead. The schema is
+The second line gives local play its own Neon branch, so test players never
+reach the real board. Any Postgres will do: set the two variables by hand instead. The schema is
 created by the migrations in `drizzle/`, which `pnpm dev` and `pnpm build` apply
 before they start.
 

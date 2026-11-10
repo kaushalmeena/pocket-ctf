@@ -90,6 +90,11 @@ sketch's id stores rows nobody owns.
   GitHub deletes the anonymous user, and `merge()` in `src/server/merge.ts` has
   to move the hunt's rows first rather than have them cascade away. Anything new
   keyed by player id needs a line in `merge()` too.
+- Local work runs against the Neon `dev` branch, not `production`: `.neon` pins
+  it and `neon checkout <branch>` rewrites `.env` to match. Never point `.env`
+  at `production` to test something; migrations and `pnpm self-test` write to
+  whatever it names. See the branches section of
+  [deployment.md](docs/deployment.md).
 - The dev server and migrations need `DATABASE_URL` (and preferably
   `DATABASE_URL_UNPOOLED`). `neon init` writes both to `.env`, which
   `vite.config.ts` loads into the server's `process.env` and `pnpm start` passes

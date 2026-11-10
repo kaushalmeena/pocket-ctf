@@ -1,20 +1,22 @@
 import { defineConfig } from "@neon/config/v1";
 
+/**
+ * Neon project configuration, read by the Neon CLI (`neon checkout`,
+ * `neon config plan`, `neon deploy`).
+ *
+ * Two kinds of branch matter here: `production`, which the deployed site
+ * uses, and `dev`, a long-lived copy for local work so that playing, testing
+ * and `pnpm self-test` never write to production. `neon checkout dev` points
+ * `.env` at it. Anything else is a throwaway and expires on its own.
+ */
 export default defineConfig({
-  // Declare your Neon services here
   auth: false,
-  // Branch policy: per-branch tuning
   branch: (branch) => {
-    if (branch.isDefault) {
-      // Default branch: no overrides, uses project defaults
-      return {};
-    }
+    if (branch.isDefault) return {};
     if (!branch.exists) {
-      // New non-default branches: auto-expire
-      // Run `neon checkout <name>` to create a new branch with these settings
-      return { ttl: "7d" };
+      // dev is meant to stay; every other new branch is scratch.
+      return branch.name === "dev" ? {} : { ttl: "7d" };
     }
-    // Existing branch: no changes
     return {};
   },
 });
