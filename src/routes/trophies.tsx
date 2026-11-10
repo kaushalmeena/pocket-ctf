@@ -4,7 +4,13 @@ import { createResource, createSignal, For, Match, Show, Switch } from "solid-js
 
 import { Markdown } from "~/components/Markdown";
 import { TIER_LABEL, TrophyIcon } from "~/components/TrophyIcon";
-import { getTrophyCase, readWriteup, takeClue } from "~/lib/api";
+import {
+  getRecoveryCode,
+  getTrophyCase,
+  readWriteup,
+  redeemRecoveryCode,
+  takeClue,
+} from "~/lib/api";
 import { useGame } from "~/lib/game";
 import { NO_INDEX } from "~/lib/seo";
 import type { Slot, TrophyCase } from "~/lib/types";
@@ -74,7 +80,103 @@ function Trophies() {
           </For>
         </div>
       </section>
+
+      <Recovery />
     </div>
+  );
+}
+
+/**
+ * Progress hangs off a cookie. This is how it survives losing one: a code to
+ * write down here, and a box to type it into anywhere else.
+ */
+function Recovery() {
+  const [code, setCode] = createSignal<string>();
+  const [message, setMessage] = createSignal<string>();
+  const [busy, setBusy] = createSignal(false);
+  let field!: HTMLInputElement;
+
+  const handleIssue = async () => {
+    setBusy(true);
+    try {
+      setCode(await getRecoveryCode());
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRedeem = async (event: SubmitEvent) => {
+    event.preventDefault();
+    const result = await redeemRecoveryCode({ data: field.value });
+    setMessage(result.message);
+    // A different player now: everything on the page is stale, so start over.
+    if (result.ok) window.location.reload();
+  };
+
+  return (
+    <section class="space-y-4">
+      <h2 class="section-title">Keep your progress</h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="space-y-3 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+          <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recovery code</p>
+          <p class="text-xs leading-relaxed text-zinc-500">
+            There are no accounts here, so your trophies live and die with a cookie. A recovery
+            code brings them back in another browser, or after you clear this one.
+          </p>
+          <Show
+            when={code()}
+            fallback={
+              <button
+                type="button"
+                onClick={handleIssue}
+                disabled={busy()}
+                class="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              >
+                Give me a code
+              </button>
+            }
+          >
+            <p class="blob text-center text-sm tracking-widest">{code()}</p>
+            <p class="text-xs text-zinc-500">
+              Write it down now. It will not be shown again, and asking for another cancels this
+              one.
+            </p>
+          </Show>
+        </div>
+
+        <form
+          onSubmit={handleRedeem}
+          class="space-y-3 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800"
+        >
+          <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Have a code?</p>
+          <p class="text-xs leading-relaxed text-zinc-500">
+            Enter it and this browser becomes that player. Whatever this browser had found on
+            its own stays behind.
+          </p>
+          <div class="flex gap-2">
+            <input
+              ref={field}
+              type="text"
+              autocomplete="off"
+              spellcheck={false}
+              maxLength={40}
+              placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+              aria-label="Recovery code"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 py-1.5 font-mono text-xs uppercase dark:border-zinc-700"
+            />
+            <button
+              type="submit"
+              class="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+            >
+              Restore
+            </button>
+          </div>
+          <Show when={message()}>
+            <p class="text-xs text-zinc-600 dark:text-zinc-400">{message()}</p>
+          </Show>
+        </form>
+      </div>
+    </section>
   );
 }
 

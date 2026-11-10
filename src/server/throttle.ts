@@ -30,7 +30,11 @@ function keysFor(player: Player): Key[] {
   const keys: Key[] = [{ key: `p:${player.id}`, free: FREE.player }];
   const ip = getRequestIP({ xForwardedFor: true });
   // Hashed so the table holds no addresses, only something to count against.
-  if (ip) keys.push({ key: `a:${sha256(`pocket-ctf/address:${ip}`).slice(0, 32)}`, free: FREE.address });
+  if (ip)
+    keys.push({
+      key: `a:${sha256(`pocket-ctf/address:${ip}`).slice(0, 32)}`,
+      free: FREE.address,
+    });
   return keys;
 }
 
@@ -70,7 +74,10 @@ export async function noteMiss(player: Player, now = Date.now()): Promise<number
   }
   // Housekeeping, on the path that is already slow by design.
   if (own === 1) {
-    await client.execute({ sql: "DELETE FROM throttle WHERE last_at < ?", args: [now - 86_400_000] });
+    await client.execute({
+      sql: "DELETE FROM throttle WHERE last_at < ?",
+      args: [now - 86_400_000],
+    });
   }
   return own;
 }

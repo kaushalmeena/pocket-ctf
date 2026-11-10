@@ -13,7 +13,7 @@ import {
   writeupText,
 } from "./catalogue";
 import { db } from "./db";
-import { persist, type Player, variantOf } from "./players";
+import { issueRecovery, persist, type Player, recover, variantOf } from "./players";
 import { runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
 
@@ -203,6 +203,11 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     clear = false,
   ): Promise<Reply> => ({ tone, lines, trophies, clear, me: await standing(player) });
 
+  if (/^restore\b/i.test(input)) {
+    const result = await restore(player, input.slice("restore".length));
+    return reply(result.ok ? "ok" : "err", [result.message]);
+  }
+
   if (!/^pctf\b|^pctf\{/i.test(input)) {
     const out = await runCommand(player, input);
     const trophies = out.egg ? await awardEgg(player, out.egg) : [];
@@ -279,6 +284,34 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
       : `${me.found} of ${me.total} found. The rest are still where they were.`,
   );
   return { tone: "ok", lines, trophies, me };
+}
+
+/* ------------------------------------------------------------------ *
+ * Recovery
+ * ------------------------------------------------------------------ */
+
+export const recoveryCode = (player: Player) => issueRecovery(player);
+
+/**
+ * Redeem a recovery code. Throttled like a flag, because it is one: a string
+ * that is worth something to whoever guesses it.
+ */
+export async function restore(player: Player, code: string) {
+  const locked = await lockedFor(player);
+  if (locked > 0) {
+    return {
+      ok: false,
+      message: `Too many misses. Try again in ${Math.ceil(locked / 1000)}s.`,
+    };
+  }
+  if (!(await recover(player, code))) {
+    await noteMiss(player);
+    return { ok: false, message: "No player answers to that code." };
+  }
+  return {
+    ok: true,
+    message: `Welcome back, ${player.handle}. Everything is where you left it.`,
+  };
 }
 
 /* ------------------------------------------------------------------ *

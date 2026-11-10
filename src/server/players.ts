@@ -37,12 +37,48 @@ const YEAR = 60 * 60 * 24 * 365;
 export const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
 const ADJECTIVES = [
-  "quiet", "idle", "lucid", "dusty", "brisk", "sly", "odd", "amber", "feral", "polite",
-  "sleepy", "nimble", "static", "hollow", "patient", "wry", "lunar", "salty", "velvet", "rogue",
+  "quiet",
+  "idle",
+  "lucid",
+  "dusty",
+  "brisk",
+  "sly",
+  "odd",
+  "amber",
+  "feral",
+  "polite",
+  "sleepy",
+  "nimble",
+  "static",
+  "hollow",
+  "patient",
+  "wry",
+  "lunar",
+  "salty",
+  "velvet",
+  "rogue",
 ];
 const ANIMALS = [
-  "otter", "heron", "lynx", "moth", "newt", "ibis", "gecko", "raven", "stoat", "marmot",
-  "wombat", "tapir", "finch", "badger", "puffin", "mantis", "ferret", "walrus", "magpie", "shrew",
+  "otter",
+  "heron",
+  "lynx",
+  "moth",
+  "newt",
+  "ibis",
+  "gecko",
+  "raven",
+  "stoat",
+  "marmot",
+  "wombat",
+  "tapir",
+  "finch",
+  "badger",
+  "puffin",
+  "mantis",
+  "ferret",
+  "walrus",
+  "magpie",
+  "shrew",
 ];
 
 /** A handle from four bytes: the same bytes always give the same name. */
@@ -217,4 +253,70 @@ export async function rename(player: Player, wanted: string): Promise<string | n
   player.handle = handle;
   player.named = true;
   return null;
+}
+
+/* ------------------------------------------------------------------ *
+ * Recovery codes
+ * ------------------------------------------------------------------ */
+
+/** No 0/O, 1/I/L: the code is meant to survive being read off a screen. */
+const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const CODE_GROUPS = 5;
+
+const canonical = (code: string) => code.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+/**
+ * Mint a recovery code and return it, once.
+ *
+ * Progress hangs off a cookie, so clearing site data or changing browser would
+ * otherwise lose it. Only the hash is kept, exactly as with session tokens:
+ * the code cannot be shown again, and asking for another cancels this one.
+ */
+export async function issueRecovery(player: Player): Promise<string> {
+  await persist(player);
+  let raw = "";
+  while (raw.length < CODE_GROUPS * 4) {
+    const byte = randomBytes(1)[0]!;
+    // Rejection-sampled, so every character is uniform over the alphabet.
+    if (byte < 256 - (256 % CODE_ALPHABET.length))
+      raw += CODE_ALPHABET[byte % CODE_ALPHABET.length];
+  }
+  const client = await db();
+  await client.execute({
+    sql: "UPDATE players SET recovery_hash = ? WHERE id = ?",
+    args: [sha256(`pocket-ctf/recovery:${raw}`), player.id],
+  });
+  return raw.match(/.{4}/g)!.join("-");
+}
+
+/**
+ * Point this browser's session at the player a recovery code belongs to.
+ * Whoever the browser was before is left as they were, still reachable from
+ * any other session of theirs.
+ */
+export async function recover(player: Player, code: string): Promise<boolean> {
+  const raw = canonical(code);
+  if (raw.length !== CODE_GROUPS * 4) return false;
+  const client = await db();
+  const found = await client.execute({
+    sql: "SELECT id, handle, named, seed FROM players WHERE recovery_hash = ?",
+    args: [sha256(`pocket-ctf/recovery:${raw}`)],
+  });
+  const row = found.rows[0];
+  if (!row) return false;
+
+  await client.execute({
+    sql: `INSERT INTO sessions (token_hash, player_id, created_at) VALUES (?, ?, ?)
+          ON CONFLICT (token_hash) DO UPDATE SET player_id = excluded.player_id`,
+    args: [player.session, String(row.id), Date.now()],
+  });
+  // The rest of this request should already see the recovered player.
+  Object.assign(player, {
+    id: String(row.id),
+    handle: String(row.handle),
+    named: Number(row.named) === 1,
+    seed: String(row.seed),
+    stored: true,
+  });
+  return true;
 }

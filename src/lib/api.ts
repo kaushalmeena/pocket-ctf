@@ -4,6 +4,8 @@ import {
   board,
   buyClue,
   claimEgg,
+  recoveryCode,
+  restore,
   standing,
   transmit,
   trophyCase,
@@ -68,3 +70,12 @@ export const setHandle = createServerFn({ method: "POST" })
     const error = await rename(player, data);
     return { error, me: await standing(player) };
   });
+
+/** Shown once; asking again cancels the previous one. */
+export const getRecoveryCode = createServerFn({ method: "POST" }).handler(async () =>
+  recoveryCode(await currentPlayer()),
+);
+
+export const redeemRecoveryCode = createServerFn({ method: "POST" })
+  .validator(text(40))
+  .handler(async ({ data }) => restore(await currentPlayer(), data));
