@@ -36,9 +36,13 @@ flag**, not written alongside it: the zero-width poem, the stego PNG's pixel
 plane, the XOR ciphertext, the bytecode and the Morse timings are all functions
 of their flag. There is nowhere for a plaintext answer to sit.
 
-Two challenges are the exception that keeps the rule. `wrong-verb` and
-`clearance` have nothing to derive — the server hands the flag over when a
-request earns it — so their payload is the flag itself, sealed. The generated
+Six challenges are the exception that keeps the rule. `wrong-verb`,
+`clearance`, `not-modified`, `forged`, `tick-tock` and `last-word` have nothing
+to derive — the server hands the flag over when a request earns it — so their
+payload is the flag itself, sealed, by the shared `src/challenges/vault.mjs`. The
+per-player values those challenges turn on (the lounge's key, the door's code,
+the finale's address) are not generated at all: the server derives them from
+the player's seed at request time. The generated
 data therefore holds no readable flag for any challenge, and `pnpm verify:flags`
 can go on enforcing that without a carve-out.
 

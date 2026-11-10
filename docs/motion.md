@@ -74,6 +74,14 @@ PNG fallbacks, the apple-touch icon and the Open Graph card cannot disagree. The
 rasteriser supersamples 4×4 per pixel, which is what keeps the rounded corners
 and the pennant's diagonal from stepping at 16px.
 
+The trophy card a profile unfurls as is the other generated image, and it is
+drawn per request rather than at build time, by `src/server/card.ts`: a pixel
+buffer, a five-by-seven bitmap font and a small PNG encoder. The chunky letters
+are a consequence of carrying no font file and no native image library, kept
+because they suit a site whose avatars are sixty-four pixels of noise. It uses
+the same palette as the site — the accent for the wordmark, the trophy metals
+for held slots — on the dark surface, in both themes.
+
 ---
 
 Next: [Components](components.md) · [Foundations](foundations.md) · [Back to the index](../README.md#documentation)

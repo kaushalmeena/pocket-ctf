@@ -1,8 +1,8 @@
 # Deployment and indexing
 
-Running the server, keeping the player database somewhere that survives, shipping
-a real instance without committing the answers, and keeping the front page
-findable while everything else stays out of search results.
+Running the server, the Postgres database and its migrations, sign-in with
+GitHub, shipping a real instance without committing the answers, and keeping the
+front page findable while everything else stays out of search results.
 
 ## Deployment
 
@@ -14,7 +14,7 @@ asking, so there is no static file that would be right twice.
 
 ```bash
 pnpm build
-node .output/server/index.mjs        # PORT=3000 by default
+pnpm start                           # node .output/server/index.mjs, with .env
 pnpm preview                         # the same build, through Vite
 ```
 
@@ -26,35 +26,79 @@ instead.
 
 Nitro detects Vercel's build environment and emits serverless functions without
 being asked, so there is no `vercel.json` and nothing to configure beyond the
-environment variables below. Vercel's own notes are at
+environment variables: the answer key's two below, `VITE_SITE_URL`, the two
+database strings, `BETTER_AUTH_SECRET` and `BETTER_AUTH_URL`, and the GitHub
+pair if players are to claim progress. Neon's Vercel integration can supply the
+database strings for you; make sure they reach the build as well as the
+functions, since the build applies migrations. Vercel's own notes are at
 <https://vercel.com/docs/frameworks/full-stack/tanstack-start>.
 
 The earlier static build had a `vercel.json` pointing at `dist/client`. It is
 gone; if a project setting still names that output directory, clear it.
 
-### The player database
+### The database
 
-Players, solves, clues and secret trophies live in a
-[libSQL](https://github.com/tursodatabase/libsql) database — four tables,
-created on first use by `src/server/db.ts`. One client covers both places this
-runs:
+Everything lives in Postgres: Better Auth's users, sessions and linked accounts,
+and the hunt's players, solves, clues, secret trophies and throttle counts. The
+project is set up for [Neon](https://neon.com), and talks to it through
+[Drizzle](https://orm.drizzle.team) over node-postgres.
 
-| `DATABASE_URL`               | Where                                                           |
-| ---------------------------- | --------------------------------------------------------------- |
-| unset, or `file:./data/x.db` | A SQLite file. Right for development and for a host with a disk |
-| `libsql://…` or `https://…`  | A hosted database, with `DATABASE_AUTH_TOKEN`                   |
+Two connection strings, both of which `neon init` writes into `.env`:
 
-The default is `file:./data/pocket-ctf.db`, relative to wherever the server is
-started. `data/` is gitignored.
+| Variable                | Used by                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| `DATABASE_URL`          | The running server. Neon's **pooled** string; a small pool each |
+| `DATABASE_URL_UNPOOLED` | Migrations, which need a direct connection. Falls back to above |
 
-**A serverless host needs the second row.** Functions there have no disk that
-outlives a request, so a `file:` database would be created empty on every cold
-start and the board would forget everyone. Create a hosted libSQL database —
-[Turso](https://turso.tech) is the usual one — and set both variables. The
-schema is applied on the first request; there is no migration step.
+```bash
+neon init        # link this repository to a Neon project, write .env
+```
 
-Starting a fresh competition means an empty database, not a rebuild. Deleting
-the file, or dropping the four tables, is the reset.
+Any other Postgres works the same way: set the variables by hand.
+
+**Migrations.** Every table is declared in `src/server/schema.ts`. A change there
+is followed by `pnpm db:generate`, which writes a SQL migration to `drizzle/`;
+that file is committed. `scripts/migrate.mjs` applies whatever is pending, and it
+runs before `pnpm dev` and `pnpm build` — so a deploy brings its schema with it,
+as long as the build can reach the database. With no connection string at all
+it warns and steps aside, so a clone or CI can still build and test. Run it by
+hand with `pnpm db:migrate`; inspect the data with `pnpm db:studio`.
+
+**Branches.** Neon branches are cheap copies of a database. Pointing development
+at a branch rather than at production keeps test players off the real board;
+`neon checkout dev --create` makes one, and `neon.ts` sets new branches to
+expire after a week.
+
+Starting a fresh competition means an empty database, not a rebuild: truncate
+the hunt's tables (`players`, `solves`, `clues`, `eggs`, `throttle`), and
+Better Auth's if accounts should go too.
+
+### Sign-in
+
+Players never have to sign in. The server makes each one an anonymous
+[Better Auth](https://www.better-auth.com) user the first time there is
+something to save, and Better Auth's endpoints are mounted at `/api/auth/*`.
+Claiming progress with GitHub is optional, and switched on by configuring it:
+
+1. Create an OAuth app under GitHub → Settings → Developer settings → OAuth
+   Apps. Its homepage is your origin, and its **authorization callback URL** is
+   `<origin>/api/auth/callback/github` — for local development,
+   `http://localhost:3000/api/auth/callback/github`. GitHub allows one callback
+   per app, so use one app per environment.
+2. Set `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` from it.
+
+Without both, the trophy case says claiming is not set up, and nothing else
+changes.
+
+| Variable               | Notes                                                                                                       |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it |
+| `BETTER_AUTH_URL`      | Your public origin. Left unset, Better Auth reads it off each request; set it in production                 |
+| `GITHUB_CLIENT_ID`     | From the OAuth app                                                                                          |
+| `GITHUB_CLIENT_SECRET` | From the OAuth app                                                                                          |
+
+Changing `BETTER_AUTH_SECRET` signs everybody out. Anonymous players then have no
+way back to their progress; players who claimed sign in with GitHub again.
 
 ### Supplying the answer key to a hosted build
 
@@ -82,7 +126,8 @@ newline, and leaving it unquoted sidesteps the apostrophe problem, since dotenv
 only strips quotes it finds at the start of a value.
 
 That file is your plaintext answer key. Delete it once the host has what it
-needs. It does not include the database variables; set those separately.
+needs. It does not include the database or sign-in variables; set those
+separately.
 
 `scripts/bootstrap.mjs` runs on `postinstall` and `prebuild`. It generates from a
 real key when one is reachable — file or environment — and otherwise seeds the
@@ -94,8 +139,8 @@ mints fresh suffixes it cannot persist, so every deploy changes every flag
 nobody has found yet. It warns when it detects this.
 
 These are build-time inputs. The flags and seeds are consumed by the generator
-and are not needed by the running server; only the database variables are read
-at run time.
+and are not needed by the running server, which reads the database and sign-in
+variables. The build needs the database variables too, to apply migrations.
 
 `VITE_SITE_URL` is not secret, but leaving it unset means the canonical tag, the
 sitemap and — less forgivably — the contact address in `security.txt` all
@@ -120,8 +165,9 @@ pnpm self-test https://ctf.example.com
 
 It plays the whole hunt against the live site as a new visitor and fails if any
 flag cannot be reached or is not accepted. It is the quickest way to find out
-that a proxy ate a header or the database is read-only. It leaves one finished
-player on the board; delete the row if that matters.
+that a proxy ate a header or a migration did not run. It leaves one finished
+player on the board; delete their rows if that matters, or run it against a Neon
+branch.
 
 ## SEO and indexing
 
@@ -131,18 +177,21 @@ and an indexed puzzle is a search result that says where it was hidden.
 
 So indexing is opt-in per route, declared in `src/lib/seo.ts`:
 
-| Route                               | Indexed | Why                                               |
-| ----------------------------------- | ------- | ------------------------------------------------- |
-| `/`                                 | Yes     | The introduction, with structured data            |
-| `/trophies`                         | No      | One player's trophy case                          |
-| `/board`                            | No      | Handles and scores; nothing a search should serve |
-| `/staff`, `/dead-drop`, `/radio`, … | No      | Unlisted by design; `nofollow` as well            |
+| Route                              | Indexed | Why                                               |
+| ---------------------------------- | ------- | ------------------------------------------------- |
+| `/`                                | Yes     | The introduction, with structured data            |
+| `/trophies`                        | No      | One player's trophy case                          |
+| `/board`                           | No      | Handles and scores; nothing a search should serve |
+| `/staff`, `/lounge`, `/vault/…`, … | No      | Unlisted by design; `nofollow` as well            |
 
 `robots.txt` is a server route now rather than a generated file, and it does two
-jobs. It asks crawlers to stay out of `/trophies`, `/board`, `/api/` and
+jobs. It asks crawlers to stay out of `/trophies`, `/board`, `/u/`, `/api/` and
 `/staff` — and that last line is how players find the staff room, which is the
 oldest lesson there is about what `robots.txt` is for. The sitemap lists `/`
 alone.
+
+A profile page carries `og:` and `twitter:` tags whose image is
+`/u/<handle>/card.png`, so a shared link unfurls as that player's trophy card.
 
 The front page carries `WebSite` and `SoftwareApplication` JSON-LD. There is no
 hidden keyword block, and nothing is written for a machine that a person would

@@ -30,14 +30,32 @@ who lands on one knows they are somewhere they found rather than somewhere they
 were sent.
 
 **`StatusLight`** is the lamp in the footer. It fetches a rhythm from
-`/api/pulse` and keeps it on a loop; clicking it plays the same rhythm as a
-tone. It is a puzzle wearing a component's clothes, which is the pattern for
+`/api/pulse` and keeps it on a loop, and takes its label from `/api/status`;
+clicking it plays the same rhythm as a tone. It is a puzzle wearing a component's clothes, which is the pattern for
 everything hidden in plain sight: it has to be a plausible piece of chrome
 first.
 
 **`Secrets`** renders almost nothing. It is where the things every page does
 quietly live: the console greeting, the records filed in IndexedDB, and the
 listener for one very old cheat code.
+
+**The fragment line** sits under a trophy's quip, in its toast and in its slot:
+`fragment 3/17 · a9`, in small mono capitals with the fragment itself left in
+lower case. It is presented as an inventory detail rather than a clue, because
+noticing that it adds up to something is the last puzzle.
+
+**`Claim`**, at the foot of the trophy case, is the one place sign-in appears. It
+offers GitHub to an anonymous player, says plainly when the server has no
+GitHub app configured rather than showing a button that fails, and once claimed
+shows the account name and a sign-out. Signing in and out reload the page: the
+player has changed, and every number on it is stale. It goes through Better
+Auth's browser client in `src/lib/auth.ts`, and never signs anyone in
+anonymously — only the server does that.
+
+**The profile page** (`/u/<handle>`) shows the server-drawn card and the case as
+metals only, with a line saying it cannot tell you which flags they are. "Share
+your card" in the trophy case copies its link, falling back to opening it where
+the clipboard is refused, and appears only once there is something to share.
 
 **Locked and found trophies are different components**, not one with a flag.
 `FoundSlot` and `LockedSlot` in `src/routes/trophies.tsx` share a size and

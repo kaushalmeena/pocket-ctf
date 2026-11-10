@@ -1,8 +1,10 @@
 # Pocket CTF
 
 A capture-the-flag hunt with no list of challenges: the flags are hidden in the
-site itself, and a server decides who has found what. Puzzle data is generated
-at build time from a single answer key. The answers must never reach the
+site itself, and a server decides who has found what. Progress lives in Postgres
+(Neon, through Drizzle); identity is Better Auth, anonymous until a player
+claims with GitHub. Puzzle data is generated at build time from a single answer
+key. The answers must never reach the
 repository or the browser, which is the constraint behind most rules here.
 
 ## Done means `pnpm check` passes
@@ -19,15 +21,15 @@ and fails if any flag cannot be reached.
 
 ## Reading the codebase
 
-| Working on                                          | Read                                        |
-| --------------------------------------------------- | ------------------------------------------- |
-| The build-time pipeline, the shared crypto module   | [build-pipeline.md](docs/build-pipeline.md) |
-| Adding, removing or relocating a challenge          | [challenges.md](docs/challenges.md)         |
-| What the server enforces, and its limits            | [anti-cheat.md](docs/anti-cheat.md)         |
-| Hosting, the database, env vars, per-route indexing | [deployment.md](docs/deployment.md)         |
-| Principles, the single-accent colour rule           | [foundations.md](docs/foundations.md)       |
-| What animates, the icon set                         | [motion.md](docs/motion.md)                 |
-| Component patterns, accessibility, copy voice       | [components.md](docs/components.md)         |
+| Working on                                        | Read                                        |
+| ------------------------------------------------- | ------------------------------------------- |
+| The build-time pipeline, the shared crypto module | [build-pipeline.md](docs/build-pipeline.md) |
+| Adding, removing or relocating a challenge        | [challenges.md](docs/challenges.md)         |
+| What the server enforces, and its limits          | [anti-cheat.md](docs/anti-cheat.md)         |
+| Hosting, the database, auth, env vars, indexing   | [deployment.md](docs/deployment.md)         |
+| Principles, the single-accent colour rule         | [foundations.md](docs/foundations.md)       |
+| What animates, the icon set                       | [motion.md](docs/motion.md)                 |
+| Component patterns, accessibility, copy voice     | [components.md](docs/components.md)         |
 
 ## Conventions
 
@@ -59,6 +61,19 @@ holds metadata, builder and solver. Where the puzzle surfaces is a function in
 **Regenerating must not wipe progress.** Solves are rows in the database keyed
 by player and slug, and depend on nothing the generator mints. Keep it that way.
 
+**Every table is declared in `src/server/schema.ts`.** A schema change is an edit
+there, then `pnpm db:generate`, and the migration it writes to `drizzle/` is
+committed; `scripts/migrate.mjs` applies it before `dev` and `build`. Never edit
+an applied migration. The `user`, `session`, `account` and `verification` tables
+belong to Better Auth: change them only to follow Better Auth, and only through
+the same route.
+
+**Nothing is written until there is something to keep.** A visitor without a
+session is a sketch derived from the `pctf_deal` cookie. Anything that writes on
+a player's behalf calls `persist(player)` first, which signs them in as an
+anonymous Better Auth user and saves the seed they were dealt. Writing with a
+sketch's id stores rows nobody owns.
+
 ## Gotchas
 
 - This is an open-source project, so the hiding places are public. Before
@@ -70,7 +85,20 @@ by player and slug, and depend on nothing the generator mints. Keep it that way.
   `Cache-Control: private, no-store` in `src/start.ts`.
 - One page load runs several server functions against the same request. They
   share a player through a per-request memo in `src/server/players.ts`; resolve
-  the player any other way and a first visit enrolls twice.
+  the player any other way and a first visit mints two deals.
+- `players` has no foreign key to Better Auth's `user`, on purpose. Claiming with
+  GitHub deletes the anonymous user, and `merge()` in `src/server/merge.ts` has
+  to move the hunt's rows first rather than have them cascade away. Anything new
+  keyed by player id needs a line in `merge()` too.
+- The dev server and migrations need `DATABASE_URL` (and preferably
+  `DATABASE_URL_UNPOOLED`). `neon init` writes both to `.env`, which
+  `vite.config.ts` loads into the server's `process.env` and `pnpm start` passes
+  to Node. Without them pages fail on their first query; the unit suite does not
+  need a database.
+- Server functions go through TanStack Start's CSRF middleware (`src/start.ts`).
+  The plain `/api/*` routes do not, deliberately — players are meant to poke
+  them with `curl`. Keep anything that changes a player's state behind a server
+  function.
 - Only `/` is indexable. Adding a route means giving it `NO_INDEX`, and usually
   a `Disallow` in `src/routes/robots[.]txt.ts`.
 - Route files with a dot in the URL escape it as `[.]`. Quote those paths in a

@@ -15,6 +15,11 @@ src/challenges/<slug>/
   solve.mjs    solve({ payload, slug, variant })   -> the flag, from the payload alone
 ```
 
+Challenges whose flag the server simply hands over once a request earns it
+have nothing to derive, so their `build.mjs` and `solve.mjs` are one-line
+re-exports of `src/challenges/vault.mjs`, which seals the flag at build time and
+opens it on demand.
+
 There is no page component and no route per challenge. A challenge does not
 have a page; it has a place on the site where its payload turns up, and that
 place is the other half of it.
@@ -32,7 +37,8 @@ directory.
 
 ## Where everything is
 
-Thirteen flags. Eight have no page at all.
+Eighteen flags, worth 2,525 points. Eleven have no page of their own, and one
+has no hiding place of its own either.
 
 | Slug                   | Trophy               | Tier   | Pts | Where it is                                                               | Found by                                       |
 | ---------------------- | -------------------- | ------ | --- | ------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -49,8 +55,35 @@ Thirteen flags. Eight have no page at all.
 | `feedback-loop`        | Number Station       | gold   | 175 | `/radio`                                                                  | `ls -a` then `cat .radio` at the prompt        |
 | `the-repeat-offender`  | Dead Drop            | gold   | 200 | `/dead-drop`                                                              | `Contact:` in `/.well-known/security.txt`      |
 | `instruction-set`      | Deus Ex Machina      | gold   | 200 | `/machine`                                                                | The `Link` header on every response            |
+| `paper-trail`          | Paper Trail          | silver | 100 | An `X-Trail` header on each hop of the redirect chain from `/go/0`        | The footer's "What is a CTF?" link             |
+| `not-modified`         | Not Modified         | silver | 125 | `GET /api/status` with `If-None-Match: W/"rev-N"` for an older revision   | The footer light's label polls it; its `ETag`  |
+| `forged`               | Middle Management    | gold   | 175 | `/lounge`, with a `badge` cookie forged for the role `executive`          | A line inside the staff room, once you are in  |
+| `tick-tock`            | Tick Tock            | gold   | 200 | `GET /api/door?code=` with the right six digits                           | `cat door.txt` at the prompt                   |
+| `last-word`            | The Long Way Round   | gold   | 250 | `/vault/<key>`, where the key is this player's fragments joined in order  | Finding every other flag                       |
 
 Finding every one earns the platinum, **Nothing Left to Hide**.
+
+A few of those need more than the table says:
+
+- **`forged`.** The lounge signs its badges: a badge is `payload.signature`,
+  where the payload is base64 JSON with a `role` and the signature is the first
+  16 hex characters of `SHA-256(code + "." + payload)`. The code is four digits,
+  derived per player. The visitor's own badge is a known plaintext and
+  signature, so the key falls to ten thousand offline hashes, after which a
+  badge for `executive` verifies. The lounge reissues a visitor's badge whenever
+  one fails to verify.
+- **`tick-tock`.** The door compares a six-digit per-player code a digit at a
+  time, stops at the first wrong one, and pauses 100 ms after each digit it
+  accepts. It never says how close a guess was; the response time does. Ten
+  requests per position, six positions.
+- **`not-modified`.** The current revision gets `304`. A client that claims an
+  older one is sent every change since, and one of the changes is the removal
+  of the flag, quoting it.
+- **`last-word`.** Every other trophy carries a numbered two-character fragment
+  (`src/server/finale.ts`), shown in its toast and its slot in the case. In
+  order, they are a 34-character key derived from the player's own seed, so one
+  player's fragments open nobody else's vault and no address is guessable. Every
+  other key, and every partial one, is a 404.
 
 ### Things that are not flags
 
@@ -144,24 +177,40 @@ src/lib/kdf.js             crypto primitives, loaded verbatim by the generator
 src/lib/generated/         live data, server-only (gitignored)
 src/lib/generated/sample/  committed demo data; flags end in _sample
 
-src/server/db.ts           the libSQL client and the schema
+src/challenges/vault.mjs   shared builder and solver for flags the server hands over
+
+src/server/schema.ts       every table: Better Auth's four, the hunt's five
+src/server/db.ts           the Postgres pool and its Drizzle handle
+src/server/auth.ts         Better Auth: anonymous sessions, GitHub, cookies
+src/server/merge.ts        folds an anonymous player into the account that claims it
 src/server/catalogue.ts    every challenge and what was generated for it
-src/server/players.ts      sessions, handles, variants, the cookies left at the door
+src/server/players.ts      deals, persist(), handles, variants, cookies at the door
+src/server/throttle.ts     wrong-answer backoff, per player and per address
 src/server/game.ts         submission, scoring, clues, trophies, the board
+src/server/finale.ts       the fragments, and the key they add up to
+src/server/card.ts         public profiles and the PNG trophy card
 src/server/terminal.ts     what the prompt says to anything that is not a flag
 src/server/plants.ts       one function per hiding place
 
+drizzle/                   generated migrations, committed
+scripts/migrate.mjs        applies them; runs before dev and build
+
 src/lib/api.ts             the server functions the browser may call
+src/lib/auth.ts            Better Auth's browser client: GitHub sign-in, sign-out
 src/lib/types.ts           the shapes that cross the wire
 src/lib/game.tsx           the browser's mirror of the player's standing
 src/lib/seo.ts             per-route indexing policy and metadata
 src/start.ts               headers on every response, two of them for players
 
 src/routes/index.tsx       the front page: intro, prompt, two plants
-src/routes/trophies.tsx    the trophy case: slots, clues, writeups, handle
+src/routes/trophies.tsx    the trophy case: slots, clues, writeups, handle, claim
 src/routes/board.tsx       the board
-src/routes/{staff,dead-drop,radio,machine,teapot}.tsx   unlisted rooms
-src/routes/api/            pulse (GET, OPTIONS, PUT) and flag (POST)
+src/routes/u/$handle/      public profile, and card.png
+src/routes/{staff,lounge,dead-drop,radio,machine,teapot}.tsx   unlisted rooms
+src/routes/vault/$key.tsx  the finale
+src/routes/go/$hop.ts      the redirect chain
+src/routes/api/            pulse (GET, OPTIONS, PUT), status, door, flag (POST),
+                           and auth/$ for Better Auth
 src/routes/*[.]*.ts        robots.txt, sitemap.xml, humans.txt, ghost.css,
                            avatar.png, .well-known/security.txt
 ```

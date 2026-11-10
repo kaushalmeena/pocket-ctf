@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Solid](https://img.shields.io/badge/Solid-1.9-2C4F7C?logo=solid&logoColor=white)](https://www.solidjs.com) [![TanStack Start](https://img.shields.io/badge/TanStack_Start-1.x-C2255C?logo=react&logoColor=white)](https://tanstack.com/start) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-0B7285?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-**Thirteen flags, no list of challenges, and nobody to tell you where to start.**
+**Eighteen flags, no list of challenges, and nobody to tell you where to start.**
 
 A free, open-source capture-the-flag hunt. There are no challenge pages and no
 categories: the flags are hidden in the site itself, and the front page is an
@@ -40,9 +40,17 @@ browser bundle says what the puzzles are.
 - **Per-player puzzles** — each challenge ships several variants and every
   player is dealt one, so a flag borrowed from a friend is recognised as real
   and rejected as not yours.
-- **Handles and a board** — no accounts and no passwords. You arrive with an
-  invented handle, swap it for your own, and appear on the board with your first
-  flag.
+- **No sign-up to play** — you arrive with an invented handle, swap it for your
+  own, and appear on the board with your first flag. Just looking writes nothing
+  at all; the server only remembers you once there is something to remember.
+- **Claim it with GitHub** — progress starts out anonymous. Claim it with GitHub
+  and it follows you to any browser; anything found anonymously before signing
+  in elsewhere is merged into the same case.
+- **A card to show off** — every player has a public profile whose link unfurls
+  as a trophy card drawn on the server. It says how much you found and never
+  what.
+- **A finale you cannot shortcut** — every trophy carries a numbered fragment of
+  an address that exists only for you. The last flag is there.
 - **Unguessable, per-deployment flags** — a random suffix per challenge means no
   two installations share an answer, so answers copied from elsewhere fail.
 - **Plug-and-play challenges** — one directory per puzzle holding its metadata,
@@ -75,12 +83,13 @@ browser bundle says what the puzzles are.
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | **Framework** | [Solid](https://www.solidjs.com) · [TanStack Start](https://tanstack.com/start) · [Nitro](https://nitro.build)                  |
 | **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                                                       |
-| **Database**  | [libSQL](https://github.com/tursodatabase/libsql) — a SQLite file locally, a hosted database in production                      |
+| **Database**  | [Postgres](https://www.postgresql.org) on [Neon](https://neon.com) · [Drizzle ORM](https://orm.drizzle.team) and drizzle-kit    |
+| **Auth**      | [Better Auth](https://www.better-auth.com) — anonymous sessions, GitHub OAuth to claim progress                                 |
 | **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (HMAC-SHA256, PBKDF2, AES-GCM)                          |
 | **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                                                         |
 | **Testing**   | [Vitest](https://vitest.dev)                                                                                                    |
 | **Tooling**   | [oxlint](https://oxc.rs/docs/guide/usage/linter) · [oxfmt](https://oxc.rs/docs/guide/usage/formatter) · [pnpm](https://pnpm.io) |
-| **Hosting**   | Any Node host, or a serverless one with a hosted database                                                                       |
+| **Hosting**   | Any Node host, or a serverless one such as Vercel                                                                               |
 
 ## Getting Started
 
@@ -94,6 +103,9 @@ To install and run this project you need:
 - [Node.js](https://nodejs.org/) 20 or newer
 - [pnpm](https://pnpm.io/installation)
 - [git](https://git-scm.com/downloads) (only to clone this repository)
+- A Postgres database. The project is set up for [Neon](https://neon.com); the
+  [Neon CLI](https://neon.com/docs/cli/install) connects one in a single
+  command
 
 ### Installation
 
@@ -126,6 +138,24 @@ pnpm gen
 Your resolved flags are written to `ANSWERS.secret.md`, which is gitignored — it
 is the only readable copy, so keep a backup outside the repository.
 
+3. Connect a database. With the Neon CLI signed in, this links the repository to
+   a Neon project and writes `DATABASE_URL` and `DATABASE_URL_UNPOOLED` into a
+   gitignored `.env`:
+
+```bash
+neon init
+```
+
+Any Postgres will do: set the two variables by hand instead. The schema is
+created by the migrations in `drizzle/`, which `pnpm dev` and `pnpm build` apply
+before they start.
+
+4. Optionally, let players claim their progress with GitHub. Create a GitHub
+   OAuth app whose callback URL is `http://localhost:3000/api/auth/callback/github`
+   and add its `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` to `.env`. Without
+   them the trophy case says that claiming is not set up, and everything else
+   works.
+
 ### Running
 
 To run the project simply run:
@@ -135,8 +165,9 @@ pnpm dev
 ```
 
 Your app should now be running on [localhost:3000](http://localhost:3000/).
-Players and their progress are kept in a SQLite file at `data/pocket-ctf.db`,
-created on first request and gitignored. Delete it to start the board over.
+Players and their progress are kept in the database. `pnpm db:studio` opens
+Drizzle Studio on it; a schema change is an edit to `src/server/schema.ts`
+followed by `pnpm db:generate`, and the migration it writes is committed.
 
 ### Testing
 
@@ -166,7 +197,8 @@ pnpm self-test https://ctf.example.com  # or any running instance
 It arrives as a new visitor with no cookies and no answer key, finds every flag
 from what the server sends, solves each with that challenge's reference solver
 and submits it. It fails if any flag cannot be reached or is not accepted. Each
-run enrolls one player, who ends up at the top of the board.
+run enrolls one player, who ends up at the top of the board. The timing puzzle
+is solved by actually timing it, so a run takes a little while.
 
 ### Building
 
@@ -176,8 +208,8 @@ To create a production build:
 pnpm build
 ```
 
-The server is written to `.output/`. Run it with
-`node .output/server/index.mjs`, or preview it with `pnpm preview`. Re-run the
+The server is written to `.output/`. Run it with `pnpm start` (which reads
+`.env`), or preview it with `pnpm preview`. Re-run the
 leak scan against the real artifact with `pnpm build && pnpm verify:flags`.
 
 ## Deployment
@@ -186,23 +218,27 @@ There is a server now, so there is something to deploy: `.output/` runs on any
 Node host, and Nitro packages the same build as serverless functions on hosts it
 recognises — Vercel among them, with no configuration file.
 
-Two things need supplying. A hosted build clones the repository, so the
+Three things need supplying. A hosted build clones the repository, so the
 gitignored answer key is absent and the deploy would ship the demo set: run
-`pnpm gen:env --url=https://your-origin` to write those secrets to a gitignored
-`.env` and hand them to your host. And a serverless host has no disk that
-survives a request, so the player database has to live elsewhere: point
-`DATABASE_URL` at a hosted libSQL database. Full details are in
+`pnpm gen:env --url=https://your-origin` to write those secrets out and hand
+them to your host. The database connection strings, which the build also uses to
+apply migrations. And Better Auth's secret, plus the GitHub OAuth app if players
+are to claim progress. Full details are in
 [docs/deployment.md](docs/deployment.md).
 
 ## Configuration
 
-| Variable              | Default                     | Notes                                                                                                         |
-| --------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `POCKET_CTF_FLAGS`    | `—`                         | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.           |
-| `POCKET_CTF_SEEDS`    | `—`                         | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.       |
-| `VITE_SITE_URL`       | `http://localhost:3000`     | Your public origin, used for canonical URLs, the sitemap, `security.txt` and social cards. Set at build time. |
-| `DATABASE_URL`        | `file:./data/pocket-ctf.db` | Where players and progress live. A `file:` path for a host with a disk; a `libsql://` URL for one without.    |
-| `DATABASE_AUTH_TOKEN` | `—`                         | The token for a hosted libSQL database. Unused with a `file:` URL.                                            |
+| Variable                | Default                 | Notes                                                                                                         |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.           |
+| `POCKET_CTF_SEEDS`      | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.       |
+| `VITE_SITE_URL`         | `http://localhost:3000` | Your public origin, used for canonical URLs, the sitemap, `security.txt` and social cards. Set at build time. |
+| `DATABASE_URL`          | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                 |
+| `DATABASE_URL_UNPOOLED` | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.     |
+| `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.         |
+| `BETTER_AUTH_URL`       | the request's origin    | Your public origin, so OAuth callbacks name the real host. Set it in production.                              |
+| `GITHUB_CLIENT_ID`      | `—`                     | The GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.    |
+| `GITHUB_CLIENT_SECRET`  | `—`                     | Its secret.                                                                                                   |
 
 ## Documentation
 
@@ -222,7 +258,7 @@ Full documentation is available in the [`/docs`](./docs) directory.
 
 **Advanced:**
 
-- [Deployment and Indexing](./docs/deployment.md) — running the server, the database, the environment variables a hosted build needs, and the per-route indexing policy.
+- [Deployment and Indexing](./docs/deployment.md) — running the server, the Neon database and its migrations, sign-in with GitHub, the environment variables a hosted build needs, and the per-route indexing policy.
 
 ## Contributing
 
