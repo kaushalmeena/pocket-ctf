@@ -33,6 +33,7 @@ export const getDeadDrop = createServerFn({ method: "GET" }).handler(() => plant
 export const getRadio = createServerFn({ method: "GET" }).handler(() => plants.radio());
 export const getMachine = createServerFn({ method: "GET" }).handler(() => plants.machine());
 export const getStaffRoom = createServerFn({ method: "GET" }).handler(() => plants.staffRoom());
+export const getLounge = createServerFn({ method: "GET" }).handler(() => plants.lounge());
 export const getTeapot = createServerFn({ method: "GET" }).handler(() => plants.teapot());
 
 export const getTrophyCase = createServerFn({ method: "GET" }).handler(async () =>
@@ -79,3 +80,7 @@ export const getRecoveryCode = createServerFn({ method: "POST" }).handler(async 
 export const redeemRecoveryCode = createServerFn({ method: "POST" })
   .validator(text(40))
   .handler(async ({ data }) => restore(await currentPlayer(), data));
+
+export const getVault = createServerFn({ method: "GET" })
+  .validator(text(80))
+  .handler(({ data }) => plants.vault(data));

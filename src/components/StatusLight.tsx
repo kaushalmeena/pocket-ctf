@@ -15,6 +15,7 @@ const TONE_HZ = 620;
  */
 export function StatusLight() {
   const [lit, setLit] = createSignal(false);
+  const [label, setLabel] = createSignal("online");
   let steps: Step[] = [];
   let timer: ReturnType<typeof setTimeout> | undefined;
   let audio: AudioContext | undefined;
@@ -31,6 +32,12 @@ export function StatusLight() {
   };
 
   onMount(async () => {
+    // Asked on every page. The answer is always the same, to a browser.
+    fetch("/api/status")
+      .then((response) => response.json())
+      .then((body) => typeof body?.status === "string" && setLabel(body.status))
+      .catch(() => setLabel("unreachable"));
+
     try {
       const response = await fetch("/api/pulse");
       steps = (await response.json()).timeline ?? [];
@@ -78,7 +85,7 @@ export function StatusLight() {
       title="status"
     >
       <span class="status-light size-2 rounded-full" classList={{ "status-light-on": lit() }} />
-      <span class="group-hover:text-zinc-900 dark:group-hover:text-zinc-100">online</span>
+      <span class="group-hover:text-zinc-900 dark:group-hover:text-zinc-100">{label()}</span>
     </button>
   );
 }

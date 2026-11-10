@@ -29,30 +29,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "b12d603090822367aa05712c6ce0a5ae",
-          "iv": "4b031a5848c94220dc52e541",
-          "ct": "c832694be13367e69aae22629203ce17bb3e601e14634094dad9c21b9d554225eb0840ea54dbcbb35ed37785afe327c8f47b"
+          "salt": "adcb5286500b8c688654cd7c28d2d930",
+          "iv": "6fb9c942fb9f36656ebfc138",
+          "ct": "3879a8c02a49f0ca6301e3a226aadec1fea72843bc6327314b7524d9138d06c67b2acb4ac70f350eb4cb3711a22c83c3eb0d"
         }
       },
       {
         "sealed": {
-          "salt": "58b0f0547cb964fbe393be451408491c",
-          "iv": "8936d5853cc5718e947fd5d0",
-          "ct": "d65dd4ee36b3f0a7b39cc2acc8af092185cbc725e4ba1e3ce7eb3dd00bcc2dba5bd9c5d52d00084c962195c40b5b8e5f3a2ba5"
+          "salt": "d8b4d0fee555c58a8031883c3fdba684",
+          "iv": "7fd9b1d47d2e82017f224e81",
+          "ct": "abc0804b0dd695ab2ac41c22390ffdff736a2d7b24bfbf0058bfbde22976c0109951da2765799e14ea793c874549cecb07ba52"
         }
       },
       {
         "sealed": {
-          "salt": "8c8b09ff24a5dda2dbd08a7f40cc045e",
-          "iv": "014a44cd710b8a77d83dcd07",
-          "ct": "a8b954c9832fec113f912b60f4d2c291853ed5b2e21e9a6427a056cfde03305b513b90b8ec114f5fd2cef040bfd76ecef16f20"
+          "salt": "c52df51898d720d8fa8f29739330eed8",
+          "iv": "63b17c5bd0f3e8d2bf0f3b72",
+          "ct": "f966ec9309bd6b9b2e7a218b0d2eb830ad0428d6e3b02b4834cc59d4551b722819ae7df233b308c9d6dfa9eb1ca855fa524d69"
         }
       },
       {
         "sealed": {
-          "salt": "bc3ad1a79e091355f58f2881a0151e8d",
-          "iv": "815326d3ff4cfaa69c260406",
-          "ct": "e577e5e41b5c7ddf7ce2cf203aa8165bcc44ad216fb7bdeb3c62aa2355769823b435aad85c46cd57260adecdd33708cc986e00"
+          "salt": "39a661119f4351705ac3a5de20261242",
+          "iv": "50f25011edc3cab42d3edf6f",
+          "ct": "a8e075a77e3c7f4621b9b1e045af62f53ea4489a6882d99d11d963be501b5662cb77e8b2a505589ce7f6161974f108920184b3"
         }
       }
     ]
@@ -2569,6 +2569,38 @@
       }
     ]
   },
+  "forged": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "f0c03e8be240fc32a5ce485629e7fcf0",
+          "iv": "040f6cf48909e91f7dfa1ba2",
+          "ct": "3e4de082a63bbd260db73e9f8b2180f4b2256199d78d17f990f1e5960bb3983db54cfef2bf08489633dd4831823dddfcc591"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "8b7bf0f1b858cd4c7fdf855540080c58",
+          "iv": "98bd1208561ddf133276486c",
+          "ct": "83062f13c1c7b16532caa71be7d4ae7c5d6305cdc28344b237ece5f4fa7fb348d2c6985bc60ec3719b9fc2ce1223f503103d7f"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "2765482c3763b6f22f734bddaa9ee9f1",
+          "iv": "8e9e7cdce4de827549ef00ba",
+          "ct": "2dfa067fbacaaea6cdb1dadfc91f2b4cac3867bd0adec753a894a3d5040ba5297afec770c5225bc26ab0fb8f6403ec2e64a711"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "8d848d2ba2bb3ebb095d0b1a91173a4f",
+          "iv": "6e73093735d230cc46423d1a",
+          "ct": "a39bec2a589ea89da7e8b4786130429106168733a17249b4e7e2c30948ac35b3a88ec4ca3afa491b5ae10c923dd9de7b3a3fc4"
+        }
+      }
+    ]
+  },
   "instruction-set": {
     "variants": [
       {
@@ -2630,6 +2662,38 @@
       {
         "poem": "T​h‌e‌ ‌k​e​t​t​l​e‌ ‌h​u​m​s‌ ‌a​ ‌f‌l‌a​t‌ ​a​n​d‌ ‌p​a​t‌i‌e​n​t‌ ‌n‌o‌t​e‌.‌\nO​u‌t‌s​i​d‌e​,​ ​a‌ ‌b​u​s‌ ​l‌e​t‌s‌ ​s‌o‌m​e‌o​n‌e‌ ​o‌f‌f‌ ‌t​o‌o​ ‌s‌o‌o‌n‌.​\nI‌ ‌k​e​e​p‌ ​t​h‌e‌ ​w​i‌n​d‌o​w‌ ‌o‌p​e‌n​ ​f​o‌r‌ ‌t​h‌e‌ ‌d​r‌a‌u​g​h‌t​\na‌n​d‌ ‌r​e​a‌d​ ‌t​h‌e‌ ​s‌a‌m‌e​ ​p‌a​g‌e‌ ‌n‌i‌n​e‌t‌e‌e​n‌ ​t​i​m‌e‌s​ ‌b​y​ ​n​o‌o‌n​.​\nN‌o​t‌h​i‌n​g‌ ‌i‌s‌ ‌h​i‌d‌d‌e​n‌ ‌h‌e​r‌e‌,​ ‌t‌h‌e‌ ​m‌o‌r‌n​i​n‌g​ ​s‌a‌y​s​,‌\nh​o​l​d‌i‌n‌g​ ​i‌t‌s​ ‌h​a‌n‌d‌s‌ ‌o​u‌t‌,‌ ​e​m‌p‌t​y‌,‌ ​p​a​l​m‌s​ ‌t‌u​r‌n‌e​d‌ ​u‌p‌.‌\nT​h​e​ ​r​a‌d‌i​o‌ ‌a​g​r​e‌e‌s​.​ ‌T​h‌e​ ​n‌e‌i​g​h‌b‌o​u‌r‌s‌'‌ ‌d​o‌g\nagrees. The rain has nothing to add either.\nAnd still I count the pauses, not the words,\nthe way you'd count the gaps between two trains\nand know from that alone which one is yours.",
         "carrierLength": 477
+      }
+    ]
+  },
+  "last-word": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "e23b9222d15e624cfd2aafb468761403",
+          "iv": "29ce5e4da3d22e1f0b2034b2",
+          "ct": "4a3ebefed7b81972af5491e4df4e055139e3c425dedab2f2a966140adc29a7c83e6c807da160d63d64f15222ed5dae89fa589a"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "aaf396405593904eb8da27fdf7a2ed17",
+          "iv": "6dbf1d2c2dbff6f6a788be5d",
+          "ct": "b8b117d1ebb510b8bad927de054f863ec67aef27aeb3cdb1cef47a5cb53f6bd9d484e886fabb2208ef88868951da436ce515e468"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "6d0dbb837dbd50bb3e339aabb51bc366",
+          "iv": "ad2e103cb43c24d70ee7797c",
+          "ct": "b55ba81dfebaf2c043a6bba76d750af56f2a8b5ed4479cdefe4bb83db7af542f266c758c5fd9297ed4e4385adce4805af69f3ac4"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "411d95c71707fc093b2271b220e809b2",
+          "iv": "2c44fc73e0506a4b0c0057bd",
+          "ct": "1b7d83d71df6a49a1615448967dfdbbee8bc50b3b2290c18a7804f709b450c63ca1de038ac06e5f07ad3b38ee0a5475586b320f2"
+        }
       }
     ]
   },
@@ -2849,6 +2913,54 @@
       }
     ]
   },
+  "not-modified": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "d96c96f2ae761c1b59d6c3f439d723dc",
+          "iv": "c03a7bc983bac7b32834f84e",
+          "ct": "220b1e39a762f7884513688551852f5c14aff7976bd3cec439455e6813f8cb3b3a8d853951f1e2b63f01404a237fdddb4d"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "e6b8457b5e5ac1f130acee42c4317791",
+          "iv": "a91da89a6e18529687399862",
+          "ct": "9139e5537c23a35b6f6d13996c15d5ac388e301712bdd32932cbd15b7ce8e0511ef7e238bdb7c6e2bd198bc684fc67c0d423"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "7332a9fec1deb846a0602a2d440d79d9",
+          "iv": "1b739239250f80301efa8b43",
+          "ct": "cb3f55a1c939b16f2921585a6d06cc3761979f012970f04f599e01cc2cb2cb0f0afbc4c2e410a828c9fa06ee4a8a1f530ec5"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "78336b032957e370bef0786b2ab457bd",
+          "iv": "cb1d91cc6c8ff2f9831bac80",
+          "ct": "06a3d76b3082787eba6d06502d53509a75886b5eb36a8c63eac801a5ab0c5b09b0e293bc3481939f5b7006c67b1cb376d3b8"
+        }
+      }
+    ]
+  },
+  "paper-trail": {
+    "variants": [
+      {
+        "hops": ["pct", "f{d", "emo", "_sc", "eni", "c_r", "out", "e_s", "amp", "le}"]
+      },
+      {
+        "hops": ["pct", "f{d", "emo", "_sc", "eni", "c_r", "out", "e_s", "amp", "le1", "}"]
+      },
+      {
+        "hops": ["pct", "f{d", "emo", "_sc", "eni", "c_r", "out", "e_s", "amp", "le2", "}"]
+      },
+      {
+        "hops": ["pct", "f{d", "emo", "_sc", "eni", "c_r", "out", "e_s", "amp", "le3", "}"]
+      }
+    ]
+  },
   "russian-dolls": {
     "variants": [
       {
@@ -2917,6 +3029,38 @@
       }
     ]
   },
+  "tick-tock": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "e53faef918cd92c927c6f5430290bd05",
+          "iv": "d4689b6641ce6a8aec313be9",
+          "ct": "7309c379f846cacec14a3904882750b2976f00b6a7469e301c006c7b0d1f341b0d8cd917e82fac7f3f80afb639ba"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "26d100402d7bb0a057a6832ebc629421",
+          "iv": "a9b55eec967ee1f3cc8c5580",
+          "ct": "306ee0f2ef7951810ef0398a2580ae300f843330a3890d058a6e6b1f7c117c82f1335064117e549ca9e0794ecf112c"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "fbe50698b7e922077c3a299cc6ce6808",
+          "iv": "acc2e2531ef84b6774428c32",
+          "ct": "91198fbc1a08edf80fb82d4dd1404a37c2ab9ed474ec73e1ecdc047f616e2b9c49d4f81ecf5c00324406ea3c22e228"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "e378a76c77689581d6777b5628368b6e",
+          "iv": "a7ba072e9bada6c9b12de7fd",
+          "ct": "f26c642c62fe24eb8e730a4139840cedc932055ae2ebb9a2d506851541b59e731bb2e4913de825a3242570f9ccf4c7"
+        }
+      }
+    ]
+  },
   "vector-tracing": {
     "variants": [
       {
@@ -2949,30 +3093,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "a08b202ed71cd773ab4829cde56a8328",
-          "iv": "531eede1345e9d4a184ff6dd",
-          "ct": "a34294356602ff4248a7cfe64388610d77f59a495b1d0570cdca1ec6a1d04995a690382df8b49ce379ec8bd0a1"
+          "salt": "180925952325cfe4a0b0794fda118404",
+          "iv": "58d6d748e69632c110cac4e3",
+          "ct": "b55ac0b03e9d2143ae40c9e3dfdacd5857d86da74c56004f22328858f829f785171eaeb7b5807d19d6eb2a9329"
         }
       },
       {
         "sealed": {
-          "salt": "9a8173d012e34bcb99165f6f2dbbdb0c",
-          "iv": "71fc1e26f0afe2f383baf806",
-          "ct": "adecad3565fa681ae491bb51a86a2200d1ff3b5ed39172929cf49e4d143f6180b6c907f991a760414d577b90c0ab"
+          "salt": "8776be72b9105d112e38884c62c36d8d",
+          "iv": "38f3828f078cd8ee4cfe2d33",
+          "ct": "48504e56675ca8dedc3349e00bbc187d2ba108daae54f77bf22f43ff8f18e219bfa750b62006fbbe672dcee0aa40"
         }
       },
       {
         "sealed": {
-          "salt": "5607fffa2ea1d95f1837de83e3124edb",
-          "iv": "5ee238219cf6e81b254b78c8",
-          "ct": "790084c5774de427120c869760f94ace9fcd6dd3d08f0dde20b12310a0f9886c202daa41b21b4cd93f225d9724eb"
+          "salt": "0f595043db50d62ab0cffa9d1f5b4444",
+          "iv": "11317fffb4d7966f29f4e0b9",
+          "ct": "3c79fe9ef54d73e934bf751f963c35b6389c699975139f9e18cbae6e0cbf55284008231139a7b4ed2b6bd78e338d"
         }
       },
       {
         "sealed": {
-          "salt": "467c105fbf69a1102aaed5cdb067cb8f",
-          "iv": "f3bf170004d51d7aa94d0ffb",
-          "ct": "80317d2c0347d41398a727990222b28ce31ca517fbe3a302b415a5e411bf36ae8b13aba2a5196c93e35732f42a7f"
+          "salt": "6720547a852c6cb64874f5ac70276069",
+          "iv": "bdd78ba555d2ecaf9f59ffd9",
+          "ct": "3c169fa1f861defe886b00bd0dc3c88ce258edbc71ad2efa37b7a353cd2da7de44e03d9d69b100d80c57b1e61909"
         }
       }
     ]

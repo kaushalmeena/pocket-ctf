@@ -83,6 +83,14 @@ export function TrophyToasts() {
                 {toast.title}
               </span>
               <span class="block pt-0.5 text-xs leading-snug text-zinc-400">{toast.quip}</span>
+              <Show when={toast.fragment}>
+                {(fragment) => (
+                  <span class="block pt-1.5 font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+                    fragment {fragment().n}/{fragment().of} ·{" "}
+                    <span class="trophy-ink normal-case">{fragment().text}</span>
+                  </span>
+                )}
+              </Show>
             </span>
           </button>
         )}

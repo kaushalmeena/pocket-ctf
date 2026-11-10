@@ -28,6 +28,11 @@ const FILES: Record<string, string[]> = {
     "[ ] take the X-Flag header out before launch",
     "[ ] stop leaving notes in dotfiles",
   ],
+  "door.txt": [
+    "the back door: /api/door?code=______",
+    "six digits. it checks them one at a time, left to right, very carefully,",
+    "and gives up at the first one it does not like. it is not a fast door.",
+  ],
   ".radio": [
     "shortwave log, kept for no one",
     "  station still transmitting. same message, on a loop.",

@@ -332,6 +332,16 @@ function FoundSlot(props: { slot: Found; index: number }) {
             {props.slot.title}
           </p>
           <p class="pt-0.5 text-xs leading-snug text-zinc-500">{props.slot.quip}</p>
+          <Show when={props.slot.fragment}>
+            {(fragment) => (
+              <p class="pt-2 font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+                fragment {fragment().n}/{fragment().of} ·{" "}
+                <span class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-900 normal-case dark:bg-zinc-800 dark:text-zinc-100">
+                  {fragment().text}
+                </span>
+              </p>
+            )}
+          </Show>
         </div>
       </div>
       <details onToggle={handleToggle} class="text-sm">

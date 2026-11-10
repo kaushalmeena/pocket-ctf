@@ -15,6 +15,7 @@ import { Route as BoardRouteImport } from './routes/board'
 import { Route as DeadDropRouteImport } from './routes/dead-drop'
 import { Route as GhostDotcssRouteImport } from './routes/ghost[.]css'
 import { Route as HumansDottxtRouteImport } from './routes/humans[.]txt'
+import { Route as LoungeRouteImport } from './routes/lounge'
 import { Route as MachineRouteImport } from './routes/machine'
 import { Route as RadioRouteImport } from './routes/radio'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -23,8 +24,12 @@ import { Route as StaffRouteImport } from './routes/staff'
 import { Route as TeapotRouteImport } from './routes/teapot'
 import { Route as TrophiesRouteImport } from './routes/trophies'
 import { Route as DotwellKnownSecurityDottxtRouteImport } from './routes/[.]well-known/security[.]txt'
+import { Route as ApiDoorRouteImport } from './routes/api/door'
 import { Route as ApiFlagRouteImport } from './routes/api/flag'
 import { Route as ApiPulseRouteImport } from './routes/api/pulse'
+import { Route as ApiStatusRouteImport } from './routes/api/status'
+import { Route as GoHopRouteImport } from './routes/go/$hop'
+import { Route as VaultKeyRouteImport } from './routes/vault/$key'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -54,6 +59,11 @@ const GhostDotcssRoute = GhostDotcssRouteImport.update({
 const HumansDottxtRoute = HumansDottxtRouteImport.update({
   id: '/humans.txt',
   path: '/humans.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoungeRoute = LoungeRouteImport.update({
+  id: '/lounge',
+  path: '/lounge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MachineRoute = MachineRouteImport.update({
@@ -97,6 +107,11 @@ const DotwellKnownSecurityDottxtRoute =
     path: '/.well-known/security.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDoorRoute = ApiDoorRouteImport.update({
+  id: '/api/door',
+  path: '/api/door',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFlagRoute = ApiFlagRouteImport.update({
   id: '/api/flag',
   path: '/api/flag',
@@ -107,6 +122,21 @@ const ApiPulseRoute = ApiPulseRouteImport.update({
   path: '/api/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStatusRoute = ApiStatusRouteImport.update({
+  id: '/api/status',
+  path: '/api/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoHopRoute = GoHopRouteImport.update({
+  id: '/go/$hop',
+  path: '/go/$hop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VaultKeyRoute = VaultKeyRouteImport.update({
+  id: '/vault/$key',
+  path: '/vault/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/dead-drop': typeof DeadDropRoute
   '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
+  '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -123,8 +154,12 @@ export interface FileRoutesByFullPath {
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/status': typeof ApiStatusRoute
+  '/go/$hop': typeof GoHopRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,6 +168,7 @@ export interface FileRoutesByTo {
   '/dead-drop': typeof DeadDropRoute
   '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
+  '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -141,8 +177,12 @@ export interface FileRoutesByTo {
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/status': typeof ApiStatusRoute
+  '/go/$hop': typeof GoHopRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +192,7 @@ export interface FileRoutesById {
   '/dead-drop': typeof DeadDropRoute
   '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
+  '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -160,8 +201,12 @@ export interface FileRoutesById {
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
+  '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/status': typeof ApiStatusRoute
+  '/go/$hop': typeof GoHopRoute
+  '/vault/$key': typeof VaultKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +217,7 @@ export interface FileRouteTypes {
     | '/dead-drop'
     | '/ghost.css'
     | '/humans.txt'
+    | '/lounge'
     | '/machine'
     | '/radio'
     | '/robots.txt'
@@ -180,8 +226,12 @@ export interface FileRouteTypes {
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
+    | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/status'
+    | '/go/$hop'
+    | '/vault/$key'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -190,6 +240,7 @@ export interface FileRouteTypes {
     | '/dead-drop'
     | '/ghost.css'
     | '/humans.txt'
+    | '/lounge'
     | '/machine'
     | '/radio'
     | '/robots.txt'
@@ -198,8 +249,12 @@ export interface FileRouteTypes {
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
+    | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/status'
+    | '/go/$hop'
+    | '/vault/$key'
   id:
     | '__root__'
     | '/'
@@ -208,6 +263,7 @@ export interface FileRouteTypes {
     | '/dead-drop'
     | '/ghost.css'
     | '/humans.txt'
+    | '/lounge'
     | '/machine'
     | '/radio'
     | '/robots.txt'
@@ -216,8 +272,12 @@ export interface FileRouteTypes {
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
+    | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/status'
+    | '/go/$hop'
+    | '/vault/$key'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -227,6 +287,7 @@ export interface RootRouteChildren {
   DeadDropRoute: typeof DeadDropRoute
   GhostDotcssRoute: typeof GhostDotcssRoute
   HumansDottxtRoute: typeof HumansDottxtRoute
+  LoungeRoute: typeof LoungeRoute
   MachineRoute: typeof MachineRoute
   RadioRoute: typeof RadioRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -235,8 +296,12 @@ export interface RootRouteChildren {
   TeapotRoute: typeof TeapotRoute
   TrophiesRoute: typeof TrophiesRoute
   DotwellKnownSecurityDottxtRoute: typeof DotwellKnownSecurityDottxtRoute
+  ApiDoorRoute: typeof ApiDoorRoute
   ApiFlagRoute: typeof ApiFlagRoute
   ApiPulseRoute: typeof ApiPulseRoute
+  ApiStatusRoute: typeof ApiStatusRoute
+  GoHopRoute: typeof GoHopRoute
+  VaultKeyRoute: typeof VaultKeyRoute
 }
 
 declare module '@tanstack/solid-router' {
@@ -281,6 +346,13 @@ declare module '@tanstack/solid-router' {
       path: '/humans.txt'
       fullPath: '/humans.txt'
       preLoaderRoute: typeof HumansDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lounge': {
+      id: '/lounge'
+      path: '/lounge'
+      fullPath: '/lounge'
+      preLoaderRoute: typeof LoungeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/machine': {
@@ -339,6 +411,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DotwellKnownSecurityDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/door': {
+      id: '/api/door'
+      path: '/api/door'
+      fullPath: '/api/door'
+      preLoaderRoute: typeof ApiDoorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/flag': {
       id: '/api/flag'
       path: '/api/flag'
@@ -353,6 +432,27 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ApiPulseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/status': {
+      id: '/api/status'
+      path: '/api/status'
+      fullPath: '/api/status'
+      preLoaderRoute: typeof ApiStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/go/$hop': {
+      id: '/go/$hop'
+      path: '/go/$hop'
+      fullPath: '/go/$hop'
+      preLoaderRoute: typeof GoHopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vault/$key': {
+      id: '/vault/$key'
+      path: '/vault/$key'
+      fullPath: '/vault/$key'
+      preLoaderRoute: typeof VaultKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -363,6 +463,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeadDropRoute: DeadDropRoute,
   GhostDotcssRoute: GhostDotcssRoute,
   HumansDottxtRoute: HumansDottxtRoute,
+  LoungeRoute: LoungeRoute,
   MachineRoute: MachineRoute,
   RadioRoute: RadioRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -371,8 +472,12 @@ const rootRouteChildren: RootRouteChildren = {
   TeapotRoute: TeapotRoute,
   TrophiesRoute: TrophiesRoute,
   DotwellKnownSecurityDottxtRoute: DotwellKnownSecurityDottxtRoute,
+  ApiDoorRoute: ApiDoorRoute,
   ApiFlagRoute: ApiFlagRoute,
   ApiPulseRoute: ApiPulseRoute,
+  ApiStatusRoute: ApiStatusRoute,
+  GoHopRoute: GoHopRoute,
+  VaultKeyRoute: VaultKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

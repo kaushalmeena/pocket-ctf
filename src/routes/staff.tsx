@@ -67,6 +67,10 @@ function StaffRoom() {
               is all we check. This was pinned to the noticeboard:
             </p>
             <p class="blob">{open().flag}</p>
+            <p class="prose-mini">
+              While you are here: the executive lounge is one floor up, at <code>/lounge</code>.
+              They check badges properly up there. Or so they keep telling us.
+            </p>
           </div>
         )}
       </Show>

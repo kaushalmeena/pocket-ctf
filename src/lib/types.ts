@@ -16,7 +16,14 @@ export type Trophy = {
   points?: number;
   /** Nobody on this deployment had found it before. */
   firstBlood?: boolean;
+  fragment?: Fragment;
 };
+
+/**
+ * A numbered piece of something longer. Every flag but one comes with one, and
+ * what they add up to is for the player to work out.
+ */
+export type Fragment = { n: number; of: number; text: string };
 
 export type Me = {
   handle: string;
@@ -52,6 +59,7 @@ export type Slot =
       cluesUsed: number;
       foundAt: number;
       firstBlood: boolean;
+      fragment?: Fragment;
     }
   | {
       found: false;

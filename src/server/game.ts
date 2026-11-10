@@ -13,6 +13,7 @@ import {
   writeupText,
 } from "./catalogue";
 import { db } from "./db";
+import { fragmentOf } from "./finale";
 import { issueRecovery, persist, type Player, recover, variantOf } from "./players";
 import { runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
@@ -271,13 +272,23 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
   await forgive(player);
 
   const trophies: Trophy[] = [
-    { tier: challenge.tier, title: challenge.title, quip: challenge.quip, points, firstBlood },
+    {
+      tier: challenge.tier,
+      title: challenge.title,
+      quip: challenge.quip,
+      points,
+      firstBlood,
+      fragment: fragmentOf(player, hit.slug),
+    },
   ];
   const me = await standing(player);
   if (me.found === me.total) trophies.push(PLATINUM);
 
   const lines = [`Flag accepted: ${challenge.title}. +${points} points.`];
   if (firstBlood) lines.push("First blood. Nobody on this server had found that one.");
+  const fragment = trophies[0]?.fragment;
+  if (fragment)
+    lines.push(`It came with fragment ${fragment.n} of ${fragment.of}: ${fragment.text}`);
   lines.push(
     me.found === me.total
       ? "That was the last of them."
@@ -352,6 +363,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
         cluesUsed: solve.clues,
         foundAt: solve.solvedAt,
         firstBlood: solve.firstBlood,
+        fragment: fragmentOf(player, challenge.slug),
       });
       continue;
     }

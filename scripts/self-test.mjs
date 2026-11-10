@@ -14,8 +14,11 @@
  * proves the data is really planted where the hunt says it is, for the variant
  * the server dealt, and that the server takes the answer.
  *
- * It enrolls one new player per run, and that player ends up on the board.
+ * It enrolls one new player per run, and that player ends up on the board. The
+ * timing puzzle is solved by actually timing it, so a run takes a while.
  */
+
+import { createHash } from "node:crypto";
 
 import { solverFor } from "./lib/discover.mjs";
 
@@ -144,11 +147,91 @@ const HUNT = {
     };
   },
 
+  // A link in the footer that goes the long way round.
+  "paper-trail": async () => {
+    const hops = [];
+    let next = home.match(/href="(\/go\/\d+)"/)?.[1];
+    while (next?.startsWith("/go/")) {
+      const hop = await visit(next);
+      const piece = hop.headers.get("x-trail");
+      if (piece !== null) hops.push(piece);
+      next = hop.headers.get("location");
+    }
+    return { hops };
+  },
+
+  // The status endpoint tells a client that says it is behind what changed.
+  "not-modified": async () => {
+    const stale = await visit("/api/status", { headers: { "if-none-match": 'W/"rev-1"' } });
+    const changes = (await stale.json()).changes ?? [];
+    return { found: JSON.stringify(changes).match(/pctf\{[a-z0-9_]+\}/)?.[0] };
+  },
+
+  // The lounge signs its badges with a key short enough to try them all.
+  forged: async () => {
+    const clearance = jar.get("clearance");
+    jar.set("clearance", btoa(JSON.stringify({ role: "staff" })));
+    const upstairs = (await text("/staff")).match(/<code[^>]*>(\/[a-z]+)<\/code>/)?.[1];
+    jar.set("clearance", clearance);
+
+    await visit(upstairs);
+    const [payload, signature] = jar.get("badge").split(".");
+    const sign = (code, body) =>
+      createHash("sha256").update(`${code}.${body}`).digest("hex").slice(0, 16);
+    let code;
+    for (let guess = 0; guess < 10_000 && code === undefined; guess++) {
+      const candidate = String(guess).padStart(4, "0");
+      if (sign(candidate, payload) === signature) code = candidate;
+    }
+    if (code === undefined)
+      throw new Error("no four-digit code reproduces the badge signature");
+
+    const forged = btoa(JSON.stringify({ role: "executive" }));
+    jar.set("badge", `${forged}.${sign(code, forged)}`);
+    return {
+      found: (await text(upstairs)).match(/class="blob[^>]*>(pctf\{[a-z0-9_]+\})</)?.[1],
+    };
+  },
+
+  // A door that takes longer to refuse the closer the guess is.
+  "tick-tock": async () => {
+    const note = (await say("cat door.txt")).lines.join(" ");
+    const [, path, blanks] = note.match(/(\/api\/[a-z]+\?code=)(_+)/);
+    let known = "";
+    for (let position = 0; position < blanks.length; position++) {
+      let slowest = { digit: "0", ms: -1 };
+      for (let digit = 0; digit <= 9; digit++) {
+        const guess = `${known}${digit}`.padEnd(blanks.length, "x");
+        const started = performance.now();
+        const response = await visit(`${path}${guess}`);
+        const body = await response.json();
+        if (body.open) return { found: body.flag };
+        const ms = performance.now() - started;
+        if (ms > slowest.ms) slowest = { digit: String(digit), ms };
+      }
+      known += slowest.digit;
+    }
+    return { found: (await (await visit(`${path}${known}`)).json()).flag };
+  },
+
   // The Link header on every response.
   "instruction-set": async () => {
     const link = (await visit("/")).headers.get("link")?.match(/<([^>]+)>/)?.[1];
     return { bytecode: hexBlob(await text(link)) };
   },
+};
+
+/** Every flag but the last hands over a numbered piece of an address. */
+const fragments = [];
+
+// Nowhere to look for this one: its address is what the others add up to.
+HUNT["last-word"] = async () => {
+  const address = fragments
+    .sort((a, b) => a.n - b.n)
+    .map((f) => f.text)
+    .join("");
+  const page = await text(`/vault/${address}`);
+  return { found: page.match(/class="blob[^>]*>(pctf\{[a-z0-9_]+\})</)?.[1] };
 };
 
 async function say(line) {
@@ -178,6 +261,7 @@ for (const [slug, lift] of Object.entries(HUNT)) {
     last = await say(flag);
     if (last.tone !== "ok") throw new Error(`submitted, and the site said: ${last.lines?.[0]}`);
     const trophy = last.trophies[0];
+    if (trophy.fragment) fragments.push(trophy.fragment);
     console.log(
       `  ✔ ${slug.padEnd(22)} ${trophy.tier.padEnd(7)} ${trophy.title} (+${trophy.points})`,
     );

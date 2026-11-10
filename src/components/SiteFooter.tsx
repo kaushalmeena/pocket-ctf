@@ -9,7 +9,15 @@ export function SiteFooter() {
           ·
         </span>
         <span>Everything on this domain is in scope. Nothing off it is.</span>
-        <span class="ml-auto font-mono">pocket/ctf</span>
+        {/* Leaves the site, eventually. */}
+        <a
+          href="/go/0"
+          rel="noreferrer"
+          class="ml-auto underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+        >
+          What is a CTF?
+        </a>
+        <span class="font-mono">pocket/ctf</span>
       </div>
     </footer>
   );

@@ -13,7 +13,12 @@
     "vector-tracing": "pctf{demo_path_parity}",
     "feedback-loop": "pctf{demo_shift_register}",
     "the-repeat-offender": "pctf{demo_repeating_key}",
-    "instruction-set": "pctf{demo_run_the_bytecode}"
+    "instruction-set": "pctf{demo_run_the_bytecode}",
+    "paper-trail": "pctf{demo_scenic_route}",
+    "not-modified": "pctf{demo_conditional_get}",
+    "forged": "pctf{demo_weak_signing_key}",
+    "tick-tock": "pctf{demo_slow_compare}",
+    "last-word": "pctf{demo_all_the_fragments}"
   },
   "hints": {},
   "writeups": {},
