@@ -209,7 +209,8 @@ writeFileSync(
       // Deliberately no puzzle count. This file is written by `pnpm icons`,
       // which the build does not run, so a number here would sit stale in
       // public/ until someone remembered to regenerate it.
-      description: "Offline capture-the-flag puzzles that run in your browser.",
+      description:
+        "A capture-the-flag hunt with no map. The flags are hidden in the site itself.",
       start_url: "/",
       display: "standalone",
       background_color: "#09090b",

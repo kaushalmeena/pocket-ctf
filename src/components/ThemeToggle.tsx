@@ -7,7 +7,7 @@ import { useTheme } from "~/lib/theme";
  * transition with it (see `.theme-transition` in app.css).
  *
  * The knob position and icon opacity come from Tailwind's `dark:` variants
- * rather than from the `theme()` signal. That is deliberate. Prerendered HTML
+ * rather than from the `theme()` signal. That is deliberate. Server-rendered HTML
  * cannot know the visitor's preference, so anything driven by JS state ships in
  * the light position and is corrected at hydration -- which happens after the
  * first paint, so the visitor watches the switch flip itself on every load. The

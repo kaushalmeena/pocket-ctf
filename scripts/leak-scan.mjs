@@ -39,7 +39,7 @@ const SKIP_DIRS = new Set(["node_modules", ".git"]);
 const ALLOWLIST = new Set(["flags.secret.json", "seeds.secret.json", "ANSWERS.secret.md"]);
 
 /**
- * Prerendered HTML carries `pctf&#123;…&#125;` where the page renders
+ * Rendered HTML carries `pctf&#123;…&#125;` where the page renders
  * `pctf{…}` -- JSX entities survive into the markup and are decoded by the
  * browser's parser. Normalising braces before matching means an accidentally
  * escaped leak is still caught instead of hiding behind its own encoding.

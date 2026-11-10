@@ -1,7 +1,7 @@
 {
   "name": "Pocket CTF",
   "short_name": "Pocket CTF",
-  "description": "Offline capture-the-flag puzzles that run in your browser.",
+  "description": "A capture-the-flag hunt with no map. The flags are hidden in the site itself.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",
