@@ -37,8 +37,16 @@ directory.
 
 ## Where everything is
 
-Eighteen flags, worth 2,525 points. Eleven have no page of their own, and one
+Twenty flags, worth 2,800 points, and twelve secret trophies beside them --
+thirty-two things to find. Thirteen flags have no page of their own, and one
 has no hiding place of its own either.
+
+They hide in three ways. Some are **in plain sight**, in something every visitor
+is sent: the markup, the drawing, the poem, the footer light, a cookie. Some sit
+**behind a mechanism you have to be told how to work**: a door with a code, a
+badge to forge, an endpoint that only obeys "Simon says". And a few run on
+**pop culture**: a bridge keeper with a famous trick question, and most of the
+secret trophies.
 
 | Slug                   | Trophy               | Tier   | Pts | Where it is                                                               | Found by                                       |
 | ---------------------- | -------------------- | ------ | --- | ------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -59,6 +67,8 @@ has no hiding place of its own either.
 | `not-modified`         | Not Modified         | silver | 125 | `GET /api/status` with `If-None-Match: W/"rev-N"` for an older revision   | The footer light's label polls it; its `ETag`  |
 | `forged`               | Middle Management    | gold   | 175 | `/lounge`, with a `badge` cookie forged for the role `executive`          | A line inside the staff room, once you are in  |
 | `tick-tock`            | Tick Tock            | gold   | 200 | `GET /api/door?code=` with the right six digits                           | `cat door.txt` at the prompt                   |
+| `simon-says`           | Simon Says           | silver | 150 | `/api/simon`, four rounds; only instructions prefixed "Simon says" count  | `cat todo.txt` at the prompt                   |
+| `bridge-keeper`        | Unladen              | silver | 125 | The prompt, after `cross bridge`: name, quest, then the swallow question  | `ls -a` then `cat .bridge` at the prompt       |
 | `last-word`            | The Long Way Round   | gold   | 250 | `/vault/<key>`, where the key is this player's fragments joined in order  | Finding every other flag                       |
 
 Finding every one earns the platinum, **Nothing Left to Hide**.
@@ -79,9 +89,18 @@ A few of those need more than the table says:
 - **`not-modified`.** The current revision gets `304`. A client that claims an
   older one is sent every change since, and one of the changes is the removal
   of the flag, quoting it.
+- **`simon-says`.** Each reply carries one instruction prefixed `Simon says`
+  and one that is not, in varying order; obeying the wrong one resets the game.
+  The rounds: bring the ticket back; add `X-Simon: please`; wait five seconds;
+  ask with `PUT`. Tickets are `step-issuedAt-mac`, signed with the player's
+  seed, so the server keeps no state and the wait is checked against the stamp.
+- **`bridge-keeper`.** The keeper's state is a `bridge` cookie signed with the
+  player's seed. The name must be the player's handle, the quest must mention
+  flags, and the swallow question is answered by asking whether it is African
+  or European. Any wrong answer clears the cookie: back to the first question.
 - **`last-word`.** Every other trophy carries a numbered two-character fragment
   (`src/server/finale.ts`), shown in its toast and its slot in the case. In
-  order, they are a 34-character key derived from the player's own seed, so one
+  order, they are a 38-character key derived from the player's own seed, so one
   player's fragments open nobody else's vault and no address is guessable. Every
   other key, and every partial one, is a 404.
 
@@ -98,16 +117,24 @@ was found:
 | A cookie named `flag`                  | Reads their cookies for that word |
 | An `X-Flag` response header            | Reads headers for that word       |
 
-And six secret trophies, worth no points:
+And twelve secret trophies, worth no points. Four of them the browser notices and
+claims for itself (`CLAIMABLE` in `src/server/game.ts`), which is exactly why
+none of them is worth anything:
 
-| Trophy                 | Earned by                                                   |
-| ---------------------- | ----------------------------------------------------------- |
-| Curious Cat            | Submitting a decoy                                          |
-| Receiving Stolen Goods | Submitting a real flag that was dealt to a different player |
-| Nice Try               | `sudo` anything at the prompt                               |
-| Short and Stout        | Visiting `/teapot`, which answers 418                       |
-| Thirty Lives           | The Konami code, which also toggles a scanline overlay      |
-| Percussive Maintenance | Seven quick taps on the logo                                |
+| Trophy                 | Earned by                                                    |
+| ---------------------- | ------------------------------------------------------------ |
+| Curious Cat            | Submitting a decoy                                           |
+| Receiving Stolen Goods | Submitting a real flag that was dealt to a different player  |
+| Nice Try               | `sudo` anything at the prompt                                |
+| Short and Stout        | Visiting `/teapot`, which answers 418                        |
+| Thirty Lives           | The Konami code, which also toggles a scanline overlay       |
+| Percussive Maintenance | Seven quick taps on the logo                                 |
+| Out of Sight           | Leaving the tab for a few seconds; its title talks meanwhile |
+| Light Switch Rave      | Eight theme flips within four seconds                        |
+| General Kenobi         | `hello there` at the prompt                                  |
+| Don't Panic            | `42` at the prompt                                           |
+| Escape Artist          | `:q`, `:wq` and friends at the prompt                        |
+| Scorched Earth         | `rm -rf /` at the prompt                                     |
 
 Also present and worth nothing: a greeting in the console, `/humans.txt`, an
 `X-Powered-By: curiosity` header, and a prompt that answers `ls`, `cat`,

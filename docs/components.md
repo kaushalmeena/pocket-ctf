@@ -36,12 +36,21 @@ everything hidden in plain sight: it has to be a plausible piece of chrome
 first.
 
 **`Secrets`** renders almost nothing. It is where the things every page does
-quietly live: the console greeting, the records filed in IndexedDB, and the
-listener for one very old cheat code.
+quietly live: the console greeting, the records filed in IndexedDB, the
+listener for one very old cheat code, and the tab title that talks to an empty
+chair.
 
-**The fragment line** sits under a trophy's quip, in its toast and in its slot:
-`fragment 3/17 · a9`, in small mono capitals with the fragment itself left in
-lower case. It is presented as an inventory detail rather than a clue, because
+**`TrophyToasts`** are deliberately compact: a small metal disc and three tight
+lines -- grade and points, the title, and the quip held to one line (the full
+quip is the tooltip, and is always in the case). One at a time, top right.
+
+**`AccentPicker`** is the swatch beside the theme switch. Each press moves to
+the next palette; the swatch is drawn in the current accent, so it shows its
+own state.
+
+**The fragment line** sits in a trophy's slot as `fragment 3/19 · a9`, and in its
+toast as `3/19 a9` at the end of the label row, in small mono capitals with the
+fragment itself left in lower case. It is presented as an inventory detail rather than a clue, because
 noticing that it adds up to something is the last puzzle.
 
 **`Claim`**, at the foot of the trophy case, is the one place sign-in appears. It

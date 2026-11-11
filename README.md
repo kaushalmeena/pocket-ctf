@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DA639?logo=opensourceinitiative&logoColor=white)](LICENSE) [![Solid](https://img.shields.io/badge/Solid-1.9-2C4F7C?logo=solid&logoColor=white)](https://www.solidjs.com) [![TanStack Start](https://img.shields.io/badge/TanStack_Start-1.x-C2255C?logo=react&logoColor=white)](https://tanstack.com/start) [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-0B7285?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 
-**Eighteen flags, no list of challenges, and nobody to tell you where to start.**
+**Twenty flags, twelve secrets, no list of challenges, and nobody to tell you where to start.**
 
 A free, open-source capture-the-flag hunt. There are no challenge pages and no
 categories: the flags are hidden in the site itself, and the front page is an
@@ -30,8 +30,10 @@ browser bundle says what the puzzles are.
   terminal, and not every command is listed.
 - **Trophies, not checkmarks** — a flag earns a bronze, silver or gold trophy
   that slides in at the top-right with a chime and a line of commentary. Find
-  all of them for the platinum. A few secret trophies reward things that are not
-  flags at all.
+  all of them for the platinum. Twelve secret trophies reward things that are
+  not flags at all.
+- **A palette of your own** — the accent colour is dealt at random on your first
+  visit, from six, and a swatch in the header changes it.
 - **Clues are for sale** — every hidden trophy will sell you clues, starting
   with where to look and ending with how to solve it. Each one shaves points off
   what that flag is worth.
