@@ -57,8 +57,9 @@ browser bundle says what the puzzles are.
   what.
 - **A finale you cannot shortcut** — every trophy carries a numbered fragment of
   an address that exists only for you. The last flag is there.
-- **Per-deployment flags** — each installation writes its own phrases, so
-  answers copied from another one fail.
+- **Per-deployment flags** — every player's suffix is keyed with the
+  installation's own secret, so even two sites running the same phrases share
+  no flags.
 - **Plug-and-play challenges** — one directory per challenge holding its
   metadata and, for a puzzle, its builder and reference solver, plus the place
   it is planted.
@@ -247,6 +248,7 @@ names the Neon CLI writes.
 | ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `POCKET_CTF_URL`        | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. |
 | `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, read by the server at startup. Without it or the file, it runs on the public demo key. |
+| `POCKET_CTF_SECRET`     | a development value     | Keys every player's flags, codes and finale address. **Required in production**; changing it changes unsubmitted flags.  |
 | `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                    |
 | `GITHUB_CLIENT_ID`      | `—`                     | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.  |
 | `GITHUB_CLIENT_SECRET`  | `—`                     | That app's client secret.                                                                                                |

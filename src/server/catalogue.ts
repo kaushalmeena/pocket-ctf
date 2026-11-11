@@ -2,6 +2,7 @@ import type { ChallengeMeta, Tier } from "~/challenges/types";
 
 import { baseOf, normalizeFlag, personalFlag } from "../../scripts/lib/flag.mjs";
 import { KEY } from "./key";
+import { SERVER_SECRET } from "./secret";
 
 /**
  * Every challenge, and every flag and puzzle, worked out per player.
@@ -63,7 +64,7 @@ export const MAX_SCORE = CHALLENGES.reduce((sum, c) => sum + c.points, 0);
 
 /** The flag this player is dealt for a challenge. */
 export const flagFor = (player: Seeded, slug: string) =>
-  personalFlag(KEY.flags[slug]!, player.seed, slug);
+  personalFlag(KEY.flags[slug]!, player.seed, slug, SERVER_SECRET);
 
 /* ------------------------------------------------------------------ *
  * Puzzles

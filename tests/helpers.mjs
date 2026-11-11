@@ -19,5 +19,8 @@ const live = liveKey(ROOT);
 export const answerKey = live.key;
 export const isSample = live.sample;
 
+/** Stands in for POCKET_CTF_SECRET. */
+export const secret = randomBytes(32).toString("base64");
+
 /** A few players' worth of seeds, shaped like the server's. */
 export const seeds = Array.from({ length: 4 }, () => randomBytes(16).toString("hex"));

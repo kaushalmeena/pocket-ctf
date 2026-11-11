@@ -7,6 +7,7 @@ import { auth } from "./auth";
 import { dealt } from "./catalogue";
 import { db } from "./db";
 import { players } from "./schema";
+import { keyed } from "./secret";
 
 /**
  * Who is asking.
@@ -115,7 +116,7 @@ function sketch(token: string): Player {
     id: `visitor:${digest.toString("hex").slice(0, 24)}`,
     handle: handleFrom(digest.subarray(12)),
     named: false,
-    seed: sha256(`pocket-ctf/seed:${token}`).slice(0, 32),
+    seed: keyed(`pocket-ctf/seed:${token}`).slice(0, 32),
     stored: false,
     account: null,
   };
@@ -193,9 +194,12 @@ export async function persist(player: Player): Promise<void> {
   Object.assign(player, { id: row.id, handle: row.handle, stored: true });
 }
 
-/** A per-player value nobody else can compute: `length` hex characters. */
+/**
+ * A per-player value nobody outside the server can compute, the player
+ * included: `length` hex characters, keyed with the server's secret.
+ */
 export const secretOf = (player: Player, purpose: string, length: number) =>
-  sha256(`${player.seed}:pocket-ctf/${purpose}`).slice(0, length);
+  keyed(`${player.seed}:pocket-ctf/${purpose}`).slice(0, length);
 
 /* ------------------------------------------------------------------ *
  * Things a visitor is handed at the door

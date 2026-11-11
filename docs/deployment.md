@@ -119,6 +119,7 @@ changes.
 
 | Variable               | Notes                                                                                                                     |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `POCKET_CTF_SECRET`    | Keys every player's flags and codes. `openssl rand -base64 32`. In production the server refuses to start without it      |
 | `BETTER_AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
 | `POCKET_CTF_URL`       | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
 | `GITHUB_CLIENT_ID`     | The OAuth app's client ID                                                                                                 |
@@ -130,6 +131,8 @@ on a laptop would send every GitHub sign-in back to the live site. For the same
 reason there is no `BETTER_AUTH_URL`; Better Auth would read that by itself,
 everywhere.
 
+Changing `POCKET_CTF_SECRET` changes every player's flags: solves already
+recorded are kept, but a flag found and not yet submitted stops working.
 Changing `BETTER_AUTH_SECRET` signs everybody out. Anonymous players then have no
 way back to their progress; players who claimed sign in with GitHub again.
 
@@ -156,14 +159,15 @@ not `.env`, which holds this machine's Neon connection strings -- and reads it
 back to confirm the key round-trips through `JSON.parse`. Alongside the answer
 key it writes:
 
-- `BETTER_AUTH_SECRET`, freshly generated the first time;
+- `POCKET_CTF_SECRET` and `BETTER_AUTH_SECRET`, freshly generated the first
+  time;
 - the `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` pair, empty the first time,
   with the callback URL to register;
 - `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for Neon's `production` branch,
   fetched with `neon connection-string` (`--db-branch=<name>` for another).
   Never `.env`'s, which point at `dev`.
 
-Rewriting with `--force` keeps the existing file's URL, session secret and
+Rewriting with `--force` keeps the existing file's URL, both secrets and
 GitHub pair, unless the environment sets them -- a new session secret would
 sign every player out. Paste the file into your host's environment settings, or
 hand it to a CLI that reads one. The values are minified and unquoted on

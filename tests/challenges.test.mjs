@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { builderFor, puzzleSlugs, slugs, solverFor } from "../scripts/lib/discover.mjs";
 import { baseOf, normalizeFlag, personalFlag, suffixFor } from "../scripts/lib/flag.mjs";
-import { answerKey, seeds } from "./helpers.mjs";
+import { answerKey, secret, seeds } from "./helpers.mjs";
 
 /**
  * The check that matters. Every player is dealt their own flag, so every
@@ -19,7 +19,7 @@ describe("every challenge is solvable from what a player is sent", () => {
     it(`${slug} solves to each player's own flag`, async () => {
       const [{ build }, { solve }] = await Promise.all([builderFor(slug), solverFor(slug)]);
       for (const seed of seeds) {
-        const flag = personalFlag(answerKey.flags[slug], seed, slug);
+        const flag = personalFlag(answerKey.flags[slug], seed, slug, secret);
         const payload = build({ flag, slug });
         expect(await solve({ payload, slug }), `${slug} for seed ${seed}`).toBe(flag);
         expect(JSON.stringify(payload), `${slug} ships its flag in plaintext`).not.toContain(
@@ -33,7 +33,9 @@ describe("every challenge is solvable from what a player is sent", () => {
     for (const slug of puzzleSlugs()) {
       const { build } = await builderFor(slug);
       const shipped = seeds.map((seed) =>
-        JSON.stringify(build({ flag: personalFlag(answerKey.flags[slug], seed, slug), slug })),
+        JSON.stringify(
+          build({ flag: personalFlag(answerKey.flags[slug], seed, slug, secret), slug }),
+        ),
       );
       expect(new Set(shipped).size, `${slug} dealt two players the same puzzle`).toBe(
         seeds.length,
@@ -46,17 +48,25 @@ describe("personal flags", () => {
   const base = "pctf{some_phrase}";
 
   it("are the base phrase with a six-character suffix", () => {
-    expect(personalFlag(base, seeds[0], "x")).toMatch(/^pctf\{some_phrase_[a-z2-9]{6}\}$/);
+    expect(personalFlag(base, seeds[0], "x", secret)).toMatch(
+      /^pctf\{some_phrase_[a-z2-9]{6}\}$/,
+    );
   });
 
   it("are stable for a player and differ between players and challenges", () => {
-    expect(personalFlag(base, seeds[0], "x")).toBe(personalFlag(base, seeds[0], "x"));
-    expect(suffixFor(seeds[0], "x")).not.toBe(suffixFor(seeds[1], "x"));
-    expect(suffixFor(seeds[0], "x")).not.toBe(suffixFor(seeds[0], "y"));
+    expect(personalFlag(base, seeds[0], "x", secret)).toBe(
+      personalFlag(base, seeds[0], "x", secret),
+    );
+    expect(suffixFor(seeds[0], "x", secret)).not.toBe(suffixFor(seeds[1], "x", secret));
+    expect(suffixFor(seeds[0], "x", secret)).not.toBe(suffixFor(seeds[0], "y", secret));
+  });
+
+  it("depend on the server's secret, not the seed alone", () => {
+    expect(suffixFor(seeds[0], "x", secret)).not.toBe(suffixFor(seeds[0], "x", `${secret}!`));
   });
 
   it("can be traced back to their phrase, so a borrowed one is recognised", () => {
-    expect(baseOf(personalFlag(base, seeds[1], "x"))).toBe(base);
+    expect(baseOf(personalFlag(base, seeds[1], "x", secret))).toBe(base);
     expect(baseOf("pctf{some_words}")).toBeNull();
   });
 

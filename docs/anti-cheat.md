@@ -81,15 +81,18 @@ confirms that a phrase is genuine. That gives nothing toward scoring, because
 the phrase alone is not the flag, but it is a fact the server tells anyone who
 already has the phrase.
 
-The suffix is also only as private as the seed, and the seed is not as private
-as it sounds. It is a hash of the `pctf_deal` cookie the player was first dealt,
-and the cookie is http-only, which keeps it from scripts but not from its owner:
-anyone can read their own cookie in devtools, and the derivation is in this
-repository. A player who does that can work out their own suffix for every
-challenge, and turn a friend's flag into their own by swapping the suffix.
-Per-player flags stop the pasted flag, not the player who reads the source and
-does the arithmetic. Keying the derivation with a server-side secret would close
-that.
+The suffix is keyed with `POCKET_CTF_SECRET`, which only the server holds
+(`src/server/secret.ts`). That matters because the seed alone is not private
+enough: before enrolment it is derived from the `pctf_deal` cookie, which its
+owner can read in devtools, and the derivation is in this repository. With the
+secret in the mix, knowing the seed and the source still gets a player nothing.
+The same key covers everything else derived from the seed -- the door and
+lounge codes, the finale address, and the MACs on Simon's tickets and the
+bridge cookie -- so none of those can be worked out from outside either.
+
+The secret is only as good as its keeping. Anyone holding it, with the answer
+key, can compute every player's flags; the development fallback is public,
+which is why production refuses to start without a real one.
 
 ### 5. Decoys
 
@@ -171,9 +174,10 @@ Being explicit about the boundary:
   Same trade: it needs the puzzle a deployment dealt you.
 - **Someone who solved it can tell you how.** Per-player flags stop a pasted
   flag. They do nothing about a pasted method, and nothing can.
-- **Your own suffix is computable.** As section 4 says, the seed behind every
-  suffix is a hash of a cookie the player can read, so a borrowed phrase plus
-  some arithmetic is a working flag.
+- **The server secret is the whole game.** `POCKET_CTF_SECRET` plus the answer
+  key is every player's flags. Keep both where only the server can read them,
+  and rotate the secret if either leaks -- progress survives, unsubmitted flags
+  do not.
 - **A GitHub account is the only durable identity.** Until a player claims,
   they are an anonymous session, and clearing cookies makes them somebody else
   — losing that progress, and letting one person hold several rows on the

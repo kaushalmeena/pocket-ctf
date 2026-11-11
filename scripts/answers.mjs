@@ -12,6 +12,7 @@
  *   POCKET_CTF_URL             public origin: canonical tags, sitemap, and in
  *                              production Better Auth's base URL
  *   POCKET_CTF_FLAGS           flags.secret.json, for a host that cannot have it
+ *   POCKET_CTF_SECRET          keys every player's flags and codes
  *
  *   BETTER_AUTH_SECRET         signs session cookies
  *

@@ -48,21 +48,22 @@ The key holds one _base_ flag per challenge, `pctf{some_memorable_phrase}`. The
 flag a player submits is that phrase with a six-character suffix spliced in
 before the closing brace: `pctf{some_memorable_phrase_k3x9qa}`.
 
-The suffix comes from `scripts/lib/flag.mjs`: SHA-256 over the player's seed and
-the challenge's slug, the first six bytes mapped onto a 32-symbol alphabet that
+The suffix comes from `scripts/lib/flag.mjs`: HMAC-SHA256, keyed with
+`POCKET_CTF_SECRET`, over the player's seed and the challenge's slug, the first six bytes mapped onto a 32-symbol alphabet that
 leaves out the characters easily misread for one another. The seed is the
 player's own and stays on the server — derived from their http-only
 `pctf_deal` cookie until they enrol, and stored in `players.seed` from then on,
 unchanged, so the flags they were looking at stay theirs.
 
-The seed is never sent to the browser, but it is not a server secret either:
-it is a hash of the cookie, with no key. [Anti-cheat](anti-cheat.md) says what
-that lets a player do.
+The seed is never sent to the browser, but on its own it is not secret enough:
+before enrolment it comes from a cookie its owner can read. The key is what
+makes the suffix impossible to work out from outside the server; see
+[Anti-cheat](anti-cheat.md).
 
 So every player has a different flag for every challenge, and none of them is
 stored anywhere. The derivation is deterministic: the same seed and slug give
-the same suffix on any server, on any day, which is what lets the server hold
-nothing but the key and the seed.
+the same suffix on any server with the same secret, on any day, which is what
+lets the server hold nothing but the key, the secret and the seed.
 
 Submissions are normalised before they are compared — trimmed, whitespace
 collapsed, lower-cased — so the server is forgiving about how a flag was typed
