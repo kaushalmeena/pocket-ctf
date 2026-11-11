@@ -179,7 +179,10 @@ function Profile(props: { view: TrophyCase }) {
     queueMicrotask(() => field.focus());
   };
 
-  const handleCancel = () => setEditing(false);
+  const handleCancel = () => {
+    setError(null);
+    setEditing(false);
+  };
 
   const handleSave = async (event: SubmitEvent) => {
     event.preventDefault();
@@ -217,24 +220,29 @@ function Profile(props: { view: TrophyCase }) {
         />
         <div class="min-w-0 flex-1 space-y-1.5">
           <p class="eyebrow">Trophy case</p>
+          {/*
+            One row of fixed height, whether showing the name or editing it: the
+            input wears the heading's exact type, so switching modes moves
+            nothing on the page.
+          */}
           <Show
             when={editing()}
             fallback={
-              <div class="flex flex-wrap items-baseline gap-3">
-                <h1 class="truncate text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              <div class="flex h-10 min-w-0 items-baseline gap-3">
+                <h1 class="truncate text-3xl leading-10 font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
                   {me().handle}
                 </h1>
                 <button
                   type="button"
                   onClick={handleEdit}
-                  class="text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                  class="shrink-0 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
                 >
                   {me().named ? "rename" : "pick your own handle"}
                 </button>
               </div>
             }
           >
-            <form onSubmit={handleSave} class="flex flex-wrap items-center gap-2">
+            <form onSubmit={handleSave} class="flex h-10 min-w-0 items-baseline gap-3">
               <input
                 ref={field}
                 type="text"
@@ -243,25 +251,46 @@ function Profile(props: { view: TrophyCase }) {
                 autocomplete="off"
                 spellcheck={false}
                 aria-label="Handle"
-                class="w-56 rounded-lg border border-zinc-300 bg-transparent px-3 py-1.5 font-mono text-sm dark:border-zinc-700"
+                aria-invalid={Boolean(error())}
+                aria-describedby="handle-status"
+                class="handle-input min-w-0 border-b-2 border-dashed border-accent-500/60 bg-transparent text-3xl leading-10 font-semibold tracking-tight text-zinc-900 outline-none focus:border-accent-500 dark:text-zinc-50"
               />
               <button
                 type="submit"
-                class="rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                class="shrink-0 text-xs font-medium text-accent-700 underline underline-offset-2 dark:text-accent-400"
               >
-                Save
+                save
               </button>
-              <button type="button" onClick={handleCancel} class="px-2 text-sm text-zinc-500">
-                Cancel
+              <button
+                type="button"
+                onClick={handleCancel}
+                class="shrink-0 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 dark:decoration-zinc-700"
+              >
+                cancel
               </button>
             </form>
           </Show>
-          <Show when={error()}>
-            <p class="text-xs text-rose-600 dark:text-rose-400">{error()}</p>
-          </Show>
-          <p class="font-mono text-xs text-zinc-500 tabular-nums">
-            {me().found}/{me().total} flags · {me().score}/{me().maxScore} pts
-            <Show when={me().rank}> · rank #{me().rank}</Show>
+          {/* A rejected name is reported in place of the stats, not in a new line. */}
+          <p
+            id="handle-status"
+            class="truncate font-mono text-xs tabular-nums"
+            classList={{
+              "text-zinc-500": !error(),
+              "text-rose-600 dark:text-rose-400": Boolean(error()),
+            }}
+            aria-live="polite"
+          >
+            <Show
+              when={error()}
+              fallback={
+                <>
+                  {me().found}/{me().total} flags · {me().score}/{me().maxScore} pts
+                  <Show when={me().rank}> · rank #{me().rank}</Show>
+                </>
+              }
+            >
+              {error()}
+            </Show>
           </p>
           <Show when={me().found > 0}>
             <button
