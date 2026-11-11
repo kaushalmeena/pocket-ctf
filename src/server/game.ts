@@ -356,6 +356,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
       found: false,
       tier: challenge.tier,
       points: worth(challenge.points, taken),
+      full: challenge.points,
       clues: await revealedClues(player, challenge.slug, taken),
       cluesLeft: left,
       nextWorth: left > 0 ? worth(challenge.points, taken + 1) : null,

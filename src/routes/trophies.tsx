@@ -420,7 +420,14 @@ function LockedSlot(props: {
         <TrophyIcon tier={props.slot.tier} size={18} locked />
         <div class="min-w-0 flex-1">
           <p class="font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
-            {TIER_LABEL[props.slot.tier]} · worth {props.slot.points}
+            {TIER_LABEL[props.slot.tier]} · pays {props.slot.points}
+            <Show when={props.slot.points < props.slot.full}>
+              {" "}
+              <span class="text-zinc-400 line-through decoration-zinc-400/70 dark:text-zinc-600">
+                {props.slot.full}
+              </span>
+            </Show>{" "}
+            when found
           </p>
           <p class="pt-1 text-sm font-semibold text-zinc-400 dark:text-zinc-600">
             Hidden trophy
@@ -449,10 +456,11 @@ function LockedSlot(props: {
           type="button"
           onClick={handleBuy}
           disabled={busy()}
+          title="Your score is not charged. This flag pays less when you find it."
           class="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
         >
-          {props.slot.clues.length === 0 ? "Buy a clue" : "Buy another"} · drops it to{" "}
-          {props.slot.nextWorth} pts
+          {props.slot.clues.length === 0 ? "Buy a clue" : "Buy another"} · this flag then pays{" "}
+          {props.slot.nextWorth}, not {props.slot.points}
         </button>
       </Show>
     </div>

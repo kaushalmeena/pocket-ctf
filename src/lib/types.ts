@@ -66,11 +66,13 @@ export type Slot =
   | {
       found: false;
       tier: TrophyTier;
-      /** What it is worth right now, after any clues taken. */
+      /** What it will pay when found, after any clues taken. */
       points: number;
+      /** What it would have paid with no clues. */
+      full: number;
       clues: string[];
       cluesLeft: number;
-      /** What the next clue would leave it worth. */
+      /** What it would pay after one more clue. */
       nextWorth: number | null;
     };
 

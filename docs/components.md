@@ -123,7 +123,7 @@ found.
 
 Writeups explain _why the technique works_, not just which keys to press, because
 the technique is the thing worth keeping. Where a design has a limit, the copy
-says so: the front page states plainly that clues cost points, that guessing is
+says so: the front page states plainly that clues lower what a flag pays, that guessing is
 throttled, and that a friend's flag will not work.
 
 ---

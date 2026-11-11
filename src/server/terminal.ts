@@ -65,8 +65,14 @@ const QUIPS: Record<string, string[]> = {
 
   flag: ["If it were that easy the trophies would be made of cardboard."],
   flags: ["If it were that easy the trophies would be made of cardboard."],
-  hint: ["Hints live in the trophy case, and they cost points. Looking is free."],
-  hints: ["Hints live in the trophy case, and they cost points. Looking is free."],
+  hint: [
+    "Clues live in the trophy case. Each one lowers what its flag pays when found.",
+    "Your score is never charged. Looking is free.",
+  ],
+  hints: [
+    "Clues live in the trophy case. Each one lowers what its flag pays when found.",
+    "Your score is never charged. Looking is free.",
+  ],
   man: ["No manual. That is rather the point of the place."],
 
   "make me a sandwich": ["What? Make it yourself."],

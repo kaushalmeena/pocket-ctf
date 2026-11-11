@@ -120,8 +120,8 @@ function Home() {
           forgive you. Looking, on the other hand, costs nothing.
         </Rule>
         <Rule title="Clues are for sale">
-          Each hidden trophy will sell you clues, starting with where to look. Every one shaves
-          points off what that flag is worth.
+          Each hidden trophy will sell you clues, starting with where to look. Your score is
+          never charged; instead every clue lowers what that flag pays when you find it.
         </Rule>
         <Rule title="Not everything is a flag">
           Some things here are just there to be found. Some are there to be found by people who

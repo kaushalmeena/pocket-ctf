@@ -35,8 +35,8 @@ browser bundle says what the puzzles are.
 - **A palette of your own** — the accent colour is dealt at random on your first
   visit, from six, and a swatch in the header changes it.
 - **Clues are for sale** — every hidden trophy will sell you clues, starting
-  with where to look and ending with how to solve it. Each one shaves points off
-  what that flag is worth.
+  with where to look and ending with how to solve it. None is charged to your
+  score; each one lowers what its flag pays when you find it.
 - **Server-side verification** — the answers, the puzzle list and the clue text
   never reach the browser. The bundle carries the interface and nothing else.
 - **Per-player puzzles** — each challenge ships several variants and every

@@ -127,11 +127,15 @@ which rejects requests from another origin. The plain `/api/*` routes are left
 open on purpose: poking them with `curl` is part of the hunt, and none of them
 changes anything a player owns.
 
-### 10. Clues cost points
+### 10. Clues lower what a flag pays
 
 Each hidden trophy sells clues: the first says where to look, the rest come from
 the answer key and say progressively more about how. Each one takes 15% off what
-that flag is worth, down to a floor of a quarter. Clue text is sealed in the
+that flag pays when it is found, down to a floor of a quarter. Nothing is taken
+from the player's score at the time, so a clue is never free: a player on zero
+still pays, later, in a smaller reward. Charging the score directly would either
+let it go negative or, floored at zero, make clues cost nothing to anyone who
+has not scored yet. Clue text is sealed in the
 registry and opened by the server only when paid for, so it cannot be read ahead
 of the charge.
 
