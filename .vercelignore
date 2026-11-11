@@ -4,9 +4,6 @@
 .env
 .env.*
 flags.secret.json
-# Left over from the build-time generator; never needed, never uploaded.
-seeds.secret.json
-ANSWERS.secret.md
 .neon
 
 # Local output and dependencies; the build makes its own.
