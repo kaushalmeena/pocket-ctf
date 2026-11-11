@@ -43,9 +43,9 @@ browser bundle says what the puzzles are.
   score; each one lowers what its flag pays when you find it.
 - **Server-side verification** — the answers, the puzzle list and the clue text
   never reach the browser. The bundle carries the interface and nothing else.
-- **Per-player puzzles** — each challenge ships several variants and every
-  player is dealt one, so a flag borrowed from a friend is recognised as real
-  and rejected as not yours.
+- **Per-player flags and puzzles** — every player's flag for every challenge
+  is different, and so is the puzzle built from it, so a flag borrowed from a
+  friend is recognised as real and rejected as not yours.
 - **No sign-up to play** — you arrive with an invented handle, swap it for your
   own, and appear on the board with your first flag. Just looking writes nothing
   at all; the server only remembers you once there is something to remember.
@@ -57,25 +57,28 @@ browser bundle says what the puzzles are.
   what.
 - **A finale you cannot shortcut** — every trophy carries a numbered fragment of
   an address that exists only for you. The last flag is there.
-- **Unguessable, per-deployment flags** — a random suffix per challenge means no
-  two installations share an answer, so answers copied from elsewhere fail.
-- **Plug-and-play challenges** — one directory per puzzle holding its metadata,
-  builder and reference solver, plus the place it is planted.
+- **Per-deployment flags** — each installation writes its own phrases, so
+  answers copied from another one fail.
+- **Plug-and-play challenges** — one directory per challenge holding its
+  metadata and, for a puzzle, its builder and reference solver, plus the place
+  it is planted.
 - **Light and dark themes** — follows your system preference until you say
   otherwise, with no flash of the wrong theme on load.
 
 ## How It Works
 
-1. **Author** — you write base flags into a gitignored `flags.secret.json`.
-2. **Generate** — `pnpm gen` derives, per flag, a keyed digest the server
-   recognises it by, sealed hints and a sealed writeup, a random per-deployment
-   suffix, and the puzzle payload itself.
-3. **Plant** — the server works each player's payload into what it sends them:
+1. **Author** — you write base flags, hints and writeups into a gitignored
+   `flags.secret.json`, which the server reads when it starts.
+2. **Deal** — each player's flag is the base flag plus a suffix derived from a
+   seed that is never sent to the browser, and each puzzle is built from that
+   flag the first time the player is sent it.
+3. **Plant** — the server works each player's puzzle into what it sends them:
    markup, headers, cookies, files, endpoints.
 4. **Hunt** — players look at everything. Devtools, `curl`, a console one-liner,
    pen and paper. There is no intended tool, only an intended insight.
-5. **Verify** — a submission is hashed and looked up on the server. A correct
-   answer is recorded against the player and announced as a trophy.
+5. **Verify** — a submission is compared on the server with the player's own
+   flags. A correct answer is recorded against the player and announced as a
+   trophy.
 
 > If you would rather not have the hunt spoiled, stay out of
 > [docs/challenges.md](docs/challenges.md) and `src/server/`. This is an
@@ -91,7 +94,6 @@ browser bundle says what the puzzles are.
 | **Styling**   | [Tailwind CSS v4](https://tailwindcss.com) · [Lucide](https://lucide.dev)                                                       |
 | **Database**  | [Postgres](https://www.postgresql.org) on [Neon](https://neon.com) · [Drizzle ORM](https://orm.drizzle.team) and drizzle-kit    |
 | **Auth**      | [Better Auth](https://www.better-auth.com) — anonymous sessions, GitHub OAuth to claim progress                                 |
-| **Crypto**    | [Web Crypto](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API) (HMAC-SHA256, PBKDF2, AES-GCM)                          |
 | **Build**     | [Vite](https://vite.dev) · [TypeScript](https://www.typescriptlang.org)                                                         |
 | **Testing**   | [Vitest](https://vitest.dev)                                                                                                    |
 | **Tooling**   | [oxlint](https://oxc.rs/docs/guide/usage/linter) · [oxfmt](https://oxc.rs/docs/guide/usage/formatter) · [pnpm](https://pnpm.io) |
@@ -130,19 +132,18 @@ cd pocket-ctf
 pnpm install
 ```
 
-Installing also seeds the challenge data. A fresh clone plays the **demo** set,
-whose flags are public in `flags.sample.json` and which the app labels with a
-banner. To create a real instance with unguessable flags, write your own answer
-key and generate from it:
+A fresh clone plays the **demo** key, whose flags are public in
+`flags.sample.json` and which the app labels with a banner. To run a real
+instance, write your own answer key:
 
 ```bash
 cp flags.sample.json flags.secret.json
 # then replace every phrase -- the demo ones are published
-pnpm gen
 ```
 
-Your resolved flags are written to `ANSWERS.secret.md`, which is gitignored — it
-is the only readable copy, so keep a backup outside the repository.
+The server reads `flags.secret.json` when it starts, so restart `pnpm dev` after
+changing it. It is gitignored and it is the only copy of your answers, so keep a
+backup outside the repository.
 
 3. Connect a database. With the Neon CLI signed in, this links the repository to
    a Neon project and writes `DATABASE_URL` and `DATABASE_URL_UNPOOLED` into a
@@ -179,9 +180,9 @@ followed by `pnpm db:generate`, and the migration it writes is committed.
 
 ### Testing
 
-The suite runs under [Vitest](https://vitest.dev). The tests that matter drive
-each challenge's own reference solver against the payload that was actually
-generated, so a puzzle that cannot be solved fails the build:
+The suite runs under [Vitest](https://vitest.dev). The tests that matter build
+each puzzle from several players' flags and drive the challenge's own reference
+solver against it, so a puzzle that cannot be solved fails the check:
 
 ```bash
 pnpm test
@@ -226,12 +227,13 @@ There is a server now, so there is something to deploy: `.output/` runs on any
 Node host, and Nitro packages the same build as serverless functions on hosts it
 recognises — Vercel among them, with no configuration file.
 
-Three things need supplying. A hosted build clones the repository, so the
-gitignored answer key is absent and the deploy would ship the demo set: run
-`pnpm gen:env --url=https://your-origin` to write those secrets to `.env.deploy` and hand
-them to your host. The database connection strings, which the build also uses to
-apply migrations. And Better Auth's secret, plus the GitHub OAuth app if players
-are to claim progress. Full details are in
+Three things need supplying. A host clones the repository, so the gitignored
+answer key is absent and the server would run on the demo key: supply it as
+`POCKET_CTF_FLAGS`, which the server reads at startup. The database connection
+strings, which the build also uses to apply migrations. And Better Auth's
+secret, plus the GitHub OAuth app if players are to claim progress.
+`pnpm gen:env --url=https://your-origin` writes all of them to `.env.deploy` to
+hand to your host. Full details are in
 [docs/deployment.md](docs/deployment.md).
 
 ## Configuration
@@ -244,8 +246,7 @@ names the Neon CLI writes.
 | Variable                | Default                 | Notes                                                                                                                    |
 | ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `POCKET_CTF_URL`        | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. |
-| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.                      |
-| `POCKET_CTF_SEEDS`      | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.                  |
+| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, read by the server at startup. Without it or the file, it runs on the public demo key. |
 | `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                    |
 | `GITHUB_CLIENT_ID`      | `—`                     | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.  |
 | `GITHUB_CLIENT_SECRET`  | `—`                     | That app's client secret.                                                                                                |
@@ -261,7 +262,7 @@ Full documentation is available in the [`/docs`](./docs) directory.
 
 **Core Concepts:**
 
-- [Build Pipeline](./docs/build-pipeline.md) — how `flags.secret.json` becomes digests, ciphertext and puzzle data, and why regenerating never resets anyone.
+- [Flags and the Answer Key](./docs/build-pipeline.md) — how `flags.secret.json` becomes every player's own flags and puzzles on the server, and why changing it never resets anyone.
 - [Challenges](./docs/challenges.md) — the one-directory-per-challenge layout, what it takes to add one, and **where every flag is hidden**. Spoilers.
 - [Anti-Cheat](./docs/anti-cheat.md) — what the server makes possible, the limit each measure runs into, and what none of them stop.
 

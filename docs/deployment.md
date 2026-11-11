@@ -26,11 +26,11 @@ instead.
 
 Nitro detects Vercel's build environment and emits serverless functions without
 being asked, so there is no `vercel.json` and nothing to configure beyond the
-environment variables: `POCKET_CTF_URL`, `BETTER_AUTH_SECRET`, the answer key's two
-below, the two database strings, and the GitHub pair if players are to claim
-progress. `pnpm gen:env` writes all of them to one file (below), or Neon's
-Vercel integration can supply the database strings; make sure they reach the build as well as the
-functions, since the build applies migrations. Vercel's own notes are at
+environment variables: `POCKET_CTF_URL`, `BETTER_AUTH_SECRET`, the answer key
+(below), the two database strings, and the GitHub pair if players are to claim
+progress. `pnpm gen:env` writes all of them to one file, or Neon's Vercel
+integration can supply the database strings; make sure those reach the build as
+well as the functions, since the build applies migrations. Vercel's own notes are at
 <https://vercel.com/docs/frameworks/full-stack/tanstack-start>.
 
 The earlier static build had a `vercel.json` pointing at `dist/client`. It is
@@ -133,16 +133,16 @@ everywhere.
 Changing `BETTER_AUTH_SECRET` signs everybody out. Anonymous players then have no
 way back to their progress; players who claimed sign in with GitHub again.
 
-### Supplying the answer key to a hosted build
+### Supplying the answer key to a hosted server
 
-The wrinkle, on any host: a hosted build clones the repository, so the gitignored
-answer key is absent and the deploy would ship the **demo** set. Supply the same
-JSON through environment variables instead:
+The wrinkle, on any host: a host clones the repository, so the gitignored
+answer key is absent and the server would start on the **demo** key. The server
+reads the environment before it looks for the file, so supply the same JSON as a
+variable instead:
 
 | Variable           | Contents                                         |
 | ------------------ | ------------------------------------------------ |
 | `POCKET_CTF_FLAGS` | the whole of your `flags.secret.json`            |
-| `POCKET_CTF_SEEDS` | the whole of your `seeds.secret.json`            |
 | `POCKET_CTF_URL`   | your real origin, e.g. `https://ctf.example.com` |
 
 Rather than minify that JSON by hand, generate the file:
@@ -151,10 +151,10 @@ Rather than minify that JSON by hand, generate the file:
 pnpm gen:env --url=https://ctf.example.com
 ```
 
-It reads the secrets already on your machine, writes a gitignored
-`.env.deploy` -- not `.env`, which holds this machine's Neon connection
-strings -- and reads it back to confirm both values round-trip through
-`JSON.parse`. Alongside the answer key it writes:
+It reads the key already on your machine, writes a gitignored `.env.deploy` --
+not `.env`, which holds this machine's Neon connection strings -- and reads it
+back to confirm the key round-trips through `JSON.parse`. Alongside the answer
+key it writes:
 
 - `BETTER_AUTH_SECRET`, freshly generated the first time;
 - the `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` pair, empty the first time,
@@ -178,18 +178,17 @@ With the Vercel CLI, after `vercel link`, each line goes in with
 `vercel env add <NAME> production` (the value on stdin), and
 `vercel deploy --prod` builds and ships.
 
-`scripts/bootstrap.mjs` runs on `postinstall` and `prebuild`. It generates from a
-real key when one is reachable — file or environment — and otherwise seeds the
-demo set. So `pnpm build` does the right thing locally and on any host without a
-second command.
+The answer key is a **runtime** input. Nothing is generated from it at build
+time: the server reads it when it starts and works out every player's flags and
+puzzles from it on request. So the build needs only the database variables, to
+apply migrations, and the running server needs the key along with the database
+and sign-in variables. A server started without it does not fail; it runs on
+the public demo key and says so on every page, so check for that banner after a
+first deploy.
 
-**Both** secret variables are needed. With only `POCKET_CTF_FLAGS`, the generator
-mints fresh suffixes it cannot persist, so every deploy changes every flag
-nobody has found yet. It warns when it detects this.
-
-These are build-time inputs. The flags and seeds are consumed by the generator
-and are not needed by the running server, which reads the database and sign-in
-variables. The build needs the database variables too, to apply migrations.
+Changing a hint or a writeup is a change to `POCKET_CTF_FLAGS` and a restart --
+on Vercel, a redeploy, since environment changes reach only new deployments. No
+player's progress moves; see [Flags and the answer key](build-pipeline.md).
 
 `POCKET_CTF_URL` is not secret -- `vite.config.ts` hands that one variable to
 the client by name, never the whole `POCKET_CTF_` prefix, which would ship the
@@ -250,4 +249,4 @@ not want to read.
 
 ---
 
-Next: [Build pipeline](build-pipeline.md) · [Back to the index](../README.md#documentation)
+Next: [Flags and the answer key](build-pipeline.md) · [Back to the index](../README.md#documentation)

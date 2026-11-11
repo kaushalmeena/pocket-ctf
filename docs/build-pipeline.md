@@ -1,102 +1,143 @@
-# Build pipeline
+# Flags and the answer key
 
-How one answer key becomes a playable site, and why nothing readable survives
-the trip.
+How one answer key becomes every player's flags and puzzles, and why nothing is
+made from it ahead of time.
 
-Nothing about a challenge is written by hand twice. One answer key feeds a
-generator, and everything the server needs falls out of it.
+Nothing about a challenge is written by hand twice. One answer key holds a
+phrase per challenge, and the server works out everything else from it, per
+player, when it is asked.
 
 ```
-flags.secret.json          base flags you author        (gitignored)
-seeds.secret.json          random suffix per variant    (gitignored, generated)
+flags.secret.json          base flags, hints, writeups, decoys   (gitignored)
+  or POCKET_CTF_FLAGS      the same JSON, for a host without the file
+  or flags.sample.json     the public demo key, when neither exists
         │
-        ├── scripts/answers.mjs      splices base + suffix -> the real flag
-        │
-        └── scripts/generate.mjs
-                 ├── src/lib/generated/registry.json   digests, sealed hints and writeups
-                 ├── src/lib/generated/payloads.json   puzzle data
-                 └── ANSWERS.secret.md                 resolved flags, for you
+        └── src/server/key.ts            read once, when the server starts
+                 │
+                 └── src/server/catalogue.ts
+                          ├── flagFor(player, slug)   base flag + this player's suffix
+                          ├── dealt(player, slug)     that flag through build.mjs, memoised
+                          ├── identify(player, raw)   flag, borrowed, decoy or miss
+                          └── hints, writeups         read straight from the key
 ```
 
-Both generated files are read by the server and by nothing else. Neither is
-bundled for the browser — `src/server/catalogue.ts` is their only importer, and
-it is reachable only from server functions and server routes.
+There is no build step in that picture, and that is the point. The build
+compiles the interface and applies migrations; it never sees an answer.
 
-For each variant of each flag the generator produces four things:
+### Where the key comes from
 
-| Output    | How                                      | Purpose                                     |
-| --------- | ---------------------------------------- | ------------------------------------------- |
-| `digest`  | HMAC-SHA256 under a per-run pepper       | How the server recognises a submitted flag  |
-| `hints`   | AES-GCM, key from slug + variant + index | Sold one at a time from the trophy case     |
-| `writeup` | AES-GCM, key from slug + variant         | Released once the player holds that flag    |
-| payload   | That challenge's own `build.mjs`         | The puzzle itself, computed _from_ the flag |
+`src/server/key.ts` looks in three places, in order: the `POCKET_CTF_FLAGS`
+environment variable (the whole of `flags.secret.json` as one line of JSON),
+then `flags.secret.json` in the working directory, then the committed
+`flags.sample.json`. The last is public, so a server running on it sets
+`IS_SAMPLE` and every page carries a banner saying these are demo flags.
 
-That last row is the load-bearing one. Challenge content is **derived from the
-flag**, not written alongside it: the zero-width poem, the stego PNG's pixel
-plane, the XOR ciphertext, the bytecode and the Morse timings are all functions
-of their flag. There is nowhere for a plaintext answer to sit.
+The catalogue checks the key against the challenge directories as it loads. A
+challenge with no flag cannot be solved, and a flag with no challenge is a
+typo; both would be silent at runtime, so the server refuses to start instead.
 
-Several challenges are the exception that keeps the rule. `plain-speaking`,
-`clearance`, `not-modified`, `forged`, `tick-tock`, `simon-says`, `bridge-keeper`
-and `last-word` have nothing
-to derive — the server hands the flag over when a request earns it — so their
-payload is the flag itself, sealed, by the shared `src/challenges/vault.mjs`. The
+Because the key is read at startup, editing a hint or a writeup is an edit to
+the file or the variable and a restart. Nothing needs rebuilding.
+
+`key.ts` is server code like the rest of `src/server/`: imported only by server
+functions and server routes, and stripped from the client bundle with them.
+
+### A flag per player
+
+The key holds one _base_ flag per challenge, `pctf{some_memorable_phrase}`. The
+flag a player submits is that phrase with a six-character suffix spliced in
+before the closing brace: `pctf{some_memorable_phrase_k3x9qa}`.
+
+The suffix comes from `scripts/lib/flag.mjs`: SHA-256 over the player's seed and
+the challenge's slug, the first six bytes mapped onto a 32-symbol alphabet that
+leaves out the characters easily misread for one another. The seed is the
+player's own and stays on the server — derived from their http-only
+`pctf_deal` cookie until they enrol, and stored in `players.seed` from then on,
+unchanged, so the flags they were looking at stay theirs.
+
+The seed is never sent to the browser, but it is not a server secret either:
+it is a hash of the cookie, with no key. [Anti-cheat](anti-cheat.md) says what
+that lets a player do.
+
+So every player has a different flag for every challenge, and none of them is
+stored anywhere. The derivation is deterministic: the same seed and slug give
+the same suffix on any server, on any day, which is what lets the server hold
+nothing but the key and the seed.
+
+Submissions are normalised before they are compared — trimmed, whitespace
+collapsed, lower-cased — so the server is forgiving about how a flag was typed
+and strict about what it says.
+
+### Puzzles are built on request
+
+Challenge content is **derived from the flag**, not written alongside it: the
+zero-width poem, the stego PNG's pixel plane, the XOR ciphertext, the bytecode
+and the Morse timings are all functions of their flag. There is nowhere for a
+plaintext answer to sit.
+
+Since every player's flag differs, so does every player's puzzle. `dealt(player,
+slug)` runs the challenge's `build.mjs` on that player's flag the first time it
+is asked for, and keeps the result in an in-process `Map`. Building is
+deterministic, so the memo is only about cost — the portrait and the bytecode
+are the expensive ones — and once it holds 4,000 puzzles the oldest are simply
+dropped and rebuilt if they are wanted again. A serverless host starts each
+instance with an empty memo; that costs time, never correctness.
+
+Several challenges have nothing to build. `plain-speaking`, `clearance`,
+`not-modified`, `forged`, `tick-tock`, `simon-says`, `bridge-keeper` and
+`last-word` hand the flag over when a request earns it, so they have a `meta.ts`
+and no `build.mjs`: the plant calls `flagFor(player, slug)` at that moment. The
 per-player values those challenges turn on (the lounge's key, the door's code,
-the finale's address) are not generated at all: the server derives them from
-the player's seed at request time. The generated
-data therefore holds no readable flag for any challenge, and `pnpm verify:flags`
-can go on enforcing that without a carve-out.
+the finale's address) come from the same seed, through `secretOf` in
+`src/server/players.ts`.
 
-### Why the digest is fast
+### Recognising a submission
 
-The previous design verified in the browser, so each flag had its own salt and a
-310,000-round PBKDF2 hash: slow on purpose, because the attacker held the hash.
+A submission names no challenge — the player was never told there were
+challenges — so `identify(player, raw)` works out what it is. Decoys are
+checked first, by exact match. Then the submission is compared with this
+player's own flag for each challenge: twenty short hashes, which is nothing.
+Failing that, `baseOf` strips anything shaped like a suffix and looks the rest
+up among the base flags; a hit means the right phrase with somebody else's
+suffix, and the verdict is _borrowed_. Anything else is a miss.
 
-A submission now names no challenge — the player was never told there were
-challenges — so it has to be looked up among every flag at once. One slow
-derivation per candidate would be several seconds of server CPU per guess, which
-is a denial-of-service lever attached to a form. So the registry keeps one
-HMAC-SHA256 digest per flag under a single pepper, the server computes one HMAC
-per submission, and the lookup is a `Map`.
+There is no slow hash anywhere in this. The browser-only predecessor gave every
+flag its own salt and 310,000 rounds of key stretching, because the attacker
+held the hash. Here nothing derived from a flag ever leaves the server, so there
+is no hash to take away and crack, and a deliberately slow comparison would only
+be a denial-of-service lever attached to a form. What bounds guessing is the
+submission throttle and the length of a phrase nobody has seen. See
+[Anti-cheat](anti-cheat.md).
 
-What bounds guessing is no longer the cost of a hash. It is the submission
-throttle, the random suffix on every flag, and the fact that the digests never
-leave the server. See [Anti-cheat](anti-cheat.md).
+### Clues and writeups are plain text, on the server
 
-### What sealing is, and is not
+Hints, writeups and decoy replies are read straight from the key. They are not
+encrypted: the server is the party that decides who may read them, and
+encrypting them under keys it also holds would be obfuscation. The only route
+to a clue is the endpoint that charges for it, and the only route to a writeup
+is holding its flag.
 
-Hints, writeups and the two vault flags are encrypted under keys built from a
-slug, a variant and an index (`SEALED` in `src/lib/kdf.js`) — all things the
-server knows. That is obfuscation, not secrecy, and it is worth saying so
-plainly: the server can open any of them whenever it likes.
+The repository never contains them, since the real key is gitignored, and
+`flags.sample.json` leaves its hints and writeups empty so that the demo spoils
+nothing for a real deployment.
 
-What it buys is that the text is not readable in the generated files or the
-repository, and that the only route to it is the endpoint that charges for it.
-Opening a seal costs one PBKDF2 run, so the server caches each result for the
-life of the process.
+### Changing the key never resets anyone
 
-`src/lib/kdf.js` is deliberately plain JavaScript with no imports, because Node
-(the generator) and the server load _that exact file_. If they ever drifted,
-every digest in the registry would silently stop matching.
+A solve is a row in the database keyed by player and slug. It records that the
+player found the flag, not which string they sent, so nothing in the key can
+take it back.
 
-### Regenerating never resets anyone
+What changes what players experience:
 
-Progress used to be a proof-of-solve token in localStorage, derived under a salt
-the generator minted, so regenerating carelessly voided every player's solves
-and the pipeline went to some trouble to reuse salts.
+- **Editing a hint, a writeup or a decoy** changes what is shown from the next
+  restart. Nobody's progress moves.
+- **Changing a base flag** changes that challenge's flag, and so its puzzle, for
+  every player who has not found it. Someone half-way through will find their
+  puzzle different on the next page load. Existing solves stand.
 
-None of that machinery remains, because the thing it protected moved. A solve is
-a row in the database keyed by player and slug. The pepper is minted fresh on
-every run and nothing a player holds depends on it, so `pnpm gen` after fixing a
-typo in a writeup changes nothing anyone can see.
-
-Two things do still change what players experience:
-
-- **Changing a base flag** changes that flag for anyone who has not found it.
-  Existing solves stand; they are recorded against the slug, not the string.
-- **`pnpm gen --rotate`** mints new suffixes, so every unfound flag changes.
-  Solves already recorded still stand. That is what you want when standing up a
-  fresh instance, along with an empty database.
+There is no separate rotation step. Suffixes depend only on each player's seed,
+so the way to give a fresh instance new flags is new phrases and an empty
+database.
 
 Removing a challenge directory orphans its solve rows. The server ignores solves
 for slugs it no longer knows, so the score drops rather than the page breaking.

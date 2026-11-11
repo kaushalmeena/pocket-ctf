@@ -11,20 +11,24 @@ working, because several of them do.
 
 ### 1. The answers are not in the browser
 
-A submission is checked on the server. The registry of digests, the puzzle
-payloads, the challenge titles, the clue text and the writeups are imported only
-by server code, and the compiler strips that code out of the client bundle.
+A submission is checked on the server. The answer key, the puzzle builders, the
+challenge titles, the clue text and the writeups are imported only by server
+code, and the compiler strips that code out of the client bundle. The key itself
+is read when the server starts, from a gitignored file or an environment
+variable, and is never part of any build.
 
 What the bundle does contain is the interface and the route table — so the paths
 of the unlisted pages (`/staff`, `/lounge`, `/radio` and the rest) are in it. That is left
 alone on purpose. Reading the JavaScript a site sends you is a legitimate move
 in a hunt, and it gets you an address, not an answer.
 
-`pnpm verify:flags` enforces the rest: it scans `src/`, `public/`, `docs/` and
-whatever a build left in `dist/`, `.output/` or `.vercel/output/`, classifies
-every flag-shaped string against the real answer key, and fails on a match. It
-decodes HTML entities first, and it classifies rather than allowlists, so prose
-like `pctf{some_words_x7fq2p}` never needs registering as an exception.
+`pnpm verify:flags` enforces the rest: it scans `src/`, `scripts/`, `public/`,
+`docs/` and whatever a build left in `dist/`, `.output/` or `.vercel/output/`,
+classifies every flag-shaped string against the real answer key, and fails on a
+match — a base flag, or a base flag with any suffix spliced in, since that is
+somebody's working flag. It decodes HTML entities first, and it classifies
+rather than allowlists, so prose like `pctf{some_words_x7fq2p}` never needs
+registering as an exception.
 
 ### 2. A solve is a row, not a claim
 
@@ -52,27 +56,40 @@ same address every time. Addresses are stored only as a hash.
 Only wrong flag-shaped submissions count. Terminal commands, malformed input and
 decoys do not; nobody should be locked out for typing `ls`.
 
-The throttle is the real cost of a guess. The digest itself is a single
-HMAC-SHA256, deliberately fast — see [Build pipeline](build-pipeline.md) for why
-a slow hash would have been the wrong tool once the server holds it.
+The throttle is the real cost of a guess. Checking a submission is twenty
+short hashes, deliberately fast — see
+[Flags and the answer key](build-pipeline.md) for why a slow hash would have been
+the wrong tool once nothing derived from a flag leaves the server.
 
-### 4. Every player is dealt their own puzzles
+### 4. Every player is dealt their own flags
 
-Each challenge ships four variants, each with its own flag and its own puzzle
-data. Which one a player gets is derived from a seed that is never sent to the
-browser: first from their `pctf_deal` cookie, and from enrolment onwards from
-their row, which keeps the same seed so the puzzles they were looking at stay
-theirs.
+The answer key holds one phrase per challenge. The flag a player submits is that
+phrase plus a six-character suffix derived from their seed, and the seed is
+never sent to the browser: first it comes from their `pctf_deal` cookie, and from
+enrolment onwards from their row, which keeps the same seed so the puzzles they
+were looking at stay theirs. Each puzzle is built from the flag it hides, so
+every player has a different flag, and a different puzzle, for every challenge.
 
-So a flag passed to the person next to you is wrong three times in four — and,
-unlike before, the server knows the difference between wrong and borrowed. A
-real flag for a variant you were not dealt is recognised, refused, and answered
-with a secret trophy called Receiving Stolen Goods.
+So a flag passed to the person next to you is always wrong for them — and the
+server knows the difference between wrong and borrowed. A flag whose phrase is
+real but whose suffix is somebody else's is recognised, refused, and answered
+with a secret trophy called Receiving Stolen Goods. It does not count against
+the throttle.
 
-It is still one in four. Four variants is a knob (`VARIANT_COUNT` in
-`scripts/answers.mjs`), and raising it multiplies generation time and the size
-of the payload file. A flag per player would close the gap entirely; it would
-also mean generating puzzle data at request time, which this design does not do.
+That recognition has a cost, and it is worth saying what it is. "Borrowed"
+confirms that a phrase is genuine. That gives nothing toward scoring, because
+the phrase alone is not the flag, but it is a fact the server tells anyone who
+already has the phrase.
+
+The suffix is also only as private as the seed, and the seed is not as private
+as it sounds. It is a hash of the `pctf_deal` cookie the player was first dealt,
+and the cookie is http-only, which keeps it from scripts but not from its owner:
+anyone can read their own cookie in devtools, and the derivation is in this
+repository. A player who does that can work out their own suffix for every
+challenge, and turn a friend's flag into their own by swapping the suffix.
+Per-player flags stop the pasted flag, not the player who reads the source and
+does the arithmetic. Keying the derivation with a server-side secret would close
+that.
 
 ### 5. Decoys
 
@@ -86,20 +103,22 @@ They do not count against the throttle. The point is the joke, not the penalty.
 
 ### 6. Every deployment has different flags
 
-The answer key holds _base_ flags. `pnpm gen` mints a random six-character
-suffix per variant and splices it in, so the submitted flag is
-`pctf{some_words_x7fq2p}`.
+Each deployment's answer key is its own: the operator writes the phrases, and
+the published demo phrases all start `demo_` so none can collide with a real
+one. Answers leaked from one installation are therefore worthless against
+another, and a flag is not guessable from its meaning.
 
-A flag is therefore not guessable from its meaning, and answers leaked from one
-installation are worthless against another. Combined with the throttle, the
-suffix alone is about a billion guesses at one a minute.
+To a guesser who does not know their suffix, the suffix alone is 32⁶ — about a
+billion — candidates per phrase, at one guess a minute once the throttle is
+engaged. To one who has worked it out (see above), what is left is the phrase,
+which is why phrases should be ones nobody would guess.
 
 ### 7. A public repository gives no flag away
 
-`src/lib/generated/{registry,payloads}.json` are gitignored, along with the
-answer key, the suffixes and the resolved answers. A fresh clone is seeded from
-the committed demo set in `src/lib/generated/sample/`, whose key is the public
-`flags.sample.json`, and a banner across every page says so.
+The answer key is gitignored, and nothing is generated from it into the tree: a
+fresh clone has no flags at all beyond the public `flags.sample.json`. A server
+started without a real key runs on that demo key, and a banner across every page
+says so.
 
 The repository does give away the _map_. See below.
 
@@ -135,9 +154,8 @@ that flag pays when it is found, down to a floor of a quarter. Nothing is taken
 from the player's score at the time, so a clue is never free: a player on zero
 still pays, later, in a smaller reward. Charging the score directly would either
 let it go negative or, floored at zero, make clues cost nothing to anyone who
-has not scored yet. Clue text is sealed in the
-registry and opened by the server only when paid for, so it cannot be read ahead
-of the charge.
+has not scored yet. Clue text lives only in the answer key on the server, and
+is sent only when paid for, so it cannot be read ahead of the charge.
 
 ## What this does not stop
 
@@ -150,9 +168,12 @@ Being explicit about the boundary:
   does not contain is any deployment's flags, so reading it gets you directions
   and still leaves you a puzzle to solve at the end of each.
 - **Every challenge ships a working solver** in `src/challenges/<slug>/solve.mjs`.
-  Same trade: it needs the payload a deployment dealt you.
-- **Someone who solved it can tell you how.** Variants stop a pasted flag. They
-  do nothing about a pasted method, and nothing can.
+  Same trade: it needs the puzzle a deployment dealt you.
+- **Someone who solved it can tell you how.** Per-player flags stop a pasted
+  flag. They do nothing about a pasted method, and nothing can.
+- **Your own suffix is computable.** As section 4 says, the seed behind every
+  suffix is a hash of a cookie the player can read, so a borrowed phrase plus
+  some arithmetic is a working flag.
 - **A GitHub account is the only durable identity.** Until a player claims,
   they are an anonymous session, and clearing cookies makes them somebody else
   — losing that progress, and letting one person hold several rows on the
@@ -192,4 +213,4 @@ slower than looking or a joke at your expense.
 
 ---
 
-Next: [Deployment](deployment.md) · [Build pipeline](build-pipeline.md) · [Back to the index](../README.md#documentation)
+Next: [Deployment](deployment.md) · [Flags and the answer key](build-pipeline.md) · [Back to the index](../README.md#documentation)

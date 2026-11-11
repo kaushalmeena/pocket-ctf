@@ -11,14 +11,18 @@ planted, and what it takes to add or remove one.
 ```
 src/challenges/<slug>/
   meta.ts      title, quip, whereabouts, tier, points
-  build.mjs    build({ flag, seal, slug, variant }) -> the payload
-  solve.mjs    solve({ payload, slug, variant })   -> the flag, from the payload alone
+  build.mjs    build({ flag, slug }) -> the payload     (puzzles only)
+  solve.mjs    solve({ payload })    -> the flag, from the payload alone
 ```
 
-Challenges whose flag the server simply hands over once a request earns it
-have nothing to derive, so their `build.mjs` and `solve.mjs` are one-line
-re-exports of `src/challenges/vault.mjs`, which seals the flag at build time and
-opens it on demand.
+`build.mjs` is called on the server with one player's own flag, the first time
+that player's puzzle is wanted (`dealt()` in `src/server/catalogue.ts`), so it
+must be deterministic and must not put the flag in its output in plain text.
+`solve.mjs` is the reference solver the tests and the self-test use.
+
+Challenges whose flag the server simply hands over once a request earns it have
+nothing to build, so they have only `meta.ts`: their plant calls
+`flagFor(player, slug)` at the moment the flag is earned.
 
 There is no page component and no route per challenge. A challenge does not
 have a page; it has a place on the site where its payload turns up, and that
@@ -29,11 +33,12 @@ at a time: `whereabouts` when a player pays for the first clue, `title` and
 `quip` when they submit the flag. The slug is never sent at all — the trophy
 case addresses a challenge by its position.
 
-Node finds challenges by reading the directory (`scripts/lib/discover.mjs`); the
-server finds them with `import.meta.glob` over the `meta.ts` files
+Node finds challenges by reading the directory (`scripts/lib/discover.mjs`:
+`slugs()` for every directory with a `meta.ts`, `puzzleSlugs()` for those with a
+`build.mjs`); the server finds them with `import.meta.glob` over the same files
 (`src/server/catalogue.ts`). Both read the same folders, and the catalogue
-throws at startup if a directory has no generated data or generated data has no
-directory.
+throws at startup if a challenge has no flag in the answer key or the key has a
+flag for no challenge.
 
 ## Where everything is
 
@@ -158,27 +163,31 @@ Also present and worth nothing: a greeting in the console, `/humans.txt`, an
 
 ## Adding one
 
-1. **Create the directory** with `meta.ts`, `build.mjs` and `solve.mjs`.
-2. **Add its flag** to the answer key — `flags.secret.json`, and a `demo_`
-   phrase in `flags.sample.json` — with hints and a writeup in the secret one.
+1. **Create the directory** with `meta.ts`, plus `build.mjs` and `solve.mjs` if
+   the flag hides in a puzzle.
+2. **Add its flag** to the answer key — a base flag in `flags.secret.json`, and a
+   `demo_` phrase in `flags.sample.json` — with hints and a writeup in the
+   secret one.
 3. **Plant it.** Add a function to `src/server/plants.ts` that returns this
-   player's payload (`dealt(player, slug)`), and deliver it wherever it is meant
-   to surface: a route loader via `src/lib/api.ts`, a server route, a cookie in
-   `src/server/players.ts`, a header in `src/start.ts`.
+   player's puzzle (`dealt(player, slug)`) or, for a flag that is handed over,
+   this player's flag (`flagFor(player, slug)`), and deliver it wherever it is
+   meant to surface: a route loader via `src/lib/api.ts`, a server route, a
+   cookie in `src/server/players.ts`, a header in `src/start.ts`.
 4. **Leave a trail.** Something a player can notice has to lead there, and
    `whereabouts` has to point at that something without naming it.
 5. **Teach the self-test to find it.** Add a lift function to the `HUNT` table
-   in `scripts/self-test.mjs` that recovers the payload from what the server
-   sends.
-6. Run `pnpm gen && pnpm gen:sample && pnpm check`, then start the site and run
-   `pnpm self-test`.
+   in `scripts/self-test.mjs` that recovers the payload, or the flag itself,
+   from what the server sends.
+6. Run `pnpm check`, then start the site and run `pnpm self-test`. A running dev
+   server needs a restart to read a changed answer key.
 
 Steps 3 to 5 are the ones no audit enforces. The catalogue will tell you about a
-directory with no data; nothing but the self-test will tell you about a flag
-nobody can reach.
+challenge with no flag, and the tests about a puzzle its own solver cannot
+solve; nothing but the self-test will tell you about a flag nobody can reach.
 
-**To remove one:** delete the directory, its answer-key entries, its plant and
-its line in the self-test. Solves already recorded for it are ignored.
+**To remove one:** delete the directory, its answer-key entries in both files,
+its plant and its line in the self-test. Solves already recorded for it are
+ignored.
 
 Rules the current set holds to:
 
@@ -186,10 +195,10 @@ Rules the current set holds to:
   answer in some other format.
 - **No challenge depends on another**, and none needs anything outside this
   domain.
-- **A payload is planted for the player asking.** Every challenge ships
-  `VARIANT_COUNT` variants (four; `scripts/answers.mjs`) and `variantOf` in
-  `src/server/players.ts` deals one per player, so a plant must go through
-  `dealt()` rather than reading a payload directly.
+- **A payload is planted for the player asking.** Every player has their own
+  flag for every challenge (`scripts/lib/flag.mjs`), and so their own puzzle,
+  so a plant must go through `dealt()` or `flagFor()` with the current player
+  rather than building or computing anything itself.
 - **Nothing decorative may look like a plant unless it is one, or a decoy.** A
   player who chases a stray string should end up with a flag or a joke.
 
@@ -197,37 +206,28 @@ Rules the current set holds to:
 
 ```
 flags.sample.json          public demo key; what a fresh clone plays
-flags.secret.json          base flags you author (gitignored)
-seeds.secret.json          this install's random suffixes (gitignored)
-ANSWERS.secret.md          resolved flags, for whoever runs the CTF (gitignored)
+flags.secret.json          base flags, hints, writeups, decoys you author (gitignored)
 
-scripts/answers.mjs        splices base + suffix; the single source of truth for
-                           what a flag actually is
-scripts/generate.mjs       answer key -> digests, ciphertext, puzzle payloads
-scripts/bootstrap.mjs      generates from a real key, or seeds the demo set
-scripts/env-write.mjs      the secrets as .env.deploy, for a hosted build
+scripts/answers.mjs        reads the answer key for the tools; env variable names
+scripts/lib/flag.mjs       what a flag is: base + this player's suffix, and back
+scripts/env-write.mjs      the secrets as .env.deploy, for a hosted server
 scripts/lib/encoding.mjs   transforms shared by builders and solvers
 scripts/lib/discover.mjs   the Node half of challenge discovery
-tests/                     Vitest: solvability, crypto properties, hygiene
+tests/                     Vitest: solvability per player, personal flags, progress
 scripts/self-test.mjs      plays a running instance end to end, as a stranger
 scripts/leak-scan.mjs      fails the build on a readable flag
 scripts/build-icons.mjs    one SVG geometry -> favicons, OG card, manifest
 scripts/png-write.mjs      minimal PNG encoder, no dependencies
 
-src/challenges/<slug>/     meta, builder, solver
-src/lib/kdf.js             crypto primitives, loaded verbatim by the generator
-                           *and* the server so the two cannot drift
-src/lib/generated/         live data, server-only (gitignored)
-src/lib/generated/sample/  committed demo data; flags end in _sample
-
-src/challenges/vault.mjs   shared builder and solver for flags the server hands over
+src/challenges/<slug>/     meta, and for a puzzle its builder and solver
 
 src/server/schema.ts       every table: Better Auth's four, the hunt's five
 src/server/db.ts           the Postgres pool and its Drizzle handle
 src/server/auth.ts         Better Auth: anonymous sessions, GitHub, cookies
 src/server/merge.ts        folds an anonymous player into the account that claims it
-src/server/catalogue.ts    every challenge and what was generated for it
-src/server/players.ts      deals, persist(), handles, variants, cookies at the door
+src/server/key.ts          the answer key, read at startup; demo key as fallback
+src/server/catalogue.ts    every challenge; each player's flags and puzzles; identify()
+src/server/players.ts      deals, persist(), handles, seeds, cookies at the door
 src/server/throttle.ts     wrong-answer backoff, per player and per address
 src/server/game.ts         submission, scoring, clues, trophies, the board
 src/server/finale.ts       the fragments, and the key they add up to
