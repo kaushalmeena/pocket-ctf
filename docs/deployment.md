@@ -26,7 +26,7 @@ instead.
 
 Nitro detects Vercel's build environment and emits serverless functions without
 being asked, so there is no `vercel.json` and nothing to configure beyond the
-environment variables: `POCKET_CTF_URL`, `BETTER_AUTH_SECRET`, the answer key
+environment variables: `POCKET_CTF_SECRET`, `BETTER_AUTH_SECRET`, the answer key
 (below), the two database strings, and the GitHub pair if players are to claim
 progress. `pnpm gen:env` writes all of them to one file, or Neon's Vercel
 integration can supply the database strings; make sure those reach the build as
@@ -117,13 +117,13 @@ Claiming progress with GitHub is optional, and switched on by configuring it:
 Without both, the trophy case says claiming is not set up, and nothing else
 changes.
 
-| Variable               | Notes                                                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `POCKET_CTF_SECRET`    | Keys every player's flags and codes. `openssl rand -base64 32`. In production the server refuses to start without it      |
-| `BETTER_AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
-| `POCKET_CTF_URL`       | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
-| `GITHUB_CLIENT_ID`     | The OAuth app's client ID                                                                                                 |
-| `GITHUB_CLIENT_SECRET` | The OAuth app's client secret                                                                                             |
+| Variable               | Notes                                                                                                                |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `POCKET_CTF_SECRET`    | Keys every player's flags and codes. `openssl rand -base64 32`. In production the server refuses to start without it |
+| `BETTER_AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it          |
+| `POCKET_CTF_URL`       | Your public origin; optional on Vercel, which supplies its own. In production it is also Better Auth's base URL      |
+| `GITHUB_CLIENT_ID`     | The OAuth app's client ID                                                                                            |
+| `GITHUB_CLIENT_SECRET` | The OAuth app's client secret                                                                                        |
 
 `POCKET_CTF_URL` is deliberately ignored by Better Auth outside production: a
 local `.env` usually carries the deployed origin for canonical tags, and using it
@@ -194,11 +194,15 @@ Changing a hint or a writeup is a change to `POCKET_CTF_FLAGS` and a restart --
 on Vercel, a redeploy, since environment changes reach only new deployments. No
 player's progress moves; see [Flags and the answer key](build-pipeline.md).
 
-`POCKET_CTF_URL` is not secret -- `vite.config.ts` hands that one variable to
-the client by name, never the whole `POCKET_CTF_` prefix, which would ship the
-answer key -- but leaving it unset means the canonical tag, the
+`POCKET_CTF_URL` is optional on Vercel. Without it, `scripts/lib/site-url.mjs`
+falls back to Vercel's own system variables, which are set at build time and at
+runtime: `VERCEL_PROJECT_PRODUCTION_URL` in production (your custom domain, once
+you add one) and the branch or deployment URL for a preview. Set it to override
+that, or on any other host, where leaving it unset means the canonical tag, the
 sitemap and — less forgivably — the contact address in `security.txt` all
-advertise `http://localhost:3000`.
+advertise `http://localhost:3000`. It is not secret: `vite.config.ts` hands the
+resolved origin to the client by name, never the whole `POCKET_CTF_` prefix,
+which would ship the answer key.
 
 ### Headers and caching
 

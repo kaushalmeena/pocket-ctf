@@ -6,6 +6,8 @@ import { nitro } from "nitro/vite";
 import { defineConfig, loadEnv } from "vite";
 import viteSolid from "vite-plugin-solid";
 
+import { siteUrl } from "./scripts/lib/site-url.mjs";
+
 export default defineConfig(({ mode }) => {
   /*
    * Vite only hands `VITE_`-prefixed variables to the client, and by default
@@ -19,12 +21,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     /*
-     * The one project variable the client may see, handed over by name. Not
-     * via `envPrefix`: every POCKET_CTF_ variable would follow it into the
+     * The one value the client may see, handed over by name: POCKET_CTF_URL,
+     * or on Vercel its own production or preview URL (scripts/lib/site-url.mjs).
+     * Not via `envPrefix`: every POCKET_CTF_ variable would follow it into the
      * bundle, the answer key included.
      */
     define: {
-      "import.meta.env.POCKET_CTF_URL": JSON.stringify(process.env.POCKET_CTF_URL ?? ""),
+      "import.meta.env.POCKET_CTF_URL": JSON.stringify(siteUrl()),
     },
     server: { port: 3000 },
     resolve: {

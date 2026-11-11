@@ -244,16 +244,16 @@ Each of the project's own variables is prefixed with the domain it configures:
 for the OAuth app players claim progress with. The `DATABASE_URL` pair keeps the
 names the Neon CLI writes.
 
-| Variable                | Default                 | Notes                                                                                                                    |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `POCKET_CTF_URL`        | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. |
-| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, read by the server at startup. Without it or the file, it runs on the public demo key. |
-| `POCKET_CTF_SECRET`     | a development value     | Keys every player's flags, codes and finale address. **Required in production**; changing it changes unsubmitted flags.  |
-| `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                    |
-| `GITHUB_CLIENT_ID`      | `—`                     | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.  |
-| `GITHUB_CLIENT_SECRET`  | `—`                     | That app's client secret.                                                                                                |
-| `DATABASE_URL`          | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                            |
-| `DATABASE_URL_UNPOOLED` | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.                |
+| Variable                | Default                                        | Notes                                                                                                                                        |
+| ----------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POCKET_CTF_URL`        | Vercel's own URL, else `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. Optional on Vercel. |
+| `POCKET_CTF_FLAGS`      | `—`                                            | The whole of `flags.secret.json`, read by the server at startup. Without it or the file, it runs on the public demo key.                     |
+| `POCKET_CTF_SECRET`     | a development value                            | Keys every player's flags, codes and finale address. **Required in production**; changing it changes unsubmitted flags.                      |
+| `BETTER_AUTH_SECRET`    | a development value                            | Signs session cookies. **Required in production**, where the server refuses every request without it.                                        |
+| `GITHUB_CLIENT_ID`      | `—`                                            | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.                      |
+| `GITHUB_CLIENT_SECRET`  | `—`                                            | That app's client secret.                                                                                                                    |
+| `DATABASE_URL`          | `—`                                            | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                                                |
+| `DATABASE_URL_UNPOOLED` | `—`                                            | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.                                    |
 
 Do not set `BETTER_AUTH_URL`. Better Auth reads it by itself, in development
 too; `POCKET_CTF_URL` stands in for it in production only.

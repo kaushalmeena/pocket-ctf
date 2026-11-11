@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous } from "better-auth/plugins/anonymous";
 import { tanstackStartCookies } from "better-auth/tanstack-start/solid";
 
+import { siteUrl } from "../../scripts/lib/site-url.mjs";
 import { db } from "./db";
 import { merge } from "./merge";
 import * as schema from "./schema";
@@ -50,12 +51,13 @@ const makeOptions = () =>
     appName: "Pocket CTF",
     secret: secret(),
     /*
-     * The public origin, in production only. A local .env usually holds the
-     * deployed site's origin too (for canonical tags), and handing that to
-     * Better Auth on a laptop would send every GitHub sign-in back to the live
-     * site; in development it reads the origin off each request instead.
+     * The public origin, in production only: POCKET_CTF_URL, or on Vercel its
+     * own production or preview URL. A local .env usually holds the deployed
+     * site's origin too (for canonical tags), and handing that to Better Auth
+     * on a laptop would send every GitHub sign-in back to the live site; in
+     * development it reads the origin off each request instead.
      */
-    baseURL: process.env.NODE_ENV === "production" ? process.env.POCKET_CTF_URL : undefined,
+    baseURL: process.env.NODE_ENV === "production" ? siteUrl() || undefined : undefined,
     database: drizzleAdapter(db(), { provider: "pg", schema }),
     socialProviders: GITHUB_ENABLED ? { github: GITHUB } : {},
     session: {

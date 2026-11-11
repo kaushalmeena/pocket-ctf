@@ -75,3 +75,21 @@ describe("personal flags", () => {
     expect(normalizeFlag("pctf{some_phrasf}")).not.toBe("pctf{some_phrase}");
   });
 });
+
+describe("the site's origin", async () => {
+  const { siteUrl } = await import("../scripts/lib/site-url.mjs");
+
+  it("prefers POCKET_CTF_URL, then Vercel's own, then nothing", () => {
+    const vercel = {
+      VERCEL_ENV: "production",
+      VERCEL_PROJECT_PRODUCTION_URL: "ctf.example.com",
+      VERCEL_URL: "ctf-abc123.vercel.app",
+    };
+    expect(siteUrl({ ...vercel, POCKET_CTF_URL: "https://other.example/" })).toBe(
+      "https://other.example",
+    );
+    expect(siteUrl(vercel)).toBe("https://ctf.example.com");
+    expect(siteUrl({ ...vercel, VERCEL_ENV: "preview" })).toBe("https://ctf-abc123.vercel.app");
+    expect(siteUrl({})).toBe("");
+  });
+});

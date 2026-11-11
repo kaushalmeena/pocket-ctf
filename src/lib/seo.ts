@@ -14,9 +14,10 @@
 /**
  * Absolute origin, needed for canonical URLs and social card images.
  *
- * Defaults to localhost because there is no host to assume. Set
- * `POCKET_CTF_URL` for any public deployment, or the canonical tags, the
- * sitemap and security.txt will point at a machine nobody else can reach.
+ * Fixed at build time (vite.config.ts): `POCKET_CTF_URL`, or on Vercel its own
+ * production or preview URL. Anywhere else, with neither, it defaults to
+ * localhost, and the canonical tags, the sitemap and security.txt point at a
+ * machine nobody else can reach.
  */
 export const SITE_URL = (import.meta.env.POCKET_CTF_URL || "http://localhost:3000").replace(
   /\/$/,
