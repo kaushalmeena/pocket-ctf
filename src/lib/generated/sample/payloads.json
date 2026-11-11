@@ -5,30 +5,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "b5614bc0b6ec28f2b956b20432b8ffe1",
-          "iv": "ff76f535688bea9110336876",
-          "ct": "d60a27d09214e41ed67fffa2954e2735373bb36ea3138a882e952bb4b297b0951f13d09ccf162a7e1a86d0cf4bfe6f326bc0a72e66"
+          "salt": "7675e0a15e775a8b27677a1f762e0253",
+          "iv": "d89eab64aaa769ee7b687b89",
+          "ct": "7d3a04c1bdb324c51cb8476203ce7fd620a3fcfd086451c6a243b639e4f8c832a947e5451149b727d6d54bc8dbda849e57ce393f5a"
         }
       },
       {
         "sealed": {
-          "salt": "af3f64216db86571c3dc82c13808a7e2",
-          "iv": "52ba55340cc1ef92305e6c69",
-          "ct": "573c501c2290275824594bf021f788bb235b7669d038f6b08fb562b37c810cf32c2be9bc02ff9fa575d2e39eb3de747ffc55074f60f9"
+          "salt": "15a2c66d3175cee01d4a34778982d5f0",
+          "iv": "901f4b33a14444a25237cfc0",
+          "ct": "0fabbf1991576a21d4f23366ca98c3693fefedcec087d62d2ee8dcfea0b0026eba55d6db371d24f8773aa2ecabab54f54bbfedd1ed2e"
         }
       },
       {
         "sealed": {
-          "salt": "ba0f64f36db3db6d43a3082081f690dd",
-          "iv": "1eeb6273cec893cd3f4d2019",
-          "ct": "8ac20ea108ee2f3257ea9a42d88ae74261a082a76ad0e81ea265e9592ecc05123504232e82981c75c1e6289f2d06d9082fea20c512a6"
+          "salt": "2f144e2c0cf264fc6b6d8ff6a8fc8b2a",
+          "iv": "b1b406d51a153e52ec685b69",
+          "ct": "66b1f2995b65604b1bb44d86033c1ad406fc2c7d70913e0cd6bb210abb02bc286d995d70b4e58b7cccea453f0b124db7b5bb67a23c5a"
         }
       },
       {
         "sealed": {
-          "salt": "6e2a60d15adb0e093d4d05a45ea7dd6e",
-          "iv": "3aa0f3eed3bc02f1b8904a20",
-          "ct": "952f46332d45169bc82ffeefa218365b74452306f0c6bd5e79b1d57c67786b89aa20922ef97387588c98fca2a48c4ac5b7b39ebb2ba3"
+          "salt": "0b5054bc38e59491237df89f1c8dc4ad",
+          "iv": "d5297e4550996d5f20f15bfa",
+          "ct": "1498b7bfa6bc4d93e566b8de2c16cd1b714af27ec98b7a311c7fe20ed79f9b27081bd4e1d72f51dc72ade1106ef1fc2c4bb461230db1"
         }
       }
     ]
@@ -61,30 +61,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "51250c499678a0b0bab443d97f3ba143",
-          "iv": "af064e6fc5e5604ddd193c48",
-          "ct": "0c45c35e6210abe6be2d3f1fbf55c2bd013f783dcd1959ae94f014fa4bea3716bd204a5a3fc86ab5a64b14a1aca91f8ccb04"
+          "salt": "198e6bbd423818894edcb5a16bb3c51b",
+          "iv": "76cbd4bb9dd835e2a5dc2f74",
+          "ct": "c581a3f5db0bc6dd8f87f8fb031f9fca8a92fe1a5ce082280c3cf3b98c1e5f226502ed9c7abb8b1fdd1d74017a7588ff5ffe"
         }
       },
       {
         "sealed": {
-          "salt": "28429f75bc146eb6aaac92c3aa4cfe8e",
-          "iv": "4e442afb2357baa664451db5",
-          "ct": "8ef192da81188844e7eb84367dd35b5d908fb358947731b8a9ee4137d8f488120d253a014319947110f95078adaed22c1f3f37"
+          "salt": "197a98e0909d508040e34f9e25fac171",
+          "iv": "c0fcd1eb76a33cff1ef66a34",
+          "ct": "21423e0a68b869176a264f326233d4ede80a4c126be8dc744afa17731c0d9ba5ec7dd9a296babb2717099a1ec3a3d69b14e696"
         }
       },
       {
         "sealed": {
-          "salt": "1f7217a8ae97de7ad7d8b0d901f7beef",
-          "iv": "30c9642c0291886efe9cc21c",
-          "ct": "e73d4c100002ebb0417da3b9fdee07ea006a1a2d41486615028eb323eb6b370a680e57a2696128a80d8ad0b9a93098f1453248"
+          "salt": "b349b34a29a3d935a23c10f09fa3f51b",
+          "iv": "d60f424c87f405129b5620ca",
+          "ct": "506e554077352eda9647785dcee79a15752dbac68f79363814c751d02d65be6c816d7f76f7c85a4af5f51f0b262fbb434ffefa"
         }
       },
       {
         "sealed": {
-          "salt": "13d2dbe6acbd1fb3ece99d8114704393",
-          "iv": "9a39abe5b16f89e664278d67",
-          "ct": "f16a86588c27d90aa340a1cf76a2c93c9d2a0ad5b079a161ad1be2c43a8b02a321abbc378ded1bfd1f657d03f02d622b145829"
+          "salt": "42fd7e993e04c009826c4e44c18d1409",
+          "iv": "07d7e3c84f7d0dc1530ae01f",
+          "ct": "aa64ff0620441de36ce7f33344ac028282debee24aec6058f36a577e897c19d1db6511da9e7740bbf43c080929bc31f70c8cd1"
         }
       }
     ]
@@ -2605,31 +2605,51 @@
     "variants": [
       {
         "sealed": {
-          "salt": "76faf243266e24e34869c2bc7661dde3",
-          "iv": "7756344fe8b11cb5e8eaedb5",
-          "ct": "0b7623399a5201199cfa3dc5ec21b2de83b32b4d161919eb311ad7b2a9227f10540cc3245c9cce761b6890075b0e0ed1b497"
+          "salt": "82ede0974fffaac86a58cc69208220a3",
+          "iv": "61834506d0197eccb3ee9a92",
+          "ct": "4a90da9edac2ea570673ce4016168764c3d6d197458a237aec7c26178c3aa3da1ababd2416002aae41e2588ad95933f5fe8e"
         }
       },
       {
         "sealed": {
-          "salt": "92eb0198dbbc5f50ce47b702680c9e5b",
-          "iv": "2d31541b9ce0ef8b2cad1d3e",
-          "ct": "ab5113791962e6686f182d1da4b1924c2b919b3f5f68543e4ff6e89c6f1add69b75606badc3d134e89c26df0802734c0a2062a"
+          "salt": "c607cb0135822e5855c03bc4e2d62239",
+          "iv": "ca962a25b6f428235a099bc3",
+          "ct": "d5dfe65fdd87d6365c4c5f2f662f946941394a35ec5a798220e0710e000086abfdef8f11d4446178ca76f7be4d12e6e0d638fb"
         }
       },
       {
         "sealed": {
-          "salt": "950491623fdc9f9bacdacd0a35493f65",
-          "iv": "120bbc63122995813e1e80e4",
-          "ct": "14c0d09a320bf48555e5a9d3171d500f337ffa2750f434ed2299ddd6a4f8d2d72411351754d136373a38037d4ed68d1b0281e1"
+          "salt": "7ecf644a3da19d5fe984dcdc7602ef4d",
+          "iv": "bfe6a5c315c96cc709b817b6",
+          "ct": "c3ee1deba67dbece4e51d6a0bf4624974db08de342f6d6dd7f87bfa2934f6f3507d8cad916c62b8e95d82c2f4df44b9edabe9e"
         }
       },
       {
         "sealed": {
-          "salt": "da8a60c26d0457a6e24b90ee1ec2006d",
-          "iv": "14a2fd4db5a6c6f76aec4344",
-          "ct": "7fb7dbb820368764831078d8fd0b4b87b2eec912ee2e183f8c9354eadd551636ffdb7308c57d6e6e74ef9f00bc2d4f24347dc5"
+          "salt": "ad2248c3effaf82221dbcdbbc0bc4ddc",
+          "iv": "4e8eecf986ac58be68a182bc",
+          "ct": "85ebbc5e32a4c3e7399d40c7950ee172104da225ca92e85ae6b5bb90c72a902710c0d47af62de86867a1f6e7b6f5233ab7c107"
         }
+      }
+    ]
+  },
+  "hard-copy": {
+    "variants": [
+      {
+        "stylesheet": ".hc-67::after {\n  content: \"\\0069\";\n  order: 12;\n}\n\n.hc-30::after {\n  content: \"\\0072\";\n  order: 11;\n}\n\n.hc-77::after {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.hc-54::after {\n  content: \"\\007d\";\n  order: 30;\n}\n\n.hc-35::after {\n  content: \"\\0076\";\n  order: 19;\n}\n\n.hc-48::after {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.hc-3::after {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.hc-95::after {\n  content: \"\\0065\";\n  order: 18;\n}\n\n.hc-40::after {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.hc-63::after {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.hc-76::after {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.hc-12::after {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.hc-44::after {\n  content: \"\\0074\";\n  order: 14;\n}\n\n.hc-58::after {\n  content: \"\\0072\";\n  order: 17;\n}\n\n.hc-16::after {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.hc-21::after {\n  content: \"\\0070\";\n  order: 16;\n}\n\n.hc-72::after {\n  content: \"\\0069\";\n  order: 20;\n}\n\n.hc-2::after {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.hc-86::after {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.hc-53::after {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.hc-85::after {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.hc-7::after {\n  content: \"\\006e\";\n  order: 13;\n}\n\n.hc-17::after {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.hc-11::after {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.hc-49::after {\n  content: \"\\0077\";\n  order: 22;\n}\n\n.hc-26::after {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.hc-81::after {\n  content: \"\\005f\";\n  order: 15;\n}\n\n.hc-62::after {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.hc-25::after {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.hc-39::after {\n  content: \"\\0065\";\n  order: 6;\n}\n\n.hc-90::after {\n  content: \"\\0070\";\n  order: 10;\n}",
+        "ruleCount": 31
+      },
+      {
+        "stylesheet": ".hc-30::after {\n  content: \"\\0072\";\n  order: 11;\n}\n\n.hc-72::after {\n  content: \"\\0069\";\n  order: 20;\n}\n\n.hc-58::after {\n  content: \"\\0072\";\n  order: 17;\n}\n\n.hc-11::after {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.hc-40::after {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.hc-26::after {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.hc-17::after {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.hc-91::after {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.hc-2::after {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.hc-54::after {\n  content: \"\\0031\";\n  order: 30;\n}\n\n.hc-95::after {\n  content: \"\\0065\";\n  order: 18;\n}\n\n.hc-3::after {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.hc-63::after {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.hc-81::after {\n  content: \"\\005f\";\n  order: 15;\n}\n\n.hc-62::after {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.hc-49::after {\n  content: \"\\0077\";\n  order: 22;\n}\n\n.hc-53::after {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.hc-76::after {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.hc-67::after {\n  content: \"\\0069\";\n  order: 12;\n}\n\n.hc-16::after {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.hc-86::after {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.hc-44::after {\n  content: \"\\0074\";\n  order: 14;\n}\n\n.hc-7::after {\n  content: \"\\006e\";\n  order: 13;\n}\n\n.hc-48::after {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.hc-35::after {\n  content: \"\\0076\";\n  order: 19;\n}\n\n.hc-12::after {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.hc-21::after {\n  content: \"\\0070\";\n  order: 16;\n}\n\n.hc-90::after {\n  content: \"\\0070\";\n  order: 10;\n}\n\n.hc-77::after {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.hc-85::after {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.hc-25::after {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.hc-39::after {\n  content: \"\\0065\";\n  order: 6;\n}",
+        "ruleCount": 32
+      },
+      {
+        "stylesheet": ".hc-30::after {\n  content: \"\\0072\";\n  order: 11;\n}\n\n.hc-72::after {\n  content: \"\\0069\";\n  order: 20;\n}\n\n.hc-58::after {\n  content: \"\\0072\";\n  order: 17;\n}\n\n.hc-11::after {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.hc-40::after {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.hc-26::after {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.hc-17::after {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.hc-91::after {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.hc-2::after {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.hc-54::after {\n  content: \"\\0032\";\n  order: 30;\n}\n\n.hc-95::after {\n  content: \"\\0065\";\n  order: 18;\n}\n\n.hc-3::after {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.hc-63::after {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.hc-81::after {\n  content: \"\\005f\";\n  order: 15;\n}\n\n.hc-62::after {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.hc-49::after {\n  content: \"\\0077\";\n  order: 22;\n}\n\n.hc-53::after {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.hc-76::after {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.hc-67::after {\n  content: \"\\0069\";\n  order: 12;\n}\n\n.hc-16::after {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.hc-86::after {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.hc-44::after {\n  content: \"\\0074\";\n  order: 14;\n}\n\n.hc-7::after {\n  content: \"\\006e\";\n  order: 13;\n}\n\n.hc-48::after {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.hc-35::after {\n  content: \"\\0076\";\n  order: 19;\n}\n\n.hc-12::after {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.hc-21::after {\n  content: \"\\0070\";\n  order: 16;\n}\n\n.hc-90::after {\n  content: \"\\0070\";\n  order: 10;\n}\n\n.hc-77::after {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.hc-85::after {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.hc-25::after {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.hc-39::after {\n  content: \"\\0065\";\n  order: 6;\n}",
+        "ruleCount": 32
+      },
+      {
+        "stylesheet": ".hc-30::after {\n  content: \"\\0072\";\n  order: 11;\n}\n\n.hc-72::after {\n  content: \"\\0069\";\n  order: 20;\n}\n\n.hc-58::after {\n  content: \"\\0072\";\n  order: 17;\n}\n\n.hc-11::after {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.hc-40::after {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.hc-26::after {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.hc-17::after {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.hc-91::after {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.hc-2::after {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.hc-54::after {\n  content: \"\\0033\";\n  order: 30;\n}\n\n.hc-95::after {\n  content: \"\\0065\";\n  order: 18;\n}\n\n.hc-3::after {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.hc-63::after {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.hc-81::after {\n  content: \"\\005f\";\n  order: 15;\n}\n\n.hc-62::after {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.hc-49::after {\n  content: \"\\0077\";\n  order: 22;\n}\n\n.hc-53::after {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.hc-76::after {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.hc-67::after {\n  content: \"\\0069\";\n  order: 12;\n}\n\n.hc-16::after {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.hc-86::after {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.hc-44::after {\n  content: \"\\0074\";\n  order: 14;\n}\n\n.hc-7::after {\n  content: \"\\006e\";\n  order: 13;\n}\n\n.hc-48::after {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.hc-35::after {\n  content: \"\\0076\";\n  order: 19;\n}\n\n.hc-12::after {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.hc-21::after {\n  content: \"\\0070\";\n  order: 16;\n}\n\n.hc-90::after {\n  content: \"\\0070\";\n  order: 10;\n}\n\n.hc-77::after {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.hc-85::after {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.hc-25::after {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.hc-39::after {\n  content: \"\\0065\";\n  order: 6;\n}",
+        "ruleCount": 32
       }
     ]
   },
@@ -2701,30 +2721,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "b1b28a34ebf1d717e188439056586131",
-          "iv": "f16711a1ed4bb6d41482836b",
-          "ct": "f111b9b51590a9471d25ed26489b3c675ddeba449e5846092dbb7712d53ffb0dbb5cd490689c51e64ba81679fb10259bd3a4ab"
+          "salt": "3b6fdf9ff268fae536cbe9e5fb4e0f63",
+          "iv": "497b337a2bac515a76cd155a",
+          "ct": "2f73c050ed9e138ddbd54a469e815f80fbca74f6069dd0d1e1b6e33eac54f8ed332d57b33eb6ced64dfbb1d51b863a2a932749"
         }
       },
       {
         "sealed": {
-          "salt": "9da88489675f4b788ab516cb72967cb4",
-          "iv": "8bad9406a50096bb2c2e59c2",
-          "ct": "d0b1cf0ee66dac826c081450374f7a41e9d82d929ba7a59be49ef9f5796de60ffba174cf1d49e779fce4bcb764286a4b9e82b045"
+          "salt": "0d2534e54d57ad9a444ae63ee96710ff",
+          "iv": "8549daa54e0879fab55e3dd5",
+          "ct": "d441e508b1d5061579e89dda8d1fc0402e9b88d086b8cdeec0ccb0bf62577f8052ad62abd677bd47890143f87440ac87098ac883"
         }
       },
       {
         "sealed": {
-          "salt": "0e08cf8f980678d135b26d130836d672",
-          "iv": "4c47f531392c62333dff6498",
-          "ct": "02156bb2db2d079c12cdd9b4c52667e3bcd6eb2df60235570ac9f982fe4fa86a659572b1823e336f3887ff5628f88af1835fd8f8"
+          "salt": "691c171388627b146c1f665586ff96ec",
+          "iv": "379b6aa3ec1fd0df5d7dc7c7",
+          "ct": "c13d6d580e223a592aa0d5cb9efd3ce222b077a6c85b452b824ce3e41e8a8b23b70be0d82829cb987a929af94db4a03d8538fac7"
         }
       },
       {
         "sealed": {
-          "salt": "6768ebbd24c4476d1d1d2256f61f817d",
-          "iv": "5db963d434df524f80e1301c",
-          "ct": "82c84fc1ca766ba8397685ba920fcf0983d259fa357b484c09ad77cc685408993c7594f9f397642807bfd5aaf895ea39175c44e9"
+          "salt": "20c2fb0852e761fabf312b31d3ed0178",
+          "iv": "a4ea8f93cd3cb9b5928fcadd",
+          "ct": "b757ee0fd9fec934828217cde17c70bbe2c45f6b3a1b37e161da2920649954b7e34165369b3d5785a4b967c46b73892ed0a622c8"
         }
       }
     ]
@@ -2949,30 +2969,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "a77ebc3eeee46d8f6fd01b3f5a458270",
-          "iv": "e48115176600f8406a031b19",
-          "ct": "3e881af99ce7956921156dbab3c02b4c371b8ee836c1a25a6bba1867fa05cc8e5f368d06cb1856dbd4980fe765ee478245"
+          "salt": "14a70dc10458194bcdc0b27001457396",
+          "iv": "f54690da886fe476d4f78a47",
+          "ct": "213f85c6706fe3dabdf9b549d5a8359eac0df16ad766698f6143e77984d8b578e5d4792c386c9ea65bb882b9079ce2dc20"
         }
       },
       {
         "sealed": {
-          "salt": "9d9f90c59317f33f4e611744ee127591",
-          "iv": "c7c63438931edfc90464a9a1",
-          "ct": "6a3bc28d4bfb6dbf10b9b018012d9465722bd77e2ca991e1a32996aed4df6dd554b962439e4ab6d8de3d3f5ac529de7e798d"
+          "salt": "deae8d1cce56e136bce0a6945ec744ae",
+          "iv": "6d4c3edb9dfba6c702c9ee95",
+          "ct": "0b1881e51d8b63388475ea03de3d7bee959f5ba06a868a507e6aa34c942d1f84fbf33ea10ab6ab245d8d78d9c55bb2d4aee6"
         }
       },
       {
         "sealed": {
-          "salt": "518a17c7733327831a5775dd4f515cac",
-          "iv": "3fdf5730b3a3f79824d2d01b",
-          "ct": "25881c9ee7e3c1732732a363d5268a4204cb434f77bd44178312d1199c232ca95ba50ec019718a257fb35821198ee7ec5fba"
+          "salt": "c32cf4fffd18ca716aec4bc930725f92",
+          "iv": "f4c833a77ab6bf589f0bff60",
+          "ct": "6301b3349aa684af915bdd5787e9ca516b1a37e8f874b3035c6cd66a5ad2270e17d822478cd76a56946f9b6bf0623ff06c2d"
         }
       },
       {
         "sealed": {
-          "salt": "81710bed20b1d68feb57228448f4fbba",
-          "iv": "976ff1788daea72535d801ef",
-          "ct": "b96170175c115ff1b3552bbd6774b153983d32ab05a7753cb0645944c4cd383977e90d9667dd346030d0434efe613a26b070"
+          "salt": "20e02bbc5f4dd05374e970145946d392",
+          "iv": "fb229ce4681d3cfd10b1bd8f",
+          "ct": "48ad1b6a397631dd87a0bffef149ad10b041b0fedb17794da9012a97d02dd212926e904e2bdb5513760f160f9966f8fcdc6f"
         }
       }
     ]
@@ -2990,6 +3010,54 @@
       },
       {
         "hops": ["pct", "f{d", "emo", "_sc", "eni", "c_r", "out", "e_s", "amp", "le3", "}"]
+      }
+    ]
+  },
+  "plain-speaking": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "8c039c8c4af7db714790e87151920eb7",
+          "iv": "c2c8889ee2ae84f1eff4823b",
+          "ct": "8050644561a915b46c272828217b9c16881853af9ea72db15edd2439efafd351b4c9e2b5e8eca8eaee087f"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "7eedac889ae4882b1973d8b0d29e5ba9",
+          "iv": "c7b5480e8482bc8827875713",
+          "ct": "2895de29502c68ef2bdb25cab70c93ce5d5692c8118f139ab2bc80d73180249ec0d2ed132cdb16e6a058c0f0"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "f7861ad1a8b37e073862a430a649feb2",
+          "iv": "4f740f0dcd67ab205515dfd1",
+          "ct": "f0784a47157d3b369ab099e35303149845f101d8c699c9090cffbaa95bc31361a30f608aa3e5b385ce155b57"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "da155c16375f2f11729d1388a3a5fd26",
+          "iv": "837d6b05b4080e80920f3c7c",
+          "ct": "fe995d6f5c288448d91c21bd20973c1ef7d3899bba08827582fbc6ce403cbb305e7e1464b9ddf8f48c17575c"
+        }
+      }
+    ]
+  },
+  "read-aloud": {
+    "variants": [
+      {
+        "spoken": "papa, charlie, tango, foxtrot, open brace, delta, echo, mike, oscar, underscore, sierra, papa, oscar, kilo, echo, november, underscore, whiskey, oscar, romeo, delta, underscore, sierra, alfa, mike, papa, lima, echo, close brace"
+      },
+      {
+        "spoken": "papa, charlie, tango, foxtrot, open brace, delta, echo, mike, oscar, underscore, sierra, papa, oscar, kilo, echo, november, underscore, whiskey, oscar, romeo, delta, underscore, sierra, alfa, mike, papa, lima, echo, one, close brace"
+      },
+      {
+        "spoken": "papa, charlie, tango, foxtrot, open brace, delta, echo, mike, oscar, underscore, sierra, papa, oscar, kilo, echo, november, underscore, whiskey, oscar, romeo, delta, underscore, sierra, alfa, mike, papa, lima, echo, two, close brace"
+      },
+      {
+        "spoken": "papa, charlie, tango, foxtrot, open brace, delta, echo, mike, oscar, underscore, sierra, papa, oscar, kilo, echo, november, underscore, whiskey, oscar, romeo, delta, underscore, sierra, alfa, mike, papa, lima, echo, three, close brace"
       }
     ]
   },
@@ -3017,51 +3085,31 @@
     "variants": [
       {
         "sealed": {
-          "salt": "ee08e0ff321faf00238b6e877fe59dfc",
-          "iv": "9c757abfaed48e44f934f6aa",
-          "ct": "4faba25b16bc3be28aa326fecc97bd8bbcebd4cd9f1453435794fb356ccd327f068fd995dbd994519a31e3e3"
+          "salt": "4036d086c68c7249035a4cbf63aafbdb",
+          "iv": "55d75f6c24ae75a2afef1e8f",
+          "ct": "ed2075f5f05bc3be8fd8633a7a503545380dbc6392880427b566adbb33766ac7fa36cf4017f0d5a961fbe22e"
         }
       },
       {
         "sealed": {
-          "salt": "d0445c9b6c381135800058e743a24755",
-          "iv": "bd0050f0ed0ccccd1ca2a30a",
-          "ct": "880b73f090fdd6e28394487e121161fa13de4539dcee360f6658cb0407daa7b0b975918c4ce67fab415b36d5a1"
+          "salt": "feb1a5927c95a2089ebb6825f20f7eb5",
+          "iv": "3a28a2f57be64a7f31bbd097",
+          "ct": "4f9b71134c0d6d2c50a7ffdf93e3f5c075181dda915f4b39b925ef400b2c46b7a93b8334add67ec311a7b8375f"
         }
       },
       {
         "sealed": {
-          "salt": "fc5da82e79a8596aa890686d47dbc472",
-          "iv": "f7bed4963ff5438517fb2297",
-          "ct": "093ed1b0b5e5c68ae334cd315c543c17815f614c8dcff0975d21bbccb8b7b0c8f96e3f83352351e51afe346fea"
+          "salt": "5c429eed62751328d82f82929d14a11e",
+          "iv": "204f19ec81a07acfb16e9a5f",
+          "ct": "adb626efef46cce4c4e374014164df5d209ed6503a607a50dadd3d8382f9d66c7325e0920d4561cd3c3741c2d2"
         }
       },
       {
         "sealed": {
-          "salt": "fb2dd301a687b54631166dad372f9ffd",
-          "iv": "ff55691a31377bee6085c6ba",
-          "ct": "605e1faf66ef46293f53a767e8be4b44947d2c52b427cc877ba349c0f05d152bdba58c98c6fb9008a6da6de913"
+          "salt": "9ee89c8a9c0849bd803caa82875e2192",
+          "iv": "4c3c163b3454ea8af3ee73e3",
+          "ct": "f8bd2e35263ffc730ef0d325f53348010b324d9927633773ad86b23ff3d8cf7f04728848e12393797e714310d7"
         }
-      }
-    ]
-  },
-  "stylesheet-secrets": {
-    "variants": [
-      {
-        "stylesheet": ".g-67::before {\n  content: \"\\0073\";\n  order: 12;\n}\n\n.g-30::before {\n  content: \"\\0061\";\n  order: 11;\n}\n\n.g-77::before {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.g-54::before {\n  content: \"\\007d\";\n  order: 30;\n}\n\n.g-35::before {\n  content: \"\\0072\";\n  order: 19;\n}\n\n.g-48::before {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.g-3::before {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.g-95::before {\n  content: \"\\006f\";\n  order: 18;\n}\n\n.g-40::before {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.g-63::before {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.g-76::before {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.g-12::before {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.g-44::before {\n  content: \"\\0061\";\n  order: 14;\n}\n\n.g-58::before {\n  content: \"\\005f\";\n  order: 17;\n}\n\n.g-16::before {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.g-21::before {\n  content: \"\\0065\";\n  order: 16;\n}\n\n.g-72::before {\n  content: \"\\0064\";\n  order: 20;\n}\n\n.g-2::before {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.g-86::before {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.g-53::before {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.g-85::before {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.g-7::before {\n  content: \"\\0063\";\n  order: 13;\n}\n\n.g-17::before {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.g-11::before {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.g-49::before {\n  content: \"\\0072\";\n  order: 22;\n}\n\n.g-26::before {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.g-81::before {\n  content: \"\\0064\";\n  order: 15;\n}\n\n.g-62::before {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.g-25::before {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.g-39::before {\n  content: \"\\0065\";\n  order: 6;\n}\n\n.g-90::before {\n  content: \"\\0063\";\n  order: 10;\n}",
-        "ruleCount": 31
-      },
-      {
-        "stylesheet": ".g-30::before {\n  content: \"\\0061\";\n  order: 11;\n}\n\n.g-72::before {\n  content: \"\\0064\";\n  order: 20;\n}\n\n.g-58::before {\n  content: \"\\005f\";\n  order: 17;\n}\n\n.g-11::before {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.g-40::before {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.g-26::before {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.g-17::before {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.g-91::before {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.g-2::before {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.g-54::before {\n  content: \"\\0031\";\n  order: 30;\n}\n\n.g-95::before {\n  content: \"\\006f\";\n  order: 18;\n}\n\n.g-3::before {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.g-63::before {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.g-81::before {\n  content: \"\\0064\";\n  order: 15;\n}\n\n.g-62::before {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.g-49::before {\n  content: \"\\0072\";\n  order: 22;\n}\n\n.g-53::before {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.g-76::before {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.g-67::before {\n  content: \"\\0073\";\n  order: 12;\n}\n\n.g-16::before {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.g-86::before {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.g-44::before {\n  content: \"\\0061\";\n  order: 14;\n}\n\n.g-7::before {\n  content: \"\\0063\";\n  order: 13;\n}\n\n.g-48::before {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.g-35::before {\n  content: \"\\0072\";\n  order: 19;\n}\n\n.g-12::before {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.g-21::before {\n  content: \"\\0065\";\n  order: 16;\n}\n\n.g-90::before {\n  content: \"\\0063\";\n  order: 10;\n}\n\n.g-77::before {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.g-85::before {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.g-25::before {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.g-39::before {\n  content: \"\\0065\";\n  order: 6;\n}",
-        "ruleCount": 32
-      },
-      {
-        "stylesheet": ".g-30::before {\n  content: \"\\0061\";\n  order: 11;\n}\n\n.g-72::before {\n  content: \"\\0064\";\n  order: 20;\n}\n\n.g-58::before {\n  content: \"\\005f\";\n  order: 17;\n}\n\n.g-11::before {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.g-40::before {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.g-26::before {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.g-17::before {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.g-91::before {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.g-2::before {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.g-54::before {\n  content: \"\\0032\";\n  order: 30;\n}\n\n.g-95::before {\n  content: \"\\006f\";\n  order: 18;\n}\n\n.g-3::before {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.g-63::before {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.g-81::before {\n  content: \"\\0064\";\n  order: 15;\n}\n\n.g-62::before {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.g-49::before {\n  content: \"\\0072\";\n  order: 22;\n}\n\n.g-53::before {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.g-76::before {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.g-67::before {\n  content: \"\\0073\";\n  order: 12;\n}\n\n.g-16::before {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.g-86::before {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.g-44::before {\n  content: \"\\0061\";\n  order: 14;\n}\n\n.g-7::before {\n  content: \"\\0063\";\n  order: 13;\n}\n\n.g-48::before {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.g-35::before {\n  content: \"\\0072\";\n  order: 19;\n}\n\n.g-12::before {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.g-21::before {\n  content: \"\\0065\";\n  order: 16;\n}\n\n.g-90::before {\n  content: \"\\0063\";\n  order: 10;\n}\n\n.g-77::before {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.g-85::before {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.g-25::before {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.g-39::before {\n  content: \"\\0065\";\n  order: 6;\n}",
-        "ruleCount": 32
-      },
-      {
-        "stylesheet": ".g-30::before {\n  content: \"\\0061\";\n  order: 11;\n}\n\n.g-72::before {\n  content: \"\\0064\";\n  order: 20;\n}\n\n.g-58::before {\n  content: \"\\005f\";\n  order: 17;\n}\n\n.g-11::before {\n  content: \"\\0070\";\n  order: 0;\n}\n\n.g-40::before {\n  content: \"\\0070\";\n  order: 27;\n}\n\n.g-26::before {\n  content: \"\\0073\";\n  order: 24;\n}\n\n.g-17::before {\n  content: \"\\0065\";\n  order: 29;\n}\n\n.g-91::before {\n  content: \"\\007d\";\n  order: 31;\n}\n\n.g-2::before {\n  content: \"\\0064\";\n  order: 5;\n}\n\n.g-54::before {\n  content: \"\\0033\";\n  order: 30;\n}\n\n.g-95::before {\n  content: \"\\006f\";\n  order: 18;\n}\n\n.g-3::before {\n  content: \"\\006d\";\n  order: 26;\n}\n\n.g-63::before {\n  content: \"\\0061\";\n  order: 25;\n}\n\n.g-81::before {\n  content: \"\\0064\";\n  order: 15;\n}\n\n.g-62::before {\n  content: \"\\007b\";\n  order: 4;\n}\n\n.g-49::before {\n  content: \"\\0072\";\n  order: 22;\n}\n\n.g-53::before {\n  content: \"\\005f\";\n  order: 9;\n}\n\n.g-76::before {\n  content: \"\\006d\";\n  order: 7;\n}\n\n.g-67::before {\n  content: \"\\0073\";\n  order: 12;\n}\n\n.g-16::before {\n  content: \"\\006f\";\n  order: 8;\n}\n\n.g-86::before {\n  content: \"\\005f\";\n  order: 23;\n}\n\n.g-44::before {\n  content: \"\\0061\";\n  order: 14;\n}\n\n.g-7::before {\n  content: \"\\0063\";\n  order: 13;\n}\n\n.g-48::before {\n  content: \"\\0063\";\n  order: 1;\n}\n\n.g-35::before {\n  content: \"\\0072\";\n  order: 19;\n}\n\n.g-12::before {\n  content: \"\\0065\";\n  order: 21;\n}\n\n.g-21::before {\n  content: \"\\0065\";\n  order: 16;\n}\n\n.g-90::before {\n  content: \"\\0063\";\n  order: 10;\n}\n\n.g-77::before {\n  content: \"\\006c\";\n  order: 28;\n}\n\n.g-85::before {\n  content: \"\\0074\";\n  order: 2;\n}\n\n.g-25::before {\n  content: \"\\0066\";\n  order: 3;\n}\n\n.g-39::before {\n  content: \"\\0065\";\n  order: 6;\n}",
-        "ruleCount": 32
       }
     ]
   },
@@ -3097,90 +3145,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "7be009ddae357b227da2c42f5cad5fd7",
-          "iv": "b269fa761003c8b7539104f7",
-          "ct": "4f648bc40052d837507300aa820b685ec5d8461ac135c18b7c577af87003f985c2c9ca0c260d039afb60cde48789"
+          "salt": "ba0f39111c5aa9bdd4d183750c9f4552",
+          "iv": "0340c8592d7fbf2cb6975958",
+          "ct": "2eaeda893ea1bf81b5b30413eeb00a121bc97b7f9ce04ac406d4d8fce25ab3d8b3aa05ec9a5d67eb7ec22e40277a"
         }
       },
       {
         "sealed": {
-          "salt": "a4207e77527bc3cb6059f1cea089f237",
-          "iv": "43ff2afb6c5d76620e7f14be",
-          "ct": "f1a8c9e46c1b1d4e4897d44d47b575ce30ab70beb6585b10f8cc905098beac77b6524a419804e0776fa303a1dcef1c"
+          "salt": "bac707c819d3c1f1f41a1a1e11c8cae1",
+          "iv": "8f606bed6523a791e4a61a01",
+          "ct": "d13e18e195676cbbff395bac0324a0ea8fd40daa19b95f29b8fee5cbe46a15839ef9b2ca2eb64d9ea7ab557876f47c"
         }
       },
       {
         "sealed": {
-          "salt": "3449d0a5061748b99b8fe1c854991879",
-          "iv": "cffce3723f7cb9369ee6a07f",
-          "ct": "6361f74ec0d68113b528726188a71cc29e8a3e9b9e42d8a5aab6c3ee2e487f878242975e81afdd2debbae925afe44d"
+          "salt": "a9994df104b02af20e99c8fcf5491e6a",
+          "iv": "6acd91e47e49e8fa9fba0542",
+          "ct": "351e08afa6963b4f3a5033ed5dd3e6e1026b7772c3485d747dea742b12b01bd09ea402e532d2ee0270d536a82fff09"
         }
       },
       {
         "sealed": {
-          "salt": "5c27b416c54911045234cffa4de1feec",
-          "iv": "4611d72d694163907721dde1",
-          "ct": "56d8bc12f335204879374864fd96c3ed66252eb959fdb408e1e53d7a437564c6086bc80b19c8145f3fbc5879e54e8c"
-        }
-      }
-    ]
-  },
-  "vector-tracing": {
-    "variants": [
-      {
-        "path": "M 10,146 L 13,91 L 15,119 L 18,131 L 20,30 L 23,158 L 26,26 L 28,32 L 31,24 L 33,123 L 36,39 L 39,104 L 41,118 L 44,44 L 46,95 L 49,69 L 52,46 L 54,67 L 57,77 L 59,43 L 62,80 L 64,115 L 67,118 L 70,130 L 72,146 L 75,65 L 77,149 L 80,112 L 83,54 L 85,91 L 88,35 L 90,108 L 93,118 L 96,73 L 98,125 L 101,137 L 103,25 L 106,30 L 109,139 L 111,141 L 114,24 L 116,25 L 119,37 L 122,102 L 124,26 L 127,55 L 129,70 L 132,36 L 135,48 L 137,91 L 140,103 L 142,26 L 145,56 L 147,27 L 150,158 L 153,59 L 155,128 L 158,103 L 160,83 L 163,134 L 166,65 L 168,29 L 171,70 L 173,67 L 176,40 L 179,87 L 181,37 L 184,56 L 186,35 L 189,27 L 192,125 L 194,65 L 197,76 L 199,39 L 202,68 L 205,37 L 207,123 L 210,31 L 212,151 L 215,143 L 218,76 L 220,47 L 223,113 L 225,53 L 228,64 L 231,94 L 233,44 L 236,40 L 238,36 L 241,145 L 243,71 L 246,112 L 249,82 L 251,134 L 254,68 L 256,65 L 259,114 L 262,51 L 264,97 L 267,93 L 269,76 L 272,77 L 275,50 L 277,28 L 280,44 L 282,149 L 285,117 L 288,134 L 290,159 L 293,40 L 295,78 L 298,66 L 301,28 L 303,83 L 306,54 L 308,71 L 311,51 L 314,137 L 316,123 L 319,69 L 321,30 L 324,49 L 326,137 L 329,153 L 332,102 L 334,52 L 337,120 L 339,62 L 342,154 L 345,51 L 347,63 L 350,24 L 352,30 L 355,106 L 358,20 L 360,75 L 363,92 L 365,135 L 368,101 L 371,45 L 373,156 L 376,134 L 378,23 L 381,60 L 384,90 L 386,115 L 389,33 L 391,98 L 394,153 L 397,76 L 399,130 L 402,67 L 404,62 L 407,27 L 409,41 L 412,137 L 415,48 L 417,107 L 420,86 L 422,158 L 425,104 L 428,73 L 430,101 L 433,27 L 435,97 L 438,76 L 441,64 L 443,75 L 446,44 L 448,29 L 451,140 L 454,55 L 456,21 L 459,81 L 461,61 L 464,129 L 467,74 L 469,147 L 472,137 L 474,31 L 477,52 L 480,22 L 482,31 L 485,81 L 487,110 L 490,139 L 493,41 L 495,90 L 498,76 L 500,70 L 503,44 L 505,129 L 508,94 L 511,129 L 513,89 L 516,78 L 518,81 L 521,59 L 524,136 L 526,55 L 529,94 L 531,99 L 534,133 L 537,57 L 539,98 L 542,80 L 544,116 L 547,66 L 550,32 L 552,87 L 555,55 L 557,88 L 560,117 L 563,139 L 565,152 L 568,100 L 570,66 L 573,65 L 576,127 L 578,118 L 581,56 L 583,61 L 586,98 L 588,77 L 591,116 L 594,85 L 596,53 L 599,155 L 601,101 L 604,95 L 607,116 L 609,77 L 612,90 L 614,134 L 617,128 L 620,30 L 622,76 L 625,50 L 627,90 L 630,84",
-        "width": 640,
-        "height": 180,
-        "pointCount": 240
-      },
-      {
-        "path": "M 10,146 L 13,91 L 15,119 L 18,131 L 20,30 L 23,158 L 25,26 L 28,32 L 30,24 L 33,123 L 35,39 L 38,104 L 40,118 L 43,44 L 45,95 L 48,69 L 50,46 L 53,67 L 55,77 L 58,43 L 60,80 L 63,115 L 65,118 L 68,130 L 70,146 L 73,65 L 75,149 L 78,112 L 80,54 L 83,91 L 85,35 L 88,108 L 90,118 L 93,73 L 95,125 L 98,137 L 100,25 L 103,30 L 105,139 L 108,141 L 110,24 L 113,25 L 115,37 L 118,102 L 120,26 L 123,55 L 125,70 L 128,36 L 130,48 L 133,91 L 136,103 L 138,26 L 141,56 L 143,27 L 146,158 L 148,59 L 151,128 L 153,103 L 156,83 L 158,134 L 161,65 L 163,29 L 166,70 L 168,67 L 171,40 L 173,87 L 176,37 L 178,56 L 181,35 L 183,27 L 186,125 L 188,65 L 191,76 L 193,39 L 196,68 L 198,37 L 201,123 L 203,31 L 206,151 L 208,143 L 211,76 L 213,47 L 216,113 L 218,53 L 221,64 L 223,94 L 226,44 L 228,40 L 231,36 L 233,145 L 236,71 L 238,112 L 241,82 L 243,134 L 246,68 L 248,65 L 251,114 L 253,51 L 256,97 L 259,93 L 261,76 L 264,77 L 266,50 L 269,28 L 271,44 L 274,149 L 276,117 L 279,134 L 281,159 L 284,40 L 286,78 L 289,66 L 291,28 L 294,83 L 296,54 L 299,71 L 301,51 L 304,137 L 306,123 L 309,69 L 311,30 L 314,49 L 316,137 L 319,153 L 321,102 L 324,52 L 326,120 L 329,62 L 331,154 L 334,51 L 336,63 L 339,24 L 341,30 L 344,106 L 346,20 L 349,75 L 351,92 L 354,135 L 356,101 L 359,45 L 361,156 L 364,134 L 366,23 L 369,60 L 371,90 L 374,115 L 376,33 L 379,98 L 381,153 L 384,76 L 387,130 L 389,67 L 392,62 L 394,27 L 397,41 L 399,137 L 402,48 L 404,107 L 407,86 L 409,158 L 412,104 L 414,73 L 417,101 L 419,27 L 422,97 L 424,76 L 427,64 L 429,75 L 432,44 L 434,29 L 437,140 L 439,55 L 442,21 L 444,81 L 447,61 L 449,129 L 452,74 L 454,147 L 457,137 L 459,31 L 462,52 L 464,22 L 467,31 L 469,81 L 472,110 L 474,139 L 477,41 L 479,90 L 482,76 L 484,70 L 487,44 L 489,129 L 492,94 L 494,129 L 497,89 L 499,78 L 502,81 L 504,59 L 507,136 L 510,55 L 512,94 L 515,99 L 517,133 L 520,57 L 522,98 L 525,80 L 527,116 L 530,66 L 532,32 L 535,87 L 537,55 L 540,88 L 542,117 L 545,139 L 547,152 L 550,100 L 552,66 L 555,65 L 557,127 L 560,118 L 562,56 L 565,61 L 567,98 L 570,77 L 572,116 L 575,84 L 577,53 L 580,155 L 582,102 L 585,96 L 587,116 L 590,77 L 592,90 L 595,135 L 597,129 L 600,31 L 602,77 L 605,51 L 607,90 L 610,83 L 612,128 L 615,76 L 617,104 L 620,106 L 622,64 L 625,118 L 627,26 L 630,128",
-        "width": 640,
-        "height": 180,
-        "pointCount": 248
-      },
-      {
-        "path": "M 10,146 L 13,91 L 15,119 L 18,131 L 20,30 L 23,158 L 25,26 L 28,32 L 30,24 L 33,123 L 35,39 L 38,104 L 40,118 L 43,44 L 45,95 L 48,69 L 50,46 L 53,67 L 55,77 L 58,43 L 60,80 L 63,115 L 65,118 L 68,130 L 70,146 L 73,65 L 75,149 L 78,112 L 80,54 L 83,91 L 85,35 L 88,108 L 90,118 L 93,73 L 95,125 L 98,137 L 100,25 L 103,30 L 105,139 L 108,141 L 110,24 L 113,25 L 115,37 L 118,102 L 120,26 L 123,55 L 125,70 L 128,36 L 130,48 L 133,91 L 136,103 L 138,26 L 141,56 L 143,27 L 146,158 L 148,59 L 151,128 L 153,103 L 156,83 L 158,134 L 161,65 L 163,29 L 166,70 L 168,67 L 171,40 L 173,87 L 176,37 L 178,56 L 181,35 L 183,27 L 186,125 L 188,65 L 191,76 L 193,39 L 196,68 L 198,37 L 201,123 L 203,31 L 206,151 L 208,143 L 211,76 L 213,47 L 216,113 L 218,53 L 221,64 L 223,94 L 226,44 L 228,40 L 231,36 L 233,145 L 236,71 L 238,112 L 241,82 L 243,134 L 246,68 L 248,65 L 251,114 L 253,51 L 256,97 L 259,93 L 261,76 L 264,77 L 266,50 L 269,28 L 271,44 L 274,149 L 276,117 L 279,134 L 281,159 L 284,40 L 286,78 L 289,66 L 291,28 L 294,83 L 296,54 L 299,71 L 301,51 L 304,137 L 306,123 L 309,69 L 311,30 L 314,49 L 316,137 L 319,153 L 321,102 L 324,52 L 326,120 L 329,62 L 331,154 L 334,51 L 336,63 L 339,24 L 341,30 L 344,106 L 346,20 L 349,75 L 351,92 L 354,135 L 356,101 L 359,45 L 361,156 L 364,134 L 366,23 L 369,60 L 371,90 L 374,115 L 376,33 L 379,98 L 381,153 L 384,76 L 387,130 L 389,67 L 392,62 L 394,27 L 397,41 L 399,137 L 402,48 L 404,107 L 407,86 L 409,158 L 412,104 L 414,73 L 417,101 L 419,27 L 422,97 L 424,76 L 427,64 L 429,75 L 432,44 L 434,29 L 437,140 L 439,55 L 442,21 L 444,81 L 447,61 L 449,129 L 452,74 L 454,147 L 457,137 L 459,31 L 462,52 L 464,22 L 467,31 L 469,81 L 472,110 L 474,139 L 477,41 L 479,90 L 482,76 L 484,70 L 487,44 L 489,129 L 492,94 L 494,129 L 497,89 L 499,78 L 502,81 L 504,59 L 507,136 L 510,55 L 512,94 L 515,99 L 517,133 L 520,57 L 522,98 L 525,80 L 527,116 L 530,66 L 532,32 L 535,87 L 537,55 L 540,88 L 542,117 L 545,139 L 547,152 L 550,100 L 552,66 L 555,65 L 557,127 L 560,118 L 562,56 L 565,61 L 567,98 L 570,77 L 572,116 L 575,84 L 577,53 L 580,155 L 582,102 L 585,96 L 587,115 L 590,76 L 592,90 L 595,135 L 597,129 L 600,31 L 602,77 L 605,51 L 607,90 L 610,83 L 612,128 L 615,76 L 617,104 L 620,106 L 622,64 L 625,118 L 627,26 L 630,128",
-        "width": 640,
-        "height": 180,
-        "pointCount": 248
-      },
-      {
-        "path": "M 10,146 L 13,91 L 15,119 L 18,131 L 20,30 L 23,158 L 25,26 L 28,32 L 30,24 L 33,123 L 35,39 L 38,104 L 40,118 L 43,44 L 45,95 L 48,69 L 50,46 L 53,67 L 55,77 L 58,43 L 60,80 L 63,115 L 65,118 L 68,130 L 70,146 L 73,65 L 75,149 L 78,112 L 80,54 L 83,91 L 85,35 L 88,108 L 90,118 L 93,73 L 95,125 L 98,137 L 100,25 L 103,30 L 105,139 L 108,141 L 110,24 L 113,25 L 115,37 L 118,102 L 120,26 L 123,55 L 125,70 L 128,36 L 130,48 L 133,91 L 136,103 L 138,26 L 141,56 L 143,27 L 146,158 L 148,59 L 151,128 L 153,103 L 156,83 L 158,134 L 161,65 L 163,29 L 166,70 L 168,67 L 171,40 L 173,87 L 176,37 L 178,56 L 181,35 L 183,27 L 186,125 L 188,65 L 191,76 L 193,39 L 196,68 L 198,37 L 201,123 L 203,31 L 206,151 L 208,143 L 211,76 L 213,47 L 216,113 L 218,53 L 221,64 L 223,94 L 226,44 L 228,40 L 231,36 L 233,145 L 236,71 L 238,112 L 241,82 L 243,134 L 246,68 L 248,65 L 251,114 L 253,51 L 256,97 L 259,93 L 261,76 L 264,77 L 266,50 L 269,28 L 271,44 L 274,149 L 276,117 L 279,134 L 281,159 L 284,40 L 286,78 L 289,66 L 291,28 L 294,83 L 296,54 L 299,71 L 301,51 L 304,137 L 306,123 L 309,69 L 311,30 L 314,49 L 316,137 L 319,153 L 321,102 L 324,52 L 326,120 L 329,62 L 331,154 L 334,51 L 336,63 L 339,24 L 341,30 L 344,106 L 346,20 L 349,75 L 351,92 L 354,135 L 356,101 L 359,45 L 361,156 L 364,134 L 366,23 L 369,60 L 371,90 L 374,115 L 376,33 L 379,98 L 381,153 L 384,76 L 387,130 L 389,67 L 392,62 L 394,27 L 397,41 L 399,137 L 402,48 L 404,107 L 407,86 L 409,158 L 412,104 L 414,73 L 417,101 L 419,27 L 422,97 L 424,76 L 427,64 L 429,75 L 432,44 L 434,29 L 437,140 L 439,55 L 442,21 L 444,81 L 447,61 L 449,129 L 452,74 L 454,147 L 457,137 L 459,31 L 462,52 L 464,22 L 467,31 L 469,81 L 472,110 L 474,139 L 477,41 L 479,90 L 482,76 L 484,70 L 487,44 L 489,129 L 492,94 L 494,129 L 497,89 L 499,78 L 502,81 L 504,59 L 507,136 L 510,55 L 512,94 L 515,99 L 517,133 L 520,57 L 522,98 L 525,80 L 527,116 L 530,66 L 532,32 L 535,87 L 537,55 L 540,88 L 542,117 L 545,139 L 547,152 L 550,100 L 552,66 L 555,65 L 557,127 L 560,118 L 562,56 L 565,61 L 567,98 L 570,77 L 572,116 L 575,84 L 577,53 L 580,155 L 582,102 L 585,96 L 587,115 L 590,77 L 592,90 L 595,135 L 597,129 L 600,31 L 602,77 L 605,51 L 607,90 L 610,83 L 612,128 L 615,76 L 617,104 L 620,106 L 622,64 L 625,118 L 627,26 L 630,128",
-        "width": 640,
-        "height": 180,
-        "pointCount": 248
-      }
-    ]
-  },
-  "wrong-verb": {
-    "variants": [
-      {
-        "sealed": {
-          "salt": "5d7e9b1522264521a93abbac6fb03a4d",
-          "iv": "5546b24f947219dc99bcca5a",
-          "ct": "b0e158ce541bdc4b672177535ab7533bed8960074f427c58fc34cb9029ba2bd8bf23cee3ee7cef3dddff759afa"
-        }
-      },
-      {
-        "sealed": {
-          "salt": "0e86e074cd84f1f8cc6e39cd07fd4e54",
-          "iv": "7ed9ed92f318d7cd723a36a1",
-          "ct": "062eb63c2f65c354c7fcffb3bb7eddf5c11f1fada463ee9fe18e2ed56ec3be55a067d676955d9d4816c56c1d8b37"
-        }
-      },
-      {
-        "sealed": {
-          "salt": "f4ea2125bdc1f63bd7bebaf920e7545c",
-          "iv": "bdc8b49fd665f793ce397f76",
-          "ct": "1beb54ea1539e3faba3a7f7d81c4081045f279375d237fbf81acbae7a81e723eb54fbb6cd9a861d59bb85bf36ac0"
-        }
-      },
-      {
-        "sealed": {
-          "salt": "124bd4d387f9e2c215a304dd0a647004",
-          "iv": "d27f912fd050fb640ac3ca27",
-          "ct": "018694bc7a6e093eebe110faa00f5f2801ae9544fbb8844cd1f4adcb5120bc971dc54759d04de41230bd0dc1180b"
+          "salt": "22c0c625cd5fcdcee3adaffe863c1100",
+          "iv": "609e2528aba2622b5e936573",
+          "ct": "03e09aa015ce9d8520d9c0d70e731f463d4fd0ea9d6675f0302e2c1f2c9fec5060d2e58f95c3eb41f11157ac45b39a"
         }
       }
     ]

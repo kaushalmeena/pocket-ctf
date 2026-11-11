@@ -44,7 +44,7 @@ async function visit(path, init = {}) {
   return response;
 }
 
-const text = async (path) => (await visit(path)).text();
+const text = async (path, init) => (await visit(path, init)).text();
 
 /** The first long hex run in a page: every ciphertext blob is one. */
 const hexBlob = (html) => html.match(/>([0-9a-f]{40,})</)?.[1];
@@ -93,15 +93,28 @@ const HUNT = {
   // The rhythm the footer light keeps.
   "dots-and-dashes": async () => (await visit("/api/pulse")).json(),
 
-  // The same endpoint, asked with a verb the site never sends.
-  "wrong-verb": async () => {
-    const allowed = (await visit("/api/pulse", { method: "OPTIONS" })).headers.get("allow");
-    if (!allowed?.includes("PUT")) throw new Error(`OPTIONS advertised "${allowed}"`);
-    return { found: (await (await visit("/api/pulse", { method: "PUT" })).json()).flag };
+  // The front page, asked for in a format a browser never requests.
+  "plain-speaking": async () => {
+    if (
+      !/rel="alternate"[^>]*type="text\/plain"|type="text\/plain"[^>]*rel="alternate"/.test(
+        home,
+      )
+    ) {
+      throw new Error("the front page no longer advertises its text version");
+    }
+    const plain = await text("/", { headers: { accept: "text/plain" } });
+    return { found: plain.match(/pctf\{[a-z0-9_]+\}/)?.[0] };
   },
 
-  // A stylesheet every page links and none uses.
-  "stylesheet-secrets": async () => ({ stylesheet: await text("/ghost.css") }),
+  // A stylesheet every page downloads for paper, and never applies on screen.
+  "hard-copy": async () => {
+    if (
+      !/href="\/print\.css"[^>]*media="print"|media="print"[^>]*href="\/print\.css"/.test(home)
+    ) {
+      throw new Error("no print stylesheet linked from the page");
+    }
+    return { stylesheet: await text("/print.css") };
+  },
 
   // Records every page files in IndexedDB, as shipped in the page data.
   "local-records": () => ({
@@ -120,8 +133,8 @@ const HUNT = {
     };
   },
 
-  // The drawing on the front page.
-  "vector-tracing": () => ({ path: home.match(/<path d="(M [^"]+)"/)?.[1] }),
+  // The chart's accessible description, spelled out for a screen reader.
+  "read-aloud": () => ({ spoken: home.match(/<desc id="chart-desc"[^>]*>([^<]+)</)?.[1] }),
 
   // Named in a dotfile the prompt will show to anyone who lists them.
   "feedback-loop": async () => {
@@ -313,6 +326,16 @@ if (last?.me && last.me.total !== expected) {
   console.log(
     `  ✗ the site has ${last.me.total} flags but this script knows ${expected} hiding places`,
   );
+}
+
+// Finishing the hunt finishes the story the prompt has been telling.
+if (failures === 0) {
+  const listing = (await say("ls")).lines.join(" ");
+  const ending = (await say("cat journal-7.txt")).lines.join(" ");
+  if (!listing.includes("journal-7.txt") || !ending.includes(last.me.handle)) {
+    failures++;
+    console.log("  ✗ the journal's last entry did not appear after the last flag");
+  }
 }
 
 if (failures > 0) {

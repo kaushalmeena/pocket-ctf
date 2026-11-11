@@ -16,9 +16,32 @@ export const Route = createFileRoute("/")({
       description: SITE_DESCRIPTION,
       path: "/",
     }),
+    links: [
+      // Ask for text/plain and that is what you get.
+      {
+        rel: "alternate",
+        type: "text/plain",
+        href: "/",
+        title: "The front page, for terminals",
+      },
+    ],
     scripts: [{ type: "application/ld+json", children: JSON.stringify(structuredData()) }],
   }),
 });
+
+/**
+ * "Site activity": a wobble made of two sine waves. It is the same for everyone
+ * and carries nothing; whatever the chart has to say is in its description.
+ */
+const CHART = (() => {
+  const [width, height, n] = [640, 180, 72];
+  const points = Array.from({ length: n }, (_, i) => {
+    const x = 10 + (i / (n - 1)) * (width - 20);
+    const y = 92 + 38 * Math.sin(i / 4.1) + 21 * Math.sin(i / 1.3 + 1) + 9 * Math.sin(i * 2.7);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  return { width, height, path: `M ${points.join(" L ")}` };
+})();
 
 function Home() {
   const page = Route.useLoaderData();
@@ -73,14 +96,21 @@ function Home() {
       </section>
 
       <figure class="space-y-3">
+        {/*
+          Purely decorative, which is why it is so carefully described. The
+          description is for screen readers; nobody else is shown it.
+        */}
         <svg
-          viewBox={`0 0 ${page().drawing.width} ${page().drawing.height}`}
+          viewBox={`0 0 ${CHART.width} ${CHART.height}`}
           class="w-full rounded-2xl border border-zinc-200 bg-zinc-50/60 text-accent-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-accent-400"
           role="img"
-          aria-label="A jagged line chart"
+          aria-labelledby="chart-title"
+          aria-describedby="chart-desc"
         >
+          <title id="chart-title">Site activity, last 24 hours</title>
+          <desc id="chart-desc">{page().spoken}</desc>
           <path
-            d={page().drawing.path}
+            d={CHART.path}
             fill="none"
             stroke="currentColor"
             stroke-width="1"

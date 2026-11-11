@@ -13,10 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AvatarDotpngRouteImport } from './routes/avatar[.]png'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as DeadDropRouteImport } from './routes/dead-drop'
-import { Route as GhostDotcssRouteImport } from './routes/ghost[.]css'
 import { Route as HumansDottxtRouteImport } from './routes/humans[.]txt'
 import { Route as LoungeRouteImport } from './routes/lounge'
 import { Route as MachineRouteImport } from './routes/machine'
+import { Route as PrintDotcssRouteImport } from './routes/print[.]css'
 import { Route as RadioRouteImport } from './routes/radio'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -55,11 +55,6 @@ const DeadDropRoute = DeadDropRouteImport.update({
   path: '/dead-drop',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GhostDotcssRoute = GhostDotcssRouteImport.update({
-  id: '/ghost.css',
-  path: '/ghost.css',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HumansDottxtRoute = HumansDottxtRouteImport.update({
   id: '/humans.txt',
   path: '/humans.txt',
@@ -73,6 +68,11 @@ const LoungeRoute = LoungeRouteImport.update({
 const MachineRoute = MachineRouteImport.update({
   id: '/machine',
   path: '/machine',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrintDotcssRoute = PrintDotcssRouteImport.update({
+  id: '/print.css',
+  path: '/print.css',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RadioRoute = RadioRouteImport.update({
@@ -167,10 +167,10 @@ export interface FileRoutesByFullPath {
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
-  '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
   '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
+  '/print.css': typeof PrintDotcssRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -194,10 +194,10 @@ export interface FileRoutesByTo {
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
-  '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
   '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
+  '/print.css': typeof PrintDotcssRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -222,10 +222,10 @@ export interface FileRoutesById {
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
-  '/ghost.css': typeof GhostDotcssRoute
   '/humans.txt': typeof HumansDottxtRoute
   '/lounge': typeof LoungeRoute
   '/machine': typeof MachineRoute
+  '/print.css': typeof PrintDotcssRoute
   '/radio': typeof RadioRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -251,10 +251,10 @@ export interface FileRouteTypes {
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
-    | '/ghost.css'
     | '/humans.txt'
     | '/lounge'
     | '/machine'
+    | '/print.css'
     | '/radio'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -278,10 +278,10 @@ export interface FileRouteTypes {
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
-    | '/ghost.css'
     | '/humans.txt'
     | '/lounge'
     | '/machine'
+    | '/print.css'
     | '/radio'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -305,10 +305,10 @@ export interface FileRouteTypes {
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
-    | '/ghost.css'
     | '/humans.txt'
     | '/lounge'
     | '/machine'
+    | '/print.css'
     | '/radio'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -333,10 +333,10 @@ export interface RootRouteChildren {
   AvatarDotpngRoute: typeof AvatarDotpngRoute
   BoardRoute: typeof BoardRoute
   DeadDropRoute: typeof DeadDropRoute
-  GhostDotcssRoute: typeof GhostDotcssRoute
   HumansDottxtRoute: typeof HumansDottxtRoute
   LoungeRoute: typeof LoungeRoute
   MachineRoute: typeof MachineRoute
+  PrintDotcssRoute: typeof PrintDotcssRoute
   RadioRoute: typeof RadioRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -386,13 +386,6 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof DeadDropRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ghost.css': {
-      id: '/ghost.css'
-      path: '/ghost.css'
-      fullPath: '/ghost.css'
-      preLoaderRoute: typeof GhostDotcssRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/humans.txt': {
       id: '/humans.txt'
       path: '/humans.txt'
@@ -412,6 +405,13 @@ declare module '@tanstack/solid-router' {
       path: '/machine'
       fullPath: '/machine'
       preLoaderRoute: typeof MachineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/print.css': {
+      id: '/print.css'
+      path: '/print.css'
+      fullPath: '/print.css'
+      preLoaderRoute: typeof PrintDotcssRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/radio': {
@@ -541,10 +541,10 @@ const rootRouteChildren: RootRouteChildren = {
   AvatarDotpngRoute: AvatarDotpngRoute,
   BoardRoute: BoardRoute,
   DeadDropRoute: DeadDropRoute,
-  GhostDotcssRoute: GhostDotcssRoute,
   HumansDottxtRoute: HumansDottxtRoute,
   LoungeRoute: LoungeRoute,
   MachineRoute: MachineRoute,
+  PrintDotcssRoute: PrintDotcssRoute,
   RadioRoute: RadioRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

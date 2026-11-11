@@ -1,5 +1,7 @@
 import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/solid-start";
 
+import { plainFrontPage } from "~/server/plants";
+
 /**
  * Headers every response carries.
  *
@@ -17,10 +19,35 @@ const responseHeaders = createMiddleware().server(async ({ next }) => {
   headers.set("X-Powered-By", "curiosity");
   headers.set("X-Flag", "pctf{x_marks_the_header}");
   headers.set("Link", '</machine>; rel="help"; title="nobody renders this header"');
+  // The front page has another representation; see `plainText` below.
+  headers.set("Vary", "Accept");
 
   // Every page is rendered for one player. Nothing here belongs in a shared cache.
   if (!headers.has("Cache-Control")) headers.set("Cache-Control", "private, no-store");
   return result;
+});
+
+/** True when a client asked for text and did not also ask for HTML. */
+const wantsText = (accept: string | null) =>
+  Boolean(accept && /\btext\/plain\b/.test(accept) && !/\btext\/html\b/.test(accept));
+
+/**
+ * Content negotiation for the front page. Browsers ask for HTML and get it; a
+ * client that asks for `text/plain` gets the text version, which carries one
+ * line the HTML does not.
+ */
+const plainText = createMiddleware().server(async ({ request, next }) => {
+  const url = new URL(request.url);
+  if (
+    request.method === "GET" &&
+    url.pathname === "/" &&
+    wantsText(request.headers.get("accept"))
+  ) {
+    return new Response(await plainFrontPage(), {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+  return next();
 });
 
 /*
@@ -32,5 +59,5 @@ const responseHeaders = createMiddleware().server(async ({ next }) => {
 const csrf = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [csrf, responseHeaders],
+  requestMiddleware: [csrf, responseHeaders, plainText],
 }));

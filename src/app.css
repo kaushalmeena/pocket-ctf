@@ -540,3 +540,8 @@
     transition: none;
   }
 }
+
+/* A row print.css fills in on paper. Never shown on screen. */
+.print-only {
+  display: none;
+}

@@ -1,6 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/solid-router";
 import type { JSX } from "solid-js";
-import { Show, Suspense } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 
 import { NotFound } from "~/components/NotFound";
@@ -44,8 +44,8 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      // Loaded by every page and used by none of them.
-      { rel: "stylesheet", href: "/ghost.css" },
+      // Downloaded by every page, applied by none of them on screen.
+      { rel: "stylesheet", href: "/print.css", media: "print" },
       { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { rel: "icon", href: "/favicon-16.png", sizes: "16x16", type: "image/png" },
@@ -99,6 +99,10 @@ function RootLayout() {
         </Show>
         <SiteHeader />
         <main class="mx-auto w-full max-w-4xl flex-1 px-5 py-10 sm:px-6">
+          {/* Empty on screen. print.css has something to say about them on paper. */}
+          <div class="print-only" aria-hidden="true">
+            <For each={shell().print}>{(name) => <span class={name} />}</For>
+          </div>
           <Suspense>
             <Outlet />
           </Suspense>

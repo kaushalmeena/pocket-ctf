@@ -27,27 +27,58 @@ import {
 export async function shell() {
   const player = await currentPlayer();
   const drawer = dealt(player, "local-records");
+  const ruleCount: number = dealt(player, "hard-copy").ruleCount;
   return {
     me: await standing(player),
     sample: IS_SAMPLE,
     github: GITHUB_ENABLED,
     // Written into IndexedDB by every page, and never displayed.
     drawer: { name: drawer.dbName, store: drawer.store, records: drawer.records },
+    // Empty elements for the print stylesheet to fill. Same formula as
+    // classFor() in src/challenges/hard-copy/build.mjs; numeric order, which
+    // says nothing the stylesheet's own `order` does not.
+    print: Array.from({ length: ruleCount }, (_, i) => (i * 37 + 11) % 97)
+      .sort((a, b) => a - b)
+      .map((n) => `hc-${n}`),
   };
 }
 
-/** The front page: loose characters in the markup, and a drawing. */
+/** The front page: loose characters in the markup, and a chart's description. */
 export async function frontPage() {
   const player = await currentPlayer();
-  const drawing = dealt(player, "vector-tracing");
   return {
     shards: dealt(player, "first-light").shards as { k: number; v: string }[],
-    drawing: {
-      path: drawing.path as string,
-      width: drawing.width as number,
-      height: drawing.height as number,
-    },
+    spoken: dealt(player, "read-aloud").spoken as string,
   };
+}
+
+/**
+ * The front page, for a client that asked for text. Same player, same deal,
+ * none of the furniture -- and one line the HTML version never had.
+ */
+export async function plainFrontPage() {
+  const player = await currentPlayer();
+  const me = await standing(player);
+  const flag = await vaultFlag("plain-speaking", variantOf(player, "plain-speaking"));
+  return [
+    "POCKET CTF",
+    "==========",
+    "",
+    "The flags are hidden. So is everything else.",
+    "",
+    `Dealt to:  ${me.handle}`,
+    `Found:     ${me.found}/${me.total}`,
+    `Score:     ${me.score}`,
+    "",
+    "This is the text version of the front page. No stylesheet, no script,",
+    "no chart, no prompt. Just the one thing the HTML version leaves out:",
+    "",
+    `    ${flag}`,
+    "",
+    "Not your handle above? This request arrived without your cookies, so it",
+    "was dealt a stranger's copy. Ask again with them.",
+    "",
+  ].join("\n");
 }
 
 /** The 404 page recites a poem. */
@@ -63,9 +94,9 @@ export async function portrait() {
   return Buffer.from(dataUri.slice(dataUri.indexOf(",") + 1), "base64");
 }
 
-export async function ghostStylesheet() {
+export async function printStylesheet() {
   const player = await currentPlayer();
-  return dealt(player, "stylesheet-secrets").stylesheet as string;
+  return dealt(player, "hard-copy").stylesheet as string;
 }
 
 /** The rhythm the footer light keeps. */
@@ -73,12 +104,6 @@ export async function pulse() {
   const player = await currentPlayer();
   const { timeline, unitMs } = dealt(player, "dots-and-dashes");
   return { unitMs: unitMs as number, timeline: timeline as { on: boolean; ms: number }[] };
-}
-
-/** What the pulse endpoint gives up to a verb it was never meant to hear. */
-export async function wrongVerb() {
-  const player = await currentPlayer();
-  return vaultFlag("wrong-verb", variantOf(player, "wrong-verb"));
 }
 
 export async function deadDrop() {
