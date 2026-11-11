@@ -1,23 +1,21 @@
 import { asc, count, desc, eq, gt, max, sql, sum } from "drizzle-orm";
 
-import { flagDigest, normalizeFlag } from "~/lib/kdf.js";
 import type { BoardRow, Me, Reply, Slot, Trophy, TrophyCase } from "~/lib/types";
 
+import { normalizeFlag } from "../../scripts/lib/flag.mjs";
 import {
   BY_SLUG,
   CHALLENGES,
-  DECOYS,
-  FLAGS,
   hintCount,
   hintText,
+  identify,
   MAX_SCORE,
-  PEPPER,
   writeupText,
 } from "./catalogue";
 import { db } from "./db";
 import { fragmentOf } from "./finale";
 import { newPage } from "./journal";
-import { persist, type Player, variantOf } from "./players";
+import { persist, type Player } from "./players";
 import { rarity } from "./rarity";
 import { clues as cluesTable, eggs, players, solves } from "./schema";
 import { runCommand } from "./terminal";
@@ -269,22 +267,20 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     ]);
   }
 
-  const digest = await flagDigest(flag, PEPPER);
+  const verdict = identify(player, flag);
 
-  const decoy = DECOYS.get(digest);
-  if (decoy) {
+  if (verdict.kind === "decoy") {
     const trophies = await awardEgg(player, "decoy");
-    return reply("err", [decoy, await hallOfShame()], trophies);
+    return reply("err", [verdict.message, await hallOfShame()], trophies);
   }
 
-  const hit = FLAGS.get(digest);
-  if (!hit) {
+  if (verdict.kind === "miss") {
     const misses = await noteMiss(player);
     return reply("err", [MISSES[misses % MISSES.length]!]);
   }
 
-  // Real, but dealt to another player: every challenge ships several variants.
-  if (hit.variant !== variantOf(player, hit.slug)) {
+  // The right phrase, ending in somebody else's suffix: every player is dealt their own.
+  if (verdict.kind === "borrowed") {
     return reply(
       "err",
       ["That flag is genuine. It also belongs to somebody else's copy of this puzzle."],
@@ -292,6 +288,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     );
   }
 
+  const hit = verdict;
   const challenge = BY_SLUG.get(hit.slug)!;
   await persist(player);
   const clues = (await cluesOf(player)).get(hit.slug) ?? 0;
@@ -354,17 +351,12 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
  * Trophy case
  * ------------------------------------------------------------------ */
 
-async function revealedClues(player: Player, slug: string, taken: number) {
+/** The clues bought so far: where to look, then the answer key's hints in order. */
+function revealedClues(slug: string, taken: number) {
   const meta = BY_SLUG.get(slug)!;
-  const out: string[] = [];
-  for (let i = 0; i < taken; i++) {
-    out.push(
-      i === 0
-        ? meta.whereabouts
-        : ((await hintText(slug, variantOf(player, slug), i - 1)) ?? "This clue went missing."),
-    );
-  }
-  return out;
+  return Array.from({ length: taken }, (_, i) =>
+    i === 0 ? meta.whereabouts : (hintText(slug, i - 1) ?? "This clue went missing."),
+  );
 }
 
 export async function trophyCase(player: Player): Promise<TrophyCase> {
@@ -401,7 +393,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
       tier: challenge.tier,
       points: worth(challenge.points, taken),
       full: challenge.points,
-      clues: await revealedClues(player, challenge.slug, taken),
+      clues: revealedClues(challenge.slug, taken),
       cluesLeft: left,
       nextWorth: left > 0 ? worth(challenge.points, taken + 1) : null,
       rarity: rarityOf,
@@ -455,7 +447,7 @@ export async function buyClue(player: Player, index: number): Promise<TrophyCase
 export async function writeup(player: Player, index: number): Promise<string | null> {
   const challenge = slotAt(index);
   if (!challenge || !(await solvesOf(player)).has(challenge.slug)) return null;
-  return writeupText(challenge.slug, variantOf(player, challenge.slug));
+  return writeupText(challenge.slug);
 }
 
 /* ------------------------------------------------------------------ *

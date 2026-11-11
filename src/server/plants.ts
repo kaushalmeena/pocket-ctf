@@ -1,18 +1,17 @@
 import { getCookie, setResponseStatus } from "@tanstack/solid-start/server";
 
 import { GITHUB_ENABLED } from "./auth";
-import { IS_SAMPLE, vaultFlag } from "./catalogue";
+import { dealt, flagFor } from "./catalogue";
 import { FINALE, finaleKey } from "./finale";
 import { awardEgg, standing } from "./game";
+import { IS_SAMPLE } from "./key";
 import {
   CLEARANCE_COOKIE,
   currentPlayer,
-  dealt,
   leave,
   type Player,
   secretOf,
   sha256,
-  variantOf,
 } from "./players";
 
 /**
@@ -54,7 +53,7 @@ export async function frontPage() {
 export async function plainFrontPage() {
   const player = await currentPlayer();
   const me = await standing(player);
-  const flag = await vaultFlag("plain-speaking", variantOf(player, "plain-speaking"));
+  const flag = flagFor(player, "plain-speaking");
   return [
     "POCKET CTF",
     "==========",
@@ -148,8 +147,8 @@ export async function staffRoom() {
     role = "unreadable";
   }
   if (role.toLowerCase() !== "staff") return { granted: false as const, role };
-  const flag = await vaultFlag("clearance", variantOf(player, "clearance"));
-  return { granted: true as const, role, flag: flag ?? "" };
+  const flag = flagFor(player, "clearance");
+  return { granted: true as const, role, flag };
 }
 
 /** Visiting the teapot is its own reward. */
@@ -273,7 +272,7 @@ export async function status(ifNoneMatch: string | null) {
   }
 
   const player = await currentPlayer();
-  const flag = await vaultFlag("not-modified", variantOf(player, "not-modified"));
+  const flag = flagFor(player, "not-modified");
   const changes = [];
   for (let rev = claimed + 1; rev <= REVISION; rev++) {
     changes.push({
@@ -327,8 +326,8 @@ export async function lounge() {
   }
   if (role.toLowerCase() !== "executive")
     return { granted: false as const, role, reissued: false };
-  const flag = await vaultFlag("forged", variantOf(player, "forged"));
-  return { granted: true as const, role, flag: flag ?? "" };
+  const flag = flagFor(player, "forged");
+  return { granted: true as const, role, flag };
 }
 
 /* ------------------------------------------------------------------ *
@@ -354,7 +353,7 @@ export async function door(guess: string) {
     await pause(PER_DIGIT_MS);
   }
   if (matched < DOOR_DIGITS || guess.length !== DOOR_DIGITS) return null;
-  return vaultFlag("tick-tock", variantOf(player, "tick-tock"));
+  return flagFor(player, "tick-tock");
 }
 
 /* ------------------------------------------------------------------ *
@@ -365,7 +364,7 @@ export async function door(guess: string) {
 export async function vault(key: string) {
   const player = await currentPlayer();
   if (key !== finaleKey(player)) return null;
-  return { flag: (await vaultFlag(FINALE, variantOf(player, FINALE))) ?? "" };
+  return { flag: flagFor(player, FINALE) };
 }
 
 /* ------------------------------------------------------------------ *
@@ -459,7 +458,7 @@ export async function simon(method: string, ticket: string | null, polite: boole
       );
     case 4: {
       if (method !== "PUT") return reset("Simon didn't say touch your nose.");
-      const flag = await vaultFlag("simon-says", variantOf(player, "simon-says"));
+      const flag = flagFor(player, "simon-says");
       return { status: 200, body: { simon: true, says: ["Simon says: well played."], flag } };
     }
     default:

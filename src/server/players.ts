@@ -4,7 +4,7 @@ import { getCookie, getRequest, setCookie } from "@tanstack/solid-start/server";
 import { eq, sql } from "drizzle-orm";
 
 import { auth } from "./auth";
-import { payloadOf, variantCount } from "./catalogue";
+import { dealt } from "./catalogue";
 import { db } from "./db";
 import { players } from "./schema";
 
@@ -27,7 +27,7 @@ export type Player = {
   id: string;
   handle: string;
   named: boolean;
-  /** Decides which variant of each challenge this player is dealt. */
+  /** Never sent to the browser. Decides this player's flags, and so their puzzles. */
   seed: string;
   /** Whether a player row (and a Better Auth user) exists yet. */
   stored: boolean;
@@ -192,15 +192,6 @@ export async function persist(player: Player): Promise<void> {
   const row = await insertPlayer(user.id, player);
   Object.assign(player, { id: row.id, handle: row.handle, stored: true });
 }
-
-/** Which of a challenge's variants this player was dealt. Stable for life. */
-export function variantOf(player: Player, slug: string): number {
-  const draw = createHash("sha256").update(`${player.seed}:${slug}`).digest().readUInt32BE();
-  return draw % variantCount(slug);
-}
-
-/** The puzzle data this player was dealt for a challenge. */
-export const dealt = (player: Player, slug: string) => payloadOf(slug, variantOf(player, slug));
 
 /** A per-player value nobody else can compute: `length` hex characters. */
 export const secretOf = (player: Player, purpose: string, length: number) =>

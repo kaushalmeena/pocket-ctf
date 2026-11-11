@@ -1,27 +1,40 @@
 import type { ChallengeMeta, Tier } from "~/challenges/types";
-import payloads from "~/lib/generated/payloads.json";
-import registry from "~/lib/generated/registry.json";
-import { fromHex, SEALED, unseal } from "~/lib/kdf.js";
+
+import { baseOf, normalizeFlag, personalFlag } from "../../scripts/lib/flag.mjs";
+import { KEY } from "./key";
 
 /**
- * Every challenge, and everything the generator derived for it.
+ * Every challenge, and every flag and puzzle, worked out per player.
  *
- * Server-only. Titles, clues, digests and puzzle payloads all live here, and
- * the browser is handed them one piece at a time by the functions in game.ts
- * and plants.ts -- never as a list.
+ * Server-only. A challenge is a directory: `meta.ts` says what it is, and an
+ * optional `build.mjs` turns a flag into the puzzle that hides it. Each player
+ * is dealt their own flag (see scripts/lib/flag.mjs), so each is dealt their
+ * own puzzle, built here on first use and remembered for a while.
  */
 
-type Sealed = { salt: string; iv: string; ct: string };
-type Variant = { digest: string; writeup: Sealed; hints: Sealed[] };
+type Seeded = { seed: string };
 
-const modules = import.meta.glob<{ meta: ChallengeMeta }>("../challenges/*/meta.ts", {
+const metas = import.meta.glob<{ meta: ChallengeMeta }>("../challenges/*/meta.ts", {
   eager: true,
 });
+
+/*
+ * Challenges whose flag the server hands over once a request earns it have
+ * nothing to build, and no build.mjs.
+ */
+// oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
+type Build = (input: { flag: string; slug: string }) => any;
+const builders = import.meta.glob<{ build: Build }>("../challenges/*/build.mjs", {
+  eager: true,
+});
+const BUILD = new Map(
+  Object.entries(builders).map(([path, mod]) => [path.split("/").at(-2)!, mod.build]),
+);
 
 const TIER_RANK: Record<Tier, number> = { bronze: 0, silver: 1, gold: 2 };
 
 /** Trophy-case order: cheapest first. A slot's position is its only public name. */
-export const CHALLENGES: ChallengeMeta[] = Object.values(modules)
+export const CHALLENGES: ChallengeMeta[] = Object.values(metas)
   .map((m) => m.meta)
   .sort(
     (a, b) =>
@@ -32,76 +45,93 @@ export const CHALLENGES: ChallengeMeta[] = Object.values(modules)
 
 export const BY_SLUG = new Map(CHALLENGES.map((c) => [c.slug, c]));
 export const MAX_SCORE = CHALLENGES.reduce((sum, c) => sum + c.points, 0);
-export const IS_SAMPLE = registry.sample === true;
-export const PEPPER: string = registry.pepper;
-
-const entries = registry.challenges as Record<string, { variants: Variant[] }>;
 
 /*
- * A directory with no generated data cannot check a submission; generated data
- * with no directory is an orphaned digest. Both are silent at runtime, so this
- * throws at module scope and the server refuses to start instead.
+ * A challenge with no flag in the key cannot be solved; a flag with no
+ * challenge is a typo. Both are silent at runtime, so the server refuses to
+ * start instead.
  */
 {
-  const declared = CHALLENGES.map((c) => c.slug);
-  const missing = declared.filter((s) => !entries[s]);
-  const orphaned = Object.keys(entries).filter((s) => !BY_SLUG.has(s));
-  if (missing.length > 0) {
-    throw new Error(`challenges with no generated data (run pnpm gen): ${missing.join(", ")}`);
-  }
+  const missing = CHALLENGES.filter((c) => !KEY.flags[c.slug]).map((c) => c.slug);
+  const orphaned = Object.keys(KEY.flags).filter((s) => !BY_SLUG.has(s));
+  if (missing.length > 0)
+    throw new Error(`no flag in the answer key for: ${missing.join(", ")}`);
   if (orphaned.length > 0) {
-    throw new Error(`generated data with no challenge directory: ${orphaned.join(", ")}`);
+    throw new Error(`answer key has flags for unknown challenges: ${orphaned.join(", ")}`);
   }
 }
 
-/** Which challenge and variant a flag digest belongs to. */
-export const FLAGS = new Map<string, { slug: string; variant: number }>(
-  Object.entries(entries).flatMap(([slug, entry]) =>
-    entry.variants.map((v, variant) => [v.digest, { slug, variant }] as const),
-  ),
-);
+/** The flag this player is dealt for a challenge. */
+export const flagFor = (player: Seeded, slug: string) =>
+  personalFlag(KEY.flags[slug]!, player.seed, slug);
 
-/** Decoy digest -> what to say to whoever submits it. */
-export const DECOYS = new Map<string, string>(
-  (registry.honeypots as { digest: string; message: string }[]).map((h) => [
-    h.digest,
-    h.message,
-  ]),
-);
+/* ------------------------------------------------------------------ *
+ * Puzzles
+ * ------------------------------------------------------------------ */
 
-export const variantCount = (slug: string) => entries[slug]?.variants.length ?? 1;
-
-/** The puzzle data one variant ships. Shape is each challenge's own business. */
-// oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
-export function payloadOf(slug: string, variant: number): any {
-  const entry = (payloads as unknown as Record<string, { variants: unknown[] }>)[slug];
-  return entry?.variants[variant];
-}
-
-/*
- * Opening a seal costs a PBKDF2 run, and the answer never changes, so each one
- * is paid for once per server process.
+/**
+ * Built puzzles, by seed and slug. Building is deterministic, so this is only
+ * about cost -- the stego portrait and the bytecode are the expensive ones --
+ * and the oldest entries are simply dropped once it is full.
  */
-const opened = new Map<string, Promise<string | null>>();
+const built = new Map<string, unknown>();
+const BUILT_MAX = 4000;
 
-function open(secret: string, sealed: Sealed | undefined) {
-  if (!sealed) return Promise.resolve(null);
-  let pending = opened.get(secret);
-  if (!pending) {
-    pending = unseal(secret, fromHex(sealed.salt), sealed.ct, fromHex(sealed.iv));
-    opened.set(secret, pending);
-  }
-  return pending;
+/** The puzzle this player was dealt for a challenge. Shape is the challenge's own. */
+// oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
+export function dealt(player: Seeded, slug: string): any {
+  const id = `${player.seed}/${slug}`;
+  if (built.has(id)) return built.get(id);
+  const build = BUILD.get(slug);
+  if (!build) throw new Error(`${slug} has no puzzle to deal; its flag is handed over`);
+  const payload = build({ flag: flagFor(player, slug), slug });
+  if (built.size >= BUILT_MAX) built.delete(built.keys().next().value!);
+  built.set(id, payload);
+  return payload;
 }
 
-export const hintCount = (slug: string) => entries[slug]?.variants[0]?.hints.length ?? 0;
+/* ------------------------------------------------------------------ *
+ * Submissions
+ * ------------------------------------------------------------------ */
 
-export const hintText = (slug: string, variant: number, index: number) =>
-  open(SEALED.hint(slug, variant, index), entries[slug]?.variants[variant]?.hints[index]);
+const DECOYS = new Map(
+  Object.entries(KEY.honeypots ?? {}).map(([flag, message]) => [normalizeFlag(flag), message]),
+);
 
-export const writeupText = (slug: string, variant: number) =>
-  open(SEALED.writeup(slug, variant), entries[slug]?.variants[variant]?.writeup);
+const BY_BASE = new Map(
+  Object.entries(KEY.flags).map(([slug, base]) => [normalizeFlag(base), slug]),
+);
 
-/** For the two challenges whose flag the server hands over itself. */
-export const vaultFlag = (slug: string, variant: number) =>
-  open(SEALED.vault(slug, variant), payloadOf(slug, variant)?.sealed);
+export type Verdict =
+  | { kind: "flag"; slug: string }
+  /** The right phrase with somebody else's suffix. */
+  | { kind: "borrowed"; slug: string }
+  | { kind: "decoy"; message: string }
+  | { kind: "miss" };
+
+/**
+ * What a submission is, for this player. A flag does not say which challenge
+ * it is for, so it is compared with this player's flag for each of them:
+ * twenty short hashes, which is nothing.
+ */
+export function identify(player: Seeded, raw: string): Verdict {
+  const flag = normalizeFlag(raw);
+  const decoy = DECOYS.get(flag);
+  if (decoy) return { kind: "decoy", message: decoy };
+  for (const { slug } of CHALLENGES) {
+    if (flagFor(player, slug) === flag) return { kind: "flag", slug };
+  }
+  const base = baseOf(flag);
+  const slug = base ? BY_BASE.get(base) : undefined;
+  return slug ? { kind: "borrowed", slug } : { kind: "miss" };
+}
+
+/* ------------------------------------------------------------------ *
+ * Clues and writeups
+ * ------------------------------------------------------------------ */
+
+export const hintCount = (slug: string) => KEY.hints?.[slug]?.length ?? 0;
+
+export const hintText = (slug: string, index: number) => KEY.hints?.[slug]?.[index] ?? null;
+
+export const writeupText = (slug: string) => KEY.writeups?.[slug] ?? null;

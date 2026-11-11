@@ -1,8 +1,8 @@
 import { deleteCookie, getCookie } from "@tanstack/solid-start/server";
 
-import { vaultFlag } from "./catalogue";
+import { flagFor } from "./catalogue";
 import { journal, type Progress } from "./journal";
-import { leave, type Player, secretOf, variantOf } from "./players";
+import { leave, type Player, secretOf } from "./players";
 
 /**
  * What the prompt says to anything that is not a flag.
@@ -139,7 +139,7 @@ async function bridge(player: Player, step: number, answer: string): Promise<Out
         return gorge("A confident answer. Also a wrong one.");
       }
       deleteCookie(BRIDGE_COOKIE, { path: "/" });
-      const flag = await vaultFlag("bridge-keeper", variantOf(player, "bridge-keeper"));
+      const flag = flagFor(player, "bridge-keeper");
       return {
         lines: [
           "What? I... I don't know that.",

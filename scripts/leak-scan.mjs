@@ -21,8 +21,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { normalizeFlag } from "../src/lib/kdf.js";
-import { readDeployment, readKey, resolveFlags } from "./answers.mjs";
+import { readKey } from "./answers.mjs";
+import { baseOf, normalizeFlag } from "./lib/flag.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -30,13 +30,13 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
  * Deliberately matches the *flag grammar* rather than "anything in braces", so
  * regex literals (`pctf{[a-z0-9_]+}`) and template strings (`pctf{${x}}`) in
  * the tooling aren't reported. Flags are normalised to this alphabet before
- * hashing, so a real flag can never fall outside it.
+ * comparing, so a real flag can never fall outside it.
  */
 const FLAG_RE = /pctf\{[a-z0-9_]{2,64}\}/g;
 
 const SKIP_DIRS = new Set(["node_modules", ".git"]);
-/** Only the gitignored answer key and its derivatives may hold real flags. */
-const ALLOWLIST = new Set(["flags.secret.json", "seeds.secret.json", "ANSWERS.secret.md"]);
+/** Only the gitignored answer key may hold real flags. */
+const ALLOWLIST = new Set(["flags.secret.json"]);
 
 /**
  * Rendered HTML carries `pctf&#123;…&#125;` where the page renders
@@ -82,17 +82,11 @@ let decoys = new Set();
 let haveKey = false;
 try {
   const key = readKey(ROOT);
-  const deployment = readDeployment(ROOT);
   decoys = new Set(Object.keys(key.honeypots ?? {}).map(normalizeFlag));
-  // Check against the *resolved* flags -- base + this deployment's suffix --
-  // since those are what a leak would actually expose. The bases are also
-  // included: a stray base flag in the bundle would hand over most of the
-  // answer even though it would not validate on its own.
-  // resolveFlags returns one flag per variant, so flatten before comparing.
-  const resolved = deployment
-    ? Object.values(resolveFlags(key, deployment.suffixes)).flat()
-    : [];
-  realFlags = new Set([...Object.values(key.flags ?? {}), ...resolved].map(normalizeFlag));
+  // The bases, which every player's flag is built from. A base with any
+  // suffix spliced in is somebody's working flag; a bare base hands over the
+  // phrase, which is most of the answer.
+  realFlags = new Set(Object.values(key.flags ?? {}).map(normalizeFlag));
   haveKey = true;
 } catch {
   console.warn(
@@ -140,7 +134,7 @@ for (const file of files) {
     const flag = match[0];
     const kind = !haveKey
       ? "leak"
-      : realFlags.has(flag)
+      : realFlags.has(flag) || realFlags.has(baseOf(flag) ?? "")
         ? "leak"
         : decoys.has(flag)
           ? "decoy"
@@ -170,7 +164,9 @@ const leaks = group("leak");
 if (leaks.length > 0) {
   console.error(`\n✘ ${leaks.length} readable flag(s):`);
   for (const l of leaks) console.error(`    ${l.flag}  ${l.file}`);
-  console.error("\nDerive the challenge's content from the flag at build time instead.");
+  console.error(
+    "\nA flag belongs in the answer key; the server derives everything else from it.",
+  );
   process.exit(1);
 }
 
