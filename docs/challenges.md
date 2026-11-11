@@ -48,28 +48,28 @@ badge to forge, an endpoint that only obeys "Simon says". And a few run on
 **pop culture**: a bridge keeper with a famous trick question, and most of the
 secret trophies.
 
-| Slug                   | Trophy               | Tier   | Pts | Where it is                                                               | Found by                                       |
-| ---------------------- | -------------------- | ------ | --- | ------------------------------------------------------------------------- | ---------------------------------------------- |
-| `first-light`          | First Light          | bronze | 50  | Zero-size `<i data-k data-v>` elements in the front page's markup         | Viewing source or the Elements panel           |
-| `invisible-ink`        | Between the Lines    | bronze | 75  | Zero-width characters in the poem on the 404 page                         | Visiting any address that does not exist       |
-| `russian-dolls`        | Cookie Monster       | bronze | 75  | The `matryoshka` cookie, five encodings deep                              | Looking at cookies                             |
-| `clearance`            | Self-Promotion       | silver | 100 | `/staff`, which believes the unsigned `clearance` cookie                  | `Disallow: /staff` in `robots.txt`             |
-| `dots-and-dashes`      | Blinkenlights        | silver | 125 | The footer light, blinking Morse; timings from `GET /api/pulse`           | Watching it, or the Network panel              |
-| `stylesheet-secrets`   | Ghost in the Cascade | silver | 125 | `/ghost.css`, linked from every page and used by none                     | The `<head>`, or the Network panel             |
-| `local-records`        | Bottom Drawer        | silver | 125 | IndexedDB database `pctf-archive`, written by every page                  | The Application / Storage panel                |
-| `wrong-verb`           | Verbal Abuse         | silver | 125 | `PUT /api/pulse`                                                          | `OPTIONS /api/pulse`, or the 405 from a `POST` |
-| `chromatic-aberration` | Self Portrait        | silver | 150 | `/avatar.png`, the player's portrait: blue-channel LSB                    | It is in the header of every page              |
-| `vector-tracing`       | Line Reader          | silver | 150 | The "decorative" SVG chart on the front page: parity of each y coordinate | Reading the path data                          |
-| `feedback-loop`        | Number Station       | gold   | 175 | `/radio`                                                                  | `ls -a` then `cat .radio` at the prompt        |
-| `the-repeat-offender`  | Dead Drop            | gold   | 200 | `/dead-drop`                                                              | `Contact:` in `/.well-known/security.txt`      |
-| `instruction-set`      | Deus Ex Machina      | gold   | 200 | `/machine`                                                                | The `Link` header on every response            |
-| `paper-trail`          | Paper Trail          | silver | 100 | An `X-Trail` header on each hop of the redirect chain from `/go/0`        | The footer's "What is a CTF?" link             |
-| `not-modified`         | Not Modified         | silver | 125 | `GET /api/status` with `If-None-Match: W/"rev-N"` for an older revision   | The footer light's label polls it; its `ETag`  |
-| `forged`               | Middle Management    | gold   | 175 | `/lounge`, with a `badge` cookie forged for the role `executive`          | A line inside the staff room, once you are in  |
-| `tick-tock`            | Tick Tock            | gold   | 200 | `GET /api/door?code=` with the right six digits                           | `cat door.txt` at the prompt                   |
-| `simon-says`           | Simon Says           | silver | 150 | `/api/simon`, four rounds; only instructions prefixed "Simon says" count  | `cat todo.txt` at the prompt                   |
-| `bridge-keeper`        | Unladen              | silver | 125 | The prompt, after `cross bridge`: name, quest, then the swallow question  | `ls -a` then `cat .bridge` at the prompt       |
-| `last-word`            | The Long Way Round   | gold   | 250 | `/vault/<key>`, where the key is this player's fragments joined in order  | Finding every other flag                       |
+| Slug                   | Trophy             | Tier   | Pts | Where it is                                                                   | Found by                                      |
+| ---------------------- | ------------------ | ------ | --- | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| `first-light`          | First Light        | bronze | 50  | Zero-size `<i data-k data-v>` elements in the front page's markup             | Viewing source or the Elements panel          |
+| `invisible-ink`        | Between the Lines  | bronze | 75  | Zero-width characters in the poem on the 404 page                             | Visiting any address that does not exist      |
+| `russian-dolls`        | Cookie Monster     | bronze | 75  | The `matryoshka` cookie, five encodings deep                                  | Looking at cookies                            |
+| `clearance`            | Self-Promotion     | silver | 100 | `/staff`, which believes the unsigned `clearance` cookie                      | `Disallow: /staff` in `robots.txt`            |
+| `dots-and-dashes`      | Blinkenlights      | silver | 125 | The footer light, blinking Morse; timings from `GET /api/pulse`               | Watching it, or the Network panel             |
+| `hard-copy`            | Hard Copy          | silver | 125 | `/print.css`, linked `media="print"`: one character per rule, in flex `order` | Print preview, or the `<head>`                |
+| `local-records`        | Bottom Drawer      | silver | 125 | IndexedDB database `pctf-archive`, written by every page                      | The Application / Storage panel               |
+| `plain-speaking`       | Plain Speaking     | silver | 125 | `GET /` with `Accept: text/plain`: a text front page with one extra line      | `rel="alternate"` in the head; `Vary: Accept` |
+| `chromatic-aberration` | Self Portrait      | silver | 150 | `/avatar.png`, the player's portrait: blue-channel LSB                        | It is in the header of every page             |
+| `read-aloud`           | Read Aloud         | silver | 150 | The front-page chart's `<desc>`: the flag in the phonetic alphabet            | A screen reader, or the Accessibility pane    |
+| `feedback-loop`        | Number Station     | gold   | 175 | `/radio`                                                                      | `ls -a` then `cat .radio` at the prompt       |
+| `the-repeat-offender`  | Dead Drop          | gold   | 200 | `/dead-drop`                                                                  | `Contact:` in `/.well-known/security.txt`     |
+| `instruction-set`      | Deus Ex Machina    | gold   | 200 | `/machine`                                                                    | The `Link` header on every response           |
+| `paper-trail`          | Paper Trail        | silver | 100 | An `X-Trail` header on each hop of the redirect chain from `/go/0`            | The footer's "What is a CTF?" link            |
+| `not-modified`         | Not Modified       | silver | 125 | `GET /api/status` with `If-None-Match: W/"rev-N"` for an older revision       | The footer light's label polls it; its `ETag` |
+| `forged`               | Middle Management  | gold   | 175 | `/lounge`, with a `badge` cookie forged for the role `executive`              | A line inside the staff room, once you are in |
+| `tick-tock`            | Tick Tock          | gold   | 200 | `GET /api/door?code=` with the right six digits                               | `cat door.txt` at the prompt                  |
+| `simon-says`           | Simon Says         | silver | 150 | `/api/simon`, four rounds; only instructions prefixed "Simon says" count      | `cat todo.txt` at the prompt                  |
+| `bridge-keeper`        | Unladen            | silver | 125 | The prompt, after `cross bridge`: name, quest, then the swallow question      | `ls -a` then `cat .bridge` at the prompt      |
+| `last-word`            | The Long Way Round | gold   | 250 | `/vault/<key>`, where the key is this player's fragments joined in order      | Finding every other flag                      |
 
 Finding every one earns the platinum, **Nothing Left to Hide**.
 
@@ -117,24 +117,40 @@ was found:
 | A cookie named `flag`                  | Reads their cookies for that word |
 | An `X-Flag` response header            | Reads headers for that word       |
 
-And twelve secret trophies, worth no points. Four of them the browser notices and
+After any decoy the prompt also says how many hunters on this server have fallen
+for one. Misery loves a headcount.
+
+And twelve secret trophies, worth no points. Three of them the browser notices and
 claims for itself (`CLAIMABLE` in `src/server/game.ts`), which is exactly why
 none of them is worth anything:
 
-| Trophy                 | Earned by                                                    |
-| ---------------------- | ------------------------------------------------------------ |
-| Curious Cat            | Submitting a decoy                                           |
-| Receiving Stolen Goods | Submitting a real flag that was dealt to a different player  |
-| Nice Try               | `sudo` anything at the prompt                                |
-| Short and Stout        | Visiting `/teapot`, which answers 418                        |
-| Thirty Lives           | The Konami code, which also toggles a scanline overlay       |
-| Percussive Maintenance | Seven quick taps on the logo                                 |
-| Out of Sight           | Leaving the tab for a few seconds; its title talks meanwhile |
-| Light Switch Rave      | Eight theme flips within four seconds                        |
-| General Kenobi         | `hello there` at the prompt                                  |
-| Don't Panic            | `42` at the prompt                                           |
-| Escape Artist          | `:q`, `:wq` and friends at the prompt                        |
-| Scorched Earth         | `rm -rf /` at the prompt                                     |
+| Trophy                 | Earned by                                                   |
+| ---------------------- | ----------------------------------------------------------- |
+| Curious Cat            | Submitting a decoy                                          |
+| Receiving Stolen Goods | Submitting a real flag that was dealt to a different player |
+| Nice Try               | `sudo` anything at the prompt                               |
+| Short and Stout        | Visiting `/teapot`, which answers 418                       |
+| Thirty Lives           | The Konami code, which also toggles a scanline overlay      |
+| General Kenobi         | `hello there` at the prompt                                 |
+| Don't Panic            | `42` at the prompt                                          |
+| Escape Artist          | `:q`, `:wq` and friends at the prompt                       |
+| Little Bobby Tables    | An SQL injection into `/admin` (from `robots.txt`)          |
+| I Am Not a Robot       | Asking for a page as a search engine, with our cookies      |
+| Touch Grass            | Coming back after the service worker's offline page         |
+| Pi O'Clock             | Having a page open at 3:14 on your own clock                |
+
+The trails to the new four are a line in `robots.txt`, a `tEXt` chunk in every
+trophy card PNG (`/u/<handle>/card.png`), and the journal.
+
+**The journal.** `ls` at the prompt grows as flags are found: seven entries,
+unlocked at 1, 4, 8, 12, 16 and 19 flags and at the platinum, telling the week
+of the sysadmin told to remove every flag before an audit. The player is doing
+their job for them, and is named in it. Entries hint at the newer hiding places
+and the secret trophies; the last one is the epilogue. It lives in
+`src/server/terminal.ts`, and finding a flag that unlocks an entry says so.
+
+The logo still wobbles after seven taps, and the tab title still talks to an
+empty chair; neither is a trophy any more.
 
 Also present and worth nothing: a greeting in the console, `/humans.txt`, an
 `X-Powered-By: curiosity` header, and a prompt that answers `ls`, `cat`,
@@ -233,13 +249,15 @@ src/routes/index.tsx       the front page: intro, prompt, two plants
 src/routes/trophies.tsx    the trophy case: slots, clues, writeups, handle, claim
 src/routes/board.tsx       the board
 src/routes/u/$handle/      public profile, and card.png
-src/routes/{staff,lounge,dead-drop,radio,machine,teapot}.tsx   unlisted rooms
+src/routes/{staff,lounge,dead-drop,radio,machine,teapot,admin}.tsx   unlisted rooms
 src/routes/vault/$key.tsx  the finale
 src/routes/go/$hop.ts      the redirect chain
-src/routes/api/            pulse (GET, OPTIONS, PUT), status, door, flag (POST),
+src/routes/api/            pulse, status, door, simon, flag (POST),
                            and auth/$ for Better Auth
-src/routes/*[.]*.ts        robots.txt, sitemap.xml, humans.txt, ghost.css,
+src/routes/*[.]*.ts        robots.txt, sitemap.xml, humans.txt, print.css, sw.js,
                            avatar.png, .well-known/security.txt
+src/start.ts               headers, plus the text/plain front page and the cloak
+src/server/rarity.ts       trophy rarity: a prior, outvoted by real finds
 ```
 
 ---

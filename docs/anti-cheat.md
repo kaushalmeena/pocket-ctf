@@ -167,10 +167,16 @@ Being explicit about the boundary:
   falls back to a fixed value, so that a clone runs. Anyone who knows it can
   sign a session for any user, which is why production refuses to run
   without a real one.
-- **Two secret trophies are claimed by the browser.** The Konami code and the
-  logo taps are noticed client-side and reported to the server, so anyone can
-  claim them with one request. That is why secret trophies are worth no points:
-  a score anyone can award themselves is not a score.
+- **Three secret trophies are claimed by the browser.** The Konami code, coming
+  back from the offline page and being here at 3:14 are noticed client-side and
+  reported to the server, so anyone can claim them with one request. (The
+  offline page also appears when the server is down, which counts.) That is why
+  secret trophies are worth no points: a score anyone can award themselves is
+  not a score.
+- **Rarity is a guess until it isn't.** Each trophy's percentage starts from a
+  prior and is outvoted by real finds (`src/server/rarity.ts`), so a young
+  deployment shows plausible numbers rather than "100% of 1 hunter". The
+  numbers are site-wide and public by design.
 - **Some weaknesses are the puzzles.** The `clearance` cookie is unsigned, the
   lounge signs its badges with a four-digit key, and the door leaks its code
   through how long it takes to say no. None of that is an oversight. The cookie

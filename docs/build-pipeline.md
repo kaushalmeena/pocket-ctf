@@ -36,8 +36,9 @@ flag**, not written alongside it: the zero-width poem, the stego PNG's pixel
 plane, the XOR ciphertext, the bytecode and the Morse timings are all functions
 of their flag. There is nowhere for a plaintext answer to sit.
 
-Six challenges are the exception that keeps the rule. `wrong-verb`,
-`clearance`, `not-modified`, `forged`, `tick-tock` and `last-word` have nothing
+Several challenges are the exception that keeps the rule. `plain-speaking`,
+`clearance`, `not-modified`, `forged`, `tick-tock`, `simon-says`, `bridge-keeper`
+and `last-word` have nothing
 to derive — the server hands the flag over when a request earns it — so their
 payload is the flag itself, sealed, by the shared `src/challenges/vault.mjs`. The
 per-player values those challenges turn on (the lounge's key, the door's code,

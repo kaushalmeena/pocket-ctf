@@ -37,12 +37,19 @@ first.
 
 **`Secrets`** renders almost nothing. It is where the things every page does
 quietly live: the console greeting, the records filed in IndexedDB, the
-listener for one very old cheat code, and the tab title that talks to an empty
-chair.
+listener for one very old cheat code, the tab title that talks to an empty
+chair, a clock that watches for 3:14, and the service worker (`/sw.js`), which
+caches nothing and only answers navigations when the network is gone.
 
 **`TrophyToasts`** are deliberately compact: a small metal disc and three tight
-lines -- grade and points, the title, and the quip held to one line (the full
-quip is the tooltip, and is always in the case). One at a time, top right.
+lines -- grade and points, the title with its rarity beside it, and the quip
+held to one line (the full quip is the tooltip, and is always in the case). One
+at a time, top right.
+
+**`RarityTag`** is the `VERY RARE · 9%` beside a trophy's title, in toasts, found
+and locked slots, secrets and the platinum. Grades follow PlayStation's bands --
+common, rare, very rare under 15%, ultra rare under 5%, which gets the gold ink.
+A locked slot shows it too, as a hint of how hard that flag hides.
 
 **`AccentPicker`** is the swatch beside the theme switch. Each press moves to
 the next palette; the swatch is drawn in the current accent, so it shows its

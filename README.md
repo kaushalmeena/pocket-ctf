@@ -31,7 +31,11 @@ browser bundle says what the puzzles are.
 - **Trophies, not checkmarks** — a flag earns a bronze, silver or gold trophy
   that slides in at the top-right with a chime and a line of commentary. Find
   all of them for the platinum. Twelve secret trophies reward things that are
-  not flags at all.
+  not flags at all. Every trophy shows its rarity, PlayStation-style: the share
+  of hunters on the server who hold it.
+- **A story in the prompt** — `ls` grows as you find flags: the journal of a
+  sysadmin who has to remove every flag before an audit and has no idea where
+  they are. You are doing their job for them.
 - **A palette of your own** — the accent colour is dealt at random on your first
   visit, from six, and a swatch in the header changes it.
 - **Clues are for sale** — every hidden trophy will sell you clues, starting
