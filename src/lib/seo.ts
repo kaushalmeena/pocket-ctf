@@ -2,57 +2,44 @@
  * Search-engine metadata.
  *
  * This project has a conflict to manage rather than a preference to express.
- * Being findable matters for the landing page, and being *unfindable* matters
- * for the challenges: an indexed challenge page puts its payload -- the
- * zero-width poem, the XOR ciphertext, the prime product -- into a search
- * cache, and an indexed writeup hands over the answer to anyone who types the
- * right query.
+ * Being findable matters for the front page, and being *unfindable* matters
+ * for everything else: the unlisted pages are puzzles, and an indexed puzzle is
+ * a search result that says where it was hidden.
  *
- * So indexing is opt-in per route. Only the two pages that describe the project
- * are indexable; everything else is explicitly excluded, and robots.txt says
- * the same thing at the crawler level.
+ * So indexing is opt-in per route. Only the front page is indexable;
+ * everything else is explicitly excluded, and robots.txt says the same thing
+ * at the crawler level.
  */
-
-import { CHALLENGES } from "./challenges";
 
 /**
  * Absolute origin, needed for canonical URLs and social card images.
  *
- * Defaults to localhost because there is no host to assume -- the build output
- * is a folder of static files that can be served from anywhere. Set
- * `VITE_SITE_URL` for any public deployment, or the canonical tags and the
- * sitemap will point at a machine nobody else can reach. `pnpm gen` warns when
- * it is unset.
+ * Fixed at build time (vite.config.ts): `POCKET_CTF_URL`, or on Vercel its own
+ * production or preview URL. Anywhere else, with neither, it defaults to
+ * localhost, and the canonical tags, the sitemap and security.txt point at a
+ * machine nobody else can reach.
  */
-export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000").replace(
+export const SITE_URL = (import.meta.env.POCKET_CTF_URL || "http://localhost:3000").replace(
   /\/$/,
   "",
 );
 
 export const SITE_NAME = "Pocket CTF";
 
-/**
- * Counted rather than written out, because this copy is the sort that quietly
- * goes stale: it is search-engine metadata, so nothing on screen contradicts it
- * when the number changes.
- */
-const COUNT = CHALLENGES.length;
-
-export const SITE_TAGLINE = `${COUNT} offline capture-the-flag puzzles that run entirely in your browser.`;
+export const SITE_TAGLINE =
+  "A capture-the-flag hunt with no map: the flags are hidden in the site itself.";
 
 export const SITE_DESCRIPTION =
-  `A free, open-source capture-the-flag playground with ${COUNT} browser-based ` +
-  "security puzzles covering steganography, ciphers, recon, reversing, forensics " +
-  "and web devtools. No server, no accounts, no installation — and no plaintext " +
-  "flags anywhere in the source.";
+  "A free, open-source capture-the-flag hunt. There is no list of challenges — the " +
+  "flags are hidden in the pages, the headers, the cookies and the corners of the site " +
+  "itself. Find one, submit it, collect the trophy.";
 
 /**
  * `noindex, nofollow` — for anything whose content is a spoiler.
  *
- * `nofollow` matters as much as `noindex` here: every challenge page is linked
- * from the indexable challenge index, and a crawler that follows those links
- * would queue them for indexing even while honouring `noindex` on the page it
- * came from.
+ * Belt and braces: nothing indexable links to an unlisted page, but a crawler
+ * can still arrive at one from somebody's blog post about where they found a
+ * flag.
  */
 export const NO_INDEX = { name: "robots", content: "noindex, nofollow" } as const;
 
@@ -108,7 +95,7 @@ export function pageSeo({ title, description, path, image = "/og.png" }: PageSeo
  * `SoftwareApplication` with a zero-cost offer is the honest description of
  * what this is, and is what makes "free" render in a rich result.
  */
-export function structuredData(faq: { q: string; a: string }[]) {
+export function structuredData() {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -132,15 +119,6 @@ export function structuredData(faq: { q: string; a: string }[]) {
         isAccessibleForFree: true,
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
         license: "https://opensource.org/licenses/MIT",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${SITE_URL}/#faq`,
-        mainEntity: faq.map(({ q, a }) => ({
-          "@type": "Question",
-          name: q,
-          acceptedAnswer: { "@type": "Answer", text: a },
-        })),
       },
     ],
   };

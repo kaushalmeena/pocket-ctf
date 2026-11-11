@@ -1,40 +1,26 @@
 /**
  * Shared test fixtures.
  *
- * Tests run against whatever challenge data is *live* -- the real set when an
- * answer key is present, the committed demo set on a fresh clone or in CI. The
- * registry says which, so the matching key is loaded either way and the suite
- * passes in both situations without being told.
+ * Tests run against whichever answer key the server would use here: the real
+ * one when flags.secret.json (or POCKET_CTF_FLAGS) is present, the committed
+ * demo key on a fresh clone or in CI.
  */
 
-import { readFileSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { readDeployment, readKey, readSampleKey, resolveFlags } from "../scripts/answers.mjs";
+import { liveKey } from "../scripts/answers.mjs";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const read = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
+const live = liveKey(ROOT);
 
-export const registry = read("src/lib/generated/registry.json");
-export const payloads = read("src/lib/generated/payloads.json");
-export const isSample = registry.sample === true;
+export const answerKey = live.key;
+export const isSample = live.sample;
 
-const key = isSample ? readSampleKey(ROOT) : readKey(ROOT);
+/** Stands in for POCKET_CTF_SECRET. */
+export const secret = randomBytes(32).toString("base64");
 
-/** How many variants this deployment shipped. */
-export const variantCount = registry.challenges[registry.order[0]].variants.length;
-
-const suffixes = isSample
-  ? Object.fromEntries(
-      registry.order.map((s) => [
-        s,
-        Array.from({ length: variantCount }, (_, i) => (i === 0 ? "sample" : `sample${i}`)),
-      ]),
-    )
-  : (readDeployment(ROOT)?.suffixes ?? {});
-
-/** `{ slug: [flagPerVariant] }` for this deployment. */
-export const flags = resolveFlags(key, suffixes);
-export const answerKey = key;
+/** A few players' worth of seeds, shaped like the server's. */
+export const seeds = Array.from({ length: 4 }, () => randomBytes(16).toString("hex"));

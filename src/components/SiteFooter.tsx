@@ -1,22 +1,23 @@
-import { ExternalLink } from "lucide-solid";
+import { StatusLight } from "./StatusLight";
 
 export function SiteFooter() {
   return (
     <footer class="border-t border-zinc-200 dark:border-zinc-800">
-      <div class="mx-auto flex w-full max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-6 text-xs text-zinc-500 sm:px-6">
-        <span class="font-mono">pocket/ctf</span>
+      <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center gap-x-4 gap-y-2 px-5 py-6 text-xs text-zinc-500 sm:px-6">
+        <StatusLight />
         <span aria-hidden="true" class="text-zinc-300 dark:text-zinc-700">
           ·
         </span>
-        <span>Runs offline. Nothing you type leaves this machine.</span>
+        <span>Everything on this domain is in scope. Nothing off it is.</span>
+        {/* Leaves the site, eventually. */}
         <a
-          href="https://github.com/topics/capture-the-flag"
-          class="ml-auto inline-flex items-center underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+          href="/go/0"
           rel="noreferrer"
+          class="ml-auto underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
         >
           What is a CTF?
-          <ExternalLink aria-hidden="true" size={11} class="ml-1 inline align-baseline" />
         </a>
+        <span class="font-mono">pocket/ctf</span>
       </div>
     </footer>
   );

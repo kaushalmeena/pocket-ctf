@@ -2,9 +2,9 @@ import type { ChallengeMeta } from "../types";
 
 export const meta: ChallengeMeta = {
   slug: "instruction-set",
-  title: "Instruction Set",
-  tagline: "Eleven opcodes and a machine that has never heard of you.",
-  category: "reversing",
-  difficulty: "hard",
+  title: "Deus Ex Machina",
+  tier: "gold",
   points: 200,
+  quip: "You ran a stranger's bytecode in your head. This is how horror films start.",
+  whereabouts: "Every response carries headers. One of them is a link nobody rendered.",
 };

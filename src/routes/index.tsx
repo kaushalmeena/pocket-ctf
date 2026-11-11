@@ -1,261 +1,207 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { ArrowRight, ChevronRight } from "lucide-solid";
-import { For, Show } from "solid-js";
+import { ArrowRight } from "lucide-solid";
+import { For, type JSX, Show } from "solid-js";
 
-import { CHALLENGES, TOTAL_POINTS } from "~/lib/challenges";
+import { Terminal } from "~/components/Terminal";
+import { getFrontPage } from "~/lib/api";
+import { useGame } from "~/lib/game";
 import { pageSeo, SITE_DESCRIPTION, structuredData } from "~/lib/seo";
-import { useProgress } from "~/lib/store";
-
-/**
- * Questions a newcomer actually arrives with, answered in prose.
- *
- * Doubles as FAQPage structured data, so the same words serve the reader and
- * the crawler -- there is no hidden keyword block anywhere on this page, and
- * nothing here is written for a machine that a person would not want to read.
- */
-const FAQ = [
-  {
-    q: "What is a capture-the-flag challenge?",
-    a:
-      "A CTF is a security puzzle that hides a short marker string — the flag — " +
-      "somewhere you have to work to find. You submit the flag to prove you got " +
-      `there. Real competitions run for teams over a weekend; these ${CHALLENGES.length} are ` +
-      "single-player and take a few minutes each.",
-  },
-  {
-    q: "Do I need to install anything?",
-    a:
-      "No. Pocket CTF is a static website that runs entirely in your browser, " +
-      "with no account, no server and no network calls. Browser devtools are the " +
-      "only tool several puzzles need, and every browser already ships them.",
-  },
-  {
-    q: "Is it suitable for beginners?",
-    a:
-      "Yes. The first three challenges teach inspecting the DOM, spotting " +
-      "invisible Unicode and recognising an encoding by its shape. Each " +
-      "challenge has three progressive hints, and solving one unlocks a writeup " +
-      "explaining the technique and why it works.",
-  },
-  {
-    q: "What skills do the challenges cover?",
-    a:
-      "Browser devtools and recon, zero-width Unicode and image steganography, " +
-      "layered encodings, Morse audio, prime factorisation, reading a small " +
-      "instruction set by hand, and breaking repeating-key XOR by frequency analysis.",
-  },
-  {
-    q: "Can I cheat by reading the source code?",
-    a:
-      "Not usefully. No flag exists in plaintext anywhere in the site — each one " +
-      "is stored as a salted PBKDF2 hash, and every puzzle's content is derived " +
-      "from its flag at build time. Decoy flags are planted where a shortcut-taker " +
-      "looks first, and the site recognises them when you submit one.",
-  },
-  {
-    q: "Is Pocket CTF free and open source?",
-    a:
-      "Yes, MIT licensed. You can clone it, write your own answer key and deploy " +
-      "your own instance, whose flags will differ from every other instance.",
-  },
-];
 
 export const Route = createFileRoute("/")({
+  loader: () => getFrontPage(),
   component: Home,
   head: () => ({
     ...pageSeo({
-      title: "Learn security by solving puzzles in your browser",
+      title: "A capture-the-flag hunt with no map",
       description: SITE_DESCRIPTION,
       path: "/",
     }),
-    scripts: [
+    links: [
+      // Ask for text/plain and that is what you get.
       {
-        type: "application/ld+json",
-        children: JSON.stringify(structuredData(FAQ)),
+        rel: "alternate",
+        type: "text/plain",
+        href: "/",
+        title: "The front page, for terminals",
       },
     ],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify(structuredData()) }],
   }),
 });
 
+/**
+ * "Site activity": a wobble made of two sine waves. It is the same for everyone
+ * and carries nothing; whatever the chart has to say is in its description.
+ */
+const CHART = (() => {
+  const [width, height, n] = [640, 180, 72];
+  const points = Array.from({ length: n }, (_, i) => {
+    const x = 10 + (i / (n - 1)) * (width - 20);
+    const y = 92 + 38 * Math.sin(i / 4.1) + 21 * Math.sin(i / 1.3 + 1) + 9 * Math.sin(i * 2.7);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  return { width, height, path: `M ${points.join(" L ")}` };
+})();
+
 function Home() {
-  const { stats, ready } = useProgress();
+  const page = Route.useLoaderData();
+  const { me } = useGame();
 
   return (
-    <div class="space-y-14">
-      <section class="space-y-5">
-        <p class="font-mono text-xs tracking-widest text-accent-600 uppercase dark:text-accent-400">
-          Capture the flag · offline · no accounts
-        </p>
-        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
-          {CHALLENGES.length} puzzles. One browser.
+    <div class="space-y-16">
+      <section class="animate-rise space-y-6">
+        <p class="eyebrow">Capture the flag · no map provided</p>
+        <h1 class="text-4xl leading-[1.05] font-semibold tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50">
+          The flags are hidden.
           <br />
-          <span class="text-zinc-400 dark:text-zinc-500">No server to ask for help.</span>
+          <span class="text-zinc-400 dark:text-zinc-600">So is everything else.</span>
         </h1>
-        <p class="max-w-xl text-[1.05rem] leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Each challenge hides a <em>flag</em> — a short string shaped like{" "}
-          <code class="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-accent-600 dark:bg-zinc-800 dark:text-accent-400">
-            pctf&#123;some_words_x7fq2p&#125;
+        <p class="max-w-2xl text-[1.05rem] leading-relaxed text-zinc-600 dark:text-zinc-400">
+          Somewhere on this site there are {me().total} flags: short strings shaped like{" "}
+          <code class="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[0.85em] text-accent-700 dark:bg-zinc-800 dark:text-accent-400">
+            pctf&#123;n1ce_try_but_no&#125;
           </code>
-          . Find it, type it in, move on. Nothing here rewards guessing, and none of the puzzles
-          want you to know a tool you don't already have. They want you to look at an ordinary
-          thing and notice it is not ordinary.
+          . There is no list of challenges and nobody will tell you where to start. Some are in
+          plain sight. Some are in things your browser was sent and never showed you. A few are
+          in places this site would rather you did not go.
         </p>
 
-        <div class="flex flex-wrap items-center gap-3 pt-1">
-          <Link
-            to="/challenges"
-            class="group inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-          >
-            {ready() && stats().solved > 0 ? "Keep going" : "Start with First Light"}
-            <ArrowRight
-              aria-hidden="true"
-              size={15}
-              class="transition-transform duration-200 group-hover:translate-x-0.5"
-            />
-          </Link>
-          <Show when={ready() && stats().solved > 0}>
-            <span class="font-mono text-xs text-zinc-500">
-              {stats().solved}/{stats().total} solved · {stats().score} pts
-            </span>
-          </Show>
+        {/*
+          Loose characters, in no order, taking up no room. Nothing on screen
+          comes from these; they are here for whoever reads the document
+          instead of the page.
+        */}
+        <div class="sr-only" aria-hidden="true">
+          <For each={page().shards}>{(shard) => <i data-k={shard.k} data-v={shard.v} />}</For>
         </div>
       </section>
 
-      <Section title="How it works">
-        <ul class="space-y-3">
-          <Step n="1">
-            Open a challenge. Each one is its own page, with its own puzzle and its own
-            submission box.
-          </Step>
-          <Step n="2">
-            Solve it however you like. Devtools, a console one-liner, pen and paper, your ears.
-            There is no intended tool, only an intended <em>insight</em>.
-          </Step>
-          <Step n="3">
-            Submit the flag. It is checked against a salted hash, so the site can confirm you
-            are right without ever having stored what right looks like.
-          </Step>
-          <Step n="4">
-            Solving unlocks that challenge's writeup — encrypted until the moment you earn it.
-            Points, badges and a timer come along for free.
-          </Step>
-        </ul>
-      </Section>
-
-      <Section title="The rules, such as they are">
-        <div class="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-          <Fact label="Flags are not in the source">
-            Not in the HTML, not in the JavaScript, not in the registry. Grep the bundle for{" "}
-            <code>pctf&#123;</code> and every hit is either a decoy planted for exactly that, or
-            the example in this sentence.
-          </Fact>
-          <Fact label="Hints cost points">
-            Three per challenge, progressively less coy. Take them — a stuck player learns
-            nothing. Just know the scoreboard remembers.
-          </Fact>
-          <Fact label="Wrong answers slow you down">
-            After four misses, submissions back off exponentially. Brute force is not a strategy
-            here; it is a waiting game you lose.
-          </Fact>
-          <Fact label="Every flag ends in noise">
-            That trailing gibberish is random, and different on every installation of this site.
-            Answers copied from someone else's copy will not work on yours.
-          </Fact>
-
-          <Fact label="Progress lives in your browser">
-            No account, no sync, no telemetry. Export it to a file if you want it elsewhere.
-          </Fact>
-        </div>
-      </Section>
-
-      <Section title="What you're in for">
-        <div class="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
-          <For each={CHALLENGES}>
-            {(challenge, i) => (
-              <div
-                class="flex items-baseline gap-3 px-4 py-2.5 text-sm not-last:border-b not-last:border-zinc-100 dark:not-last:border-zinc-900"
-                classList={{ "bg-zinc-50/60 dark:bg-zinc-900/30": i() % 2 === 1 }}
-              >
-                <span class="w-5 shrink-0 font-mono text-xs text-zinc-400 tabular-nums dark:text-zinc-600">
-                  {String(i() + 1).padStart(2, "0")}
-                </span>
-                <span class="font-medium text-zinc-800 dark:text-zinc-200">
-                  {challenge.title}
-                </span>
-                <span class="ml-auto shrink-0 font-mono text-xs text-zinc-400 dark:text-zinc-600">
-                  {challenge.points}
-                </span>
-              </div>
-            )}
-          </For>
-        </div>
-        <p class="pt-3 text-sm text-zinc-500">
-          {TOTAL_POINTS} points available. Nothing is locked behind anything else — they run
-          roughly easiest to hardest, but start wherever you like.
-        </p>
-      </Section>
-
-      <Section title="Questions">
-        <div class="divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 dark:divide-zinc-900 dark:border-zinc-800">
-          <For each={FAQ}>
-            {(item) => (
-              <details class="group">
-                <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                  {item.q}
-                  <ChevronRight
-                    aria-hidden="true"
-                    size={15}
-                    class="ml-auto shrink-0 text-zinc-400 transition-transform duration-200 group-open:rotate-90 dark:text-zinc-600"
-                  />
-                </summary>
-                <p class="prose-mini px-4 pb-4">{item.a}</p>
-              </details>
-            )}
-          </For>
-        </div>
-      </Section>
-
-      <section class="rounded-xl border border-zinc-200 bg-zinc-50/70 p-5 dark:border-zinc-800 dark:bg-zinc-900/40">
-        <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          One piece of advice
-        </h2>
-        <p class="prose-mini pt-2">
-          When you are stuck, you are almost always looking at the puzzle the way it wants to be
-          looked at. Try the other way. Read the thing that isn't the content, listen to the
-          thing that isn't music, count the thing that isn't the letters.
-        </p>
+      <section class="space-y-4">
+        <Terminal />
+        <dl class="grid grid-cols-3 gap-3">
+          <Stat label="Found">
+            {me().found}
+            <span class="text-zinc-400 dark:text-zinc-600">/{me().total}</span>
+          </Stat>
+          <Stat label="Score">{me().score}</Stat>
+          <Stat label="Rank">
+            <Show
+              when={me().rank}
+              fallback={<span class="text-zinc-400 dark:text-zinc-600">—</span>}
+            >
+              #{me().rank}
+            </Show>
+          </Stat>
+        </dl>
       </section>
+
+      <figure class="space-y-3">
+        {/*
+          Purely decorative, which is why it is so carefully described. The
+          description is for screen readers; nobody else is shown it.
+        */}
+        <svg
+          viewBox={`0 0 ${CHART.width} ${CHART.height}`}
+          class="w-full rounded-2xl border border-zinc-200 bg-zinc-50/60 text-accent-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-accent-400"
+          role="img"
+          aria-labelledby="chart-title"
+          aria-describedby="chart-desc"
+        >
+          <title id="chart-title">Site activity, last 24 hours</title>
+          <desc id="chart-desc">{page().spoken}</desc>
+          <path
+            d={CHART.path}
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <figcaption class="font-mono text-xs text-zinc-500">
+          fig. 1 — site activity, last 24 hours. Decorative. Almost certainly decorative.
+        </figcaption>
+      </figure>
+
+      <section class="space-y-5">
+        <h2 class="section-title">How this works</h2>
+        <div class="grid gap-4 sm:grid-cols-3">
+          <Card n="01" title="Look at everything">
+            Pages, their source, what arrived with them, what they left behind, the files every
+            site is expected to have. If your browser received it, it is fair game.
+          </Card>
+          <Card n="02" title="Bring it back">
+            Paste a flag into the prompt above. It will not ask which puzzle it came from. It
+            never told you there were puzzles.
+          </Card>
+          <Card n="03" title="Collect the trophy">
+            Every flag is a trophy; the harder it hid, the better the metal. Find them all and
+            there is one more.
+          </Card>
+        </div>
+      </section>
+
+      <section class="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+        <Rule title="Your flags are yours">
+          Everyone is dealt their own copy of each puzzle. A flag from a friend is a real flag;
+          it is just not one of yours, and the site can tell.
+        </Rule>
+        <Rule title="Guessing is throttled">
+          A few misses are free. After that the prompt starts taking longer and longer to
+          forgive you. Looking, on the other hand, costs nothing.
+        </Rule>
+        <Rule title="Clues are for sale">
+          Each hidden trophy will sell you clues, starting with where to look. Your score is
+          never charged; instead every clue lowers what that flag pays when you find it.
+        </Rule>
+        <Rule title="Not everything is a flag">
+          Some things here are just there to be found. Some are there to be found by people who
+          were looking for a shortcut.
+        </Rule>
+      </section>
+
+      <Link
+        to="/trophies"
+        class="group inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+      >
+        Open the trophy case
+        <ArrowRight
+          aria-hidden="true"
+          size={15}
+          class="transition-transform duration-200 group-hover:translate-x-0.5"
+        />
+      </Link>
     </div>
   );
 }
 
-function Section(props: { title: string; children: unknown }) {
+function Stat(props: { label: string; children: JSX.Element }) {
   return (
-    <section class="space-y-4">
-      <h2 class="border-b border-zinc-200 pb-2 text-sm font-semibold tracking-wide text-zinc-900 uppercase dark:border-zinc-800 dark:text-zinc-100">
-        {props.title}
-      </h2>
-      {props.children as never}
-    </section>
+    <div class="rounded-xl border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+      <dt class="font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+        {props.label}
+      </dt>
+      <dd class="pt-1 font-mono text-xl font-semibold text-zinc-900 tabular-nums dark:text-zinc-100">
+        {props.children}
+      </dd>
+    </div>
   );
 }
 
-function Step(props: { n: string; children: unknown }) {
+function Card(props: { n: string; title: string; children: JSX.Element }) {
   return (
-    <li class="flex gap-3.5">
-      <span class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-900 font-mono text-[0.65rem] text-white dark:bg-zinc-100 dark:text-zinc-900">
-        {props.n}
-      </span>
-      <span class="prose-mini">{props.children as never}</span>
-    </li>
+    <div class="rounded-2xl border border-zinc-200 p-5 dark:border-zinc-800">
+      <p class="font-mono text-xs text-accent-600 dark:text-accent-400">{props.n}</p>
+      <h3 class="pt-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{props.title}</h3>
+      <p class="prose-mini pt-1.5">{props.children}</p>
+    </div>
   );
 }
 
-function Fact(props: { label: string; children: unknown }) {
+function Rule(props: { title: string; children: JSX.Element }) {
   return (
     <div>
-      <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{props.label}</h3>
-      <p class="prose-mini pt-1">{props.children as never}</p>
+      <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{props.title}</h3>
+      <p class="prose-mini pt-1">{props.children}</p>
     </div>
   );
 }

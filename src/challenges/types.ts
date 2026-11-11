@@ -1,45 +1,24 @@
-import type { Component } from "solid-js";
-
-export type Difficulty = "easy" | "medium" | "hard";
-
-export type Category =
-  | "recon"
-  | "stego"
-  | "encoding"
-  | "audio"
-  | "web"
-  | "math"
-  | "crypto"
-  | "forensics"
-  | "reversing";
+/** Trophy grade. Platinum is not a challenge: it is what finding them all earns. */
+export type Tier = "bronze" | "silver" | "gold";
 
 /**
- * Everything about a challenge that is safe to read.
+ * Everything about a challenge that is not derived from its flag.
  *
- * Hints and writeups are deliberately absent: they live in the answer key and
- * ship encrypted. Only the count is public, and that comes from the registry.
+ * All of it is a spoiler. Nothing on the site lists the challenges, so a title
+ * or a `whereabouts` reaching the browser early would undo the hunt -- this type
+ * is only ever imported by server code, and its fields are released one at a
+ * time: `whereabouts` when a player pays for the first clue, `title` and `quip`
+ * when they submit the flag.
  */
 export type ChallengeMeta = {
-  /** Directory name under src/challenges, and the URL segment. */
+  /** Directory name under src/challenges. Never shown to a player. */
   slug: string;
+  /** The trophy's name, revealed on the solve. */
   title: string;
-  /** One line for the index. Should intrigue without instructing. */
-  tagline: string;
-  category: Category;
-  difficulty: Difficulty;
+  /** One witty line for the trophy toast. */
+  quip: string;
+  /** The first clue: where to look, never how to solve. */
+  whereabouts: string;
+  tier: Tier;
   points: number;
-};
-
-/**
- * A challenge module: its metadata and the component that renders the puzzle.
- *
- * `Page` receives the payload this deployment generated for that slug. It is
- * typed loosely on purpose -- each challenge knows the shape its own builder
- * produces, and pinning it here would mean one union that every challenge has
- * to be added to, which is exactly the coupling this layout removes.
- */
-export type ChallengeModule = {
-  meta: ChallengeMeta;
-  // oxlint-disable-next-line typescript/no-explicit-any -- payload shape is per-challenge
-  Page: Component<{ payload: any }>;
 };

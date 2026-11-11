@@ -1,177 +1,220 @@
 # Anti-cheat
 
-The awkward fact about an offline CTF is that the scoreboard runs on the
-attacker's machine. The design never tries to hide a secret in a client -- it
-makes the shortcuts cost more than solving, and says plainly where each measure
-stops working.
+The earlier version of this project ran entirely in the browser, and its
+anti-cheat design was an exercise in making shortcuts cost more than solving
+when the scoreboard sits on the attacker's machine. It ended with the sentence
+"if you need sharing actually prevented, you need a server."
 
-### 1. No flag is readable in the shipped site
+There is a server now. Most of what used to be a speed bump is a wall, and this
+page is correspondingly shorter. It still says plainly where each measure stops
+working, because several of them do.
 
-Grepping the production bundle for `pctf{` returns four hits and all four are
-decoys. `pnpm verify:flags` enforces this: it scans `src/`, `public/` and the
-built `dist/`, classifies every flag-shaped string against the real answer key,
-and fails the build on a match.
+### 1. The answers are not in the browser
 
-It decodes HTML entities first, because prerendered markup carries
-`pctf&#123;…&#125;` — an escaped leak slipped past an earlier version of the
-check. It also classifies rather than allowlists, so prose like
-`pctf{some_words_x7fq2p}` never needs registering as an exception.
+A submission is checked on the server. The answer key, the puzzle builders, the
+challenge titles, the clue text and the writeups are imported only by server
+code, and the compiler strips that code out of the client bundle. The key itself
+is read when the server starts, from a gitignored file or an environment
+variable, and is never part of any build.
 
-### 2. Solves are proofs, not booleans
+What the bundle does contain is the interface and the route table — so the paths
+of the unlisted pages (`/staff`, `/lounge`, `/radio` and the rest) are in it. That is left
+alone on purpose. Reading the JavaScript a site sends you is a legitimate move
+in a hunt, and it gets you an address, not an answer.
 
-Setting `solved: true` in localStorage should not unlock anything, so nothing
-like it is ever written. A solve stores
+`pnpm verify:flags` enforces the rest: it scans `src/`, `scripts/`, `public/`,
+`docs/` and whatever a build left in `dist/`, `.output/` or `.vercel/output/`,
+classifies every flag-shaped string against the real answer key, and fails on a
+match — a base flag, or a base flag with any suffix spliced in, since that is
+somebody's working flag. It decodes HTML entities first, and it classifies
+rather than allowlists, so prose like `pctf{some_words_x7fq2p}` never needs
+registering as an exception.
 
-```
-token = PBKDF2(flag, tokenSalt, 310_000 rounds)
-```
+### 2. A solve is a row, not a claim
 
-and the registry ships only `SHA-256(token)`. Every stored token is re-hashed and
-compared on each page load. Forging an entry means finding a preimage; copying
-another challenge's real token fails too, because the salts differ.
+Progress used to live in localStorage as a proof-of-solve token the browser
+could re-verify. It now lives in the database, written by the server at the
+moment it accepts a flag. There is nothing in the browser to edit: the page
+shows what the server last said, and says it again on the next load.
 
-Try it — the site will tell you what it discarded:
+Scores are fixed at the moment of the solve — points after clues taken — so
+buying clues afterwards costs nothing and changes nothing.
 
-```js
-const p = JSON.parse(localStorage.getItem("pctf:progress"));
-p.solves["prime-cuts"] = { ...p.solves["first-light"] }; // replay a real token
-localStorage.setItem("pctf:progress", JSON.stringify(p));
-// reload: "1 stored solve failed verification and was discarded"
-```
+### 3. Guessing is throttled, centrally
 
-A second derived value, the seal key, is kept so writeups stay decryptable after
-a solve. It is one-way with respect to the flag, so keeping it around does not
-hand the answer back.
+Wrong answers are counted in a `throttle` table against two keys at once: the
+player, and a hash of the address the request came from. Five misses per player
+are free, forty per address. After that each further miss doubles a lockout,
+from one second to a cap of sixty, and a run of misses is forgotten after
+fifteen quiet minutes. A correct flag clears the player's count; the address
+keeps its own.
 
-### 3. Content that genuinely cannot be read early
+The second key exists because a session costs nothing to throw away. A script
+that discards its cookies before every guess is a new player every time and the
+same address every time. Addresses are stored only as a hash.
 
-Writeups are AES-GCM ciphertext keyed by the flag. No branch in the code hides
-readable text behind an `if` — the plaintext is not in the bundle at all, and a
-solve produces the key as a side effect.
+Only wrong flag-shaped submissions count. Terminal commands, malformed input and
+decoys do not; nobody should be locked out for typing `ls`.
 
-The meta challenge goes further: its instructions are sealed under all ten
-proof-of-solve tokens concatenated, so the page cannot describe its own task
-until ten genuine solves exist.
+The throttle is the real cost of a guess. Checking a submission is twenty
+short hashes, deliberately fast — see
+[Flags and the answer key](build-pipeline.md) for why a slow hash would have been
+the wrong tool once nothing derived from a flag leaves the server.
 
-The unlisted vault page derives its decryption key from `location.pathname`, so
-neither the flag _nor the path_ appears as a literal anywhere.
+### 4. Every player is dealt their own flags
 
-### 4. Guessing is expensive
+The answer key holds one phrase per challenge. The flag a player submits is that
+phrase plus a six-character suffix derived from their seed, and the seed is
+never sent to the browser: first it comes from their `pctf_deal` cookie, and from
+enrolment onwards from their row, which keeps the same seed so the puzzles they
+were looking at stay theirs. Each puzzle is built from the flag it hides, so
+every player has a different flag, and a different puzzle, for every challenge.
 
-Each submission costs one 310,000-round PBKDF2 derivation (~300 ms), and after
-four misses the form backs off exponentially to a 30-second cap.
+So a flag passed to the person next to you is always wrong for them — and the
+server knows the difference between wrong and borrowed. A flag whose phrase is
+real but whose suffix is somebody else's is recognised, refused, and answered
+with a secret trophy called Receiving Stolen Goods. It does not count against
+the throttle.
 
-### 5. Honeypots
+That recognition has a cost, and it is worth saying what it is. "Borrowed"
+confirms that a phrase is genuine. That gives nothing toward scoring, because
+the phrase alone is not the flag, but it is a fact the server tells anyone who
+already has the phrase.
 
-Four decoy flags sit where a shortcut-taker looks first: painted on a page in
-24pt type, in a source comment, in `payloads.json`, in `registry.json`. Each has
-its own message when submitted, and tripping one earns a badge you won't enjoy.
-They are the only readable `pctf{...}` strings in the project, which is what
-makes grepping a trap rather than a shortcut.
+The suffix is keyed with `POCKET_CTF_SECRET`, which only the server holds
+(`src/server/secret.ts`). That matters because the seed alone is not private
+enough: before enrolment it is derived from the `pctf_deal` cookie, which its
+owner can read in devtools, and the derivation is in this repository. With the
+secret in the mix, knowing the seed and the source still gets a player nothing.
+The same key covers everything else derived from the seed -- the door and
+lounge codes, the finale address, and the MACs on Simon's tickets and the
+bridge cookie -- so none of those can be worked out from outside either.
+
+The secret is only as good as its keeping. Anyone holding it, with the answer
+key, can compute every player's flags; the development fallback is public,
+which is why production refuses to start without a real one.
+
+### 5. Decoys
+
+Four flag-shaped strings sit where a shortcut-taker looks first: the example on
+the front page, a comment at the top of the page source, a cookie named `flag`,
+and an `X-Flag` response header. They are the only readable `pctf{...}` strings
+in the project, each has its own reply, and submitting any of them earns a
+secret trophy rather than a miss.
+
+They do not count against the throttle. The point is the joke, not the penalty.
 
 ### 6. Every deployment has different flags
 
-The answer key holds _base_ flags. `pnpm gen` mints a random six-character
-suffix per challenge and splices it in, so the submitted flag is
-`pctf{some_words_x7fq2p}`.
+Each deployment's answer key is its own: the operator writes the phrases, and
+the published demo phrases all start `demo_` so none can collide with a real
+one. Answers leaked from one installation are therefore worthless against
+another, and a flag is not guessable from its meaning.
 
-This closes two holes. A flag used to be only as strong as its own semantics — a
-writeup, a screenshot, or a friend on another copy of the site handed over a
-working answer. And some were outright guessable: the logic puzzle's answer space
-is 256 strings, grindable through the submission box alone. Six random characters
-take that to roughly two billion.
+To a guesser who does not know their suffix, the suffix alone is 32⁶ — about a
+billion — candidates per phrase, at one guess a minute once the throttle is
+engaged. To one who has worked it out (see above), what is left is the phrase,
+which is why phrases should be ones nobody would guess.
 
-Most challenges encode the flag into shipped data, so the suffix falls out of
-solving for free. Two are **derive-type**, where you reason to an answer rather
-than extract it, and no amount of reasoning produces six random characters. Those
-seal the flag under the answer itself: enter the answer, get the flag. A wrong
-answer decrypts to nothing, which is stricter than merely checking it would be.
+### 7. A public repository gives no flag away
 
-### 7. A public repository gives nothing away
+The answer key is gitignored, and nothing is generated from it into the tree: a
+fresh clone has no flags at all beyond the public `flags.sample.json`. A server
+started without a real key runs on that demo key, and a banner across every page
+says so.
 
-This was a real hole, found by cloning the repo and trying it. The generated
-files used to be committed, and they were _this deployment's_ payloads — so a
-clone with no secret files could recover live flags in one command.
+The repository does give away the _map_. See below.
 
-So `src/lib/generated/{registry,payloads}.json`, `public/robots.txt` and
-`public/sitemap.xml` are gitignored. A fresh clone is seeded by
-`scripts/bootstrap.mjs` from the committed demo set in
-`src/lib/generated/sample/`, whose answer key is the public `flags.sample.json`,
-and a banner across every page says so. Running `pnpm gen` with your own key
-replaces it, and that output is never committed.
+### 8. Identity is Better Auth's, and is lazy
 
-The unlisted page's path moved too. It used to be the literal
-`src/routes/vault/omega.tsx`, so a public repo answered the recon challenge with
-`ls`. The route is a dynamic segment now and the real path is minted per
-deployment, appearing only in the generated `robots.txt` — which is exactly where
-the challenge intends you to find it.
+Looking at the site writes nothing. A visitor without a session is dealt their
+puzzles from an http-only `pctf_deal` cookie, and their handle and seed are
+derived from it. The first time they do something worth keeping — a flag, a
+clue, a secret trophy, a new handle — the server signs them in as an anonymous
+[Better Auth](https://www.better-auth.com) user and saves what they were dealt.
+Crawlers, link previews and scripts that mint a cookie per request leave the
+database as they found it.
 
-### 8. Player-to-player sharing
+Sessions are Better Auth's: signed cookies, a server-side session table, one
+year long. Claiming with GitHub links the anonymous user to a GitHub account,
+and `src/server/merge.ts` moves the hunt's rows onto it — or, if that account
+already has progress from another browser, pools the finds, each counted once,
+with the account's own handle and seed kept.
 
-Two people on the same deployment share the same flags, so one can simply tell
-the other. **That cannot be fixed client-side**, and the reason is worth stating
-precisely rather than hand-waving.
+### 9. Server functions refuse other sites
 
-Whether a submission is correct is decided by `verifyHash` and `verifySalt`,
-baked into the bundle at build time. Every browser that loads the site gets the
-same two values, so every browser accepts the same flag. A per-player flag would
-need per-player check material — and any material the client can derive, the
-sharer's client can derive too and hand over with the flag. Worse, if the client
-could _compute_ its own flag, the flag would exist in the client, which destroys
-the property everything else rests on.
+Every state-changing call the interface makes — the prompt, clues, renames —
+is a TanStack Start server function, and those go through its CSRF middleware,
+which rejects requests from another origin. The plain `/api/*` routes are left
+open on purpose: poking them with `curl` is part of the hunt, and none of them
+changes anything a player owns.
 
-One thing helps, and one does not:
+### 10. Clues lower what a flag pays
 
-- **Doesn't help: a per-browser identity.** Anything in localStorage is
-  transferable, so binding a flag to a browser id just means sharing the id too.
-- **Helps a little: shipping N variants** of each challenge and picking one per
-  browser. A borrowed flag then fails unless both players drew the same variant.
-  This is implemented — four variants each, so a shared flag is wrong three times
-  in four.
-
-Be clear about how weak that is. It is an N-fold speed bump rather than a wall,
-for two reasons that cannot be engineered away here. The variant index lives in
-localStorage, so a determined player can edit it to match a friend's. And all
-four verification hashes have to ship, because any browser might draw any
-variant — so the answer to "is this the flag for _some_ variant" is always
-present in the bundle. What variants really buy is that casually passing a flag
-to the person next to you usually fails, which is the common case.
-
-The cost is real too: four variants means four payloads per challenge and four
-times the generation work, which is why `VARIANT_COUNT` is a knob in
-`scripts/answers.mjs` rather than a hardcoded number.
-
-**If you need sharing actually prevented, you need a server.** It can issue
-per-player flags, hold the check where the client cannot see it, rate-limit
-centrally, and notice the same flag arriving from thirty browsers in four
-minutes. None of that is available to a static site, which is the trade this
-project made on purpose.
+Each hidden trophy sells clues: the first says where to look, the rest come from
+the answer key and say progressively more about how. Each one takes 15% off what
+that flag pays when it is found, down to a floor of a quarter. Nothing is taken
+from the player's score at the time, so a clue is never free: a player on zero
+still pays, later, in a smaller reward. Charging the score directly would either
+let it go negative or, floored at zero, make clues cost nothing to anyone who
+has not scored yet. Clue text lives only in the answer key on the server, and
+is sent only when paid for, so it cannot be read ahead of the charge.
 
 ## What this does not stop
 
 Being explicit about the boundary:
 
-- **Someone who solved it can hand you their exported progress file, or just
-  tell you the flag.** The tokens are real, so they verify; the flag is
-  deployment-wide, so it validates.
-- **Someone with the repo can read `flags.secret.json`** if you give them the
-  file. Don't.
-- **Someone determined can read the bundle and reimplement a challenge's
-  decoding.** For several of these that _is_ the intended solve; the puzzle is
-  the transform, not its concealment.
-- **Every challenge ships a working solver, in `src/challenges/<slug>/solve.mjs`.**
-  Those are spoilers rather than holes — they need the payload a deployment
-  generates, which is not committed — but read one and you have read that
-  challenge's answer.
-- **The variant you drew is visible.** It is a localStorage integer, so a player
-  can see which of the four they got and change it. See above.
-- **The submission throttle is client-side.** Anyone willing to call the
-  derivation directly skips it. The 310,000 rounds are the real cost; the backoff
-  only slows the lazy path.
+- **The repository is a walkthrough.** This is an open-source project, so where
+  every flag is hidden is in `src/server/plants.ts`, in `docs/challenges.md`,
+  and in a script (`scripts/self-test.mjs`) that plays the whole hunt
+  unattended. Anyone who would rather read than look can. What the repository
+  does not contain is any deployment's flags, so reading it gets you directions
+  and still leaves you a puzzle to solve at the end of each.
+- **Every challenge ships a working solver** in `src/challenges/<slug>/solve.mjs`.
+  Same trade: it needs the puzzle a deployment dealt you.
+- **Someone who solved it can tell you how.** Per-player flags stop a pasted
+  flag. They do nothing about a pasted method, and nothing can.
+- **The server secret is the whole game.** `POCKET_CTF_SECRET` plus the answer
+  key is every player's flags. Keep both where only the server can read them,
+  and rotate the secret if either leaks -- progress survives, unsubmitted flags
+  do not.
+- **A GitHub account is the only durable identity.** Until a player claims,
+  they are an anonymous session, and clearing cookies makes them somebody else
+  — losing that progress, and letting one person hold several rows on the
+  board. Claiming fixes the first; nothing stops someone with several GitHub
+  accounts.
+- **The address key is only as good as the address.** It reads
+  `X-Forwarded-For` so that it works behind a proxy, which also means a client
+  that reaches the server directly can supply its own. Behind a host that sets
+  the header itself — Vercel does — this is not a concern. Players sharing one
+  address, such as a classroom behind one NAT, share its forty free misses.
+- **The development secret is public.** Without `BETTER_AUTH_SECRET` the server
+  falls back to a fixed value, so that a clone runs. Anyone who knows it can
+  sign a session for any user, which is why production refuses to run
+  without a real one.
+- **Three secret trophies are claimed by the browser.** The Konami code, coming
+  back from the offline page and being here at 3:14 are noticed client-side and
+  reported to the server, so anyone can claim them with one request. (The
+  offline page also appears when the server is down, which counts.) That is why
+  secret trophies are worth no points: a score anyone can award themselves is
+  not a score.
+- **Rarity is a guess until it isn't.** Each trophy's percentage starts from a
+  prior and is outvoted by real finds (`src/server/rarity.ts`), so a young
+  deployment shows plausible numbers rather than "100% of 1 hunter". The
+  numbers are site-wide and public by design.
+- **Some weaknesses are the puzzles.** The `clearance` cookie is unsigned, the
+  lounge signs its badges with a four-digit key, and the door leaks its code
+  through how long it takes to say no. None of that is an oversight. The cookie
+  that actually identifies a player is Better Auth's signed session.
+- **Handles are not moderated**, beyond a character set and a length. A public
+  instance will want a word list.
+- **The board is public.** It shows handles, counts and scores, never which
+  flags — but it does tell everyone how far ahead the leader is.
 
-The goal was never unbreakable. It was that the lazy path is slower than the
-honest one, and that nothing is unlocked by editing a value.
+The goal was never unbreakable. It is that the only way to a trophy is to send
+the server a flag it dealt you, and that everything short of that is either
+slower than looking or a joke at your expense.
 
 ---
 
-Next: [Deployment](deployment.md) · [Build pipeline](build-pipeline.md) · [Back to the index](../README.md#documentation)
+Next: [Deployment](deployment.md) · [Flags and the answer key](build-pipeline.md) · [Back to the index](../README.md#documentation)

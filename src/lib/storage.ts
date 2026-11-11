@@ -1,19 +1,13 @@
 /**
  * The one place this app talks to browser storage.
  *
- * Progress is a few kilobytes of JSON, so `localStorage` is the right size
- * class: synchronous, so there is no flash of empty state on load, and simple
- * enough that nothing here needs a schema.
+ * All that is kept here is the theme preference. `localStorage` is the right
+ * size class for it: synchronous, so there is no flash of the wrong theme on
+ * load.
  *
- * IndexedDB was considered and rejected. It buys capacity and structure this
- * data does not need, and one challenge (`local-records`) teaches players to
- * open the storage panel and read IndexedDB -- keeping progress out of there
- * leaves that puzzle's database unambiguous.
- *
- * None of this is a trust boundary. Tampering with stored progress is pointless
- * because of the proof-of-solve tokens, not because of where they are kept, and
- * nothing written here is a secret: the token and the seal key are both one-way
- * with respect to the flag.
+ * Progress is not here. It lives in the server's database, which is why
+ * clearing site data costs a player nothing but their session cookie -- and
+ * why nothing stored in the browser is worth tampering with.
  *
  * Going through an adapter means the backend is swappable and tests can drive
  * persistence without a DOM.
@@ -64,8 +58,12 @@ export function memoryStorage(seed: Record<string, string> = {}): StorageAdapter
   };
 }
 
-let active: StorageAdapter =
-  typeof localStorage === "undefined" ? memoryStorage() : browserStorage;
+/*
+ * Test for a window, not for `localStorage` itself: Node 22+ defines a global
+ * `localStorage` whose mere lookup prints an ExperimentalWarning on every
+ * server cold start.
+ */
+let active: StorageAdapter = typeof window === "undefined" ? memoryStorage() : browserStorage;
 
 export const storage: StorageAdapter = {
   get: (key) => active.get(key),

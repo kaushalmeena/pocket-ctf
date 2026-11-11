@@ -1,0 +1,483 @@
+import { createFileRoute } from "@tanstack/solid-router";
+import { Droplet, Share2, UserRoundCheck } from "lucide-solid";
+import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
+
+import { Markdown } from "~/components/Markdown";
+import { RarityTag } from "~/components/RarityTag";
+import { TIER_LABEL, TrophyIcon } from "~/components/TrophyIcon";
+import { getTrophyCase, readWriteup, takeClue } from "~/lib/api";
+import { authClient } from "~/lib/auth";
+import { useGame } from "~/lib/game";
+import { NO_INDEX } from "~/lib/seo";
+import type { Slot, TrophyCase } from "~/lib/types";
+
+export const Route = createFileRoute("/trophies")({
+  loader: () => getTrophyCase(),
+  head: () => ({ meta: [{ title: "Trophy case — Pocket CTF" }, NO_INDEX] }),
+  component: Trophies,
+});
+
+const day = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+function Trophies() {
+  const loaded = Route.useLoaderData();
+  const { sync } = useGame();
+  // Buying a clue returns the whole case again; show whichever is newer.
+  const [bought, setBought] = createSignal<TrophyCase>();
+  const view = () => bought() ?? loaded();
+
+  const handleBuy = async (index: number) => {
+    const next = await takeClue({ data: index });
+    setBought(next);
+    sync(next.me);
+  };
+
+  return (
+    <div class="animate-rise space-y-10">
+      <Profile view={view()} />
+
+      <section class="space-y-4">
+        <h2 class="section-title">Flags</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <For each={view().slots}>
+            {(slot, i) => (
+              <Switch>
+                <Match when={slot.found && slot}>
+                  {(found) => <FoundSlot slot={found()} index={i()} />}
+                </Match>
+                <Match when={!slot.found && slot}>
+                  {(locked) => <LockedSlot slot={locked()} index={i()} onBuy={handleBuy} />}
+                </Match>
+              </Switch>
+            )}
+          </For>
+        </div>
+      </section>
+
+      <section class="space-y-4">
+        <h2 class="section-title">Secrets</h2>
+        <p class="prose-mini">
+          Not flags, and worth no points. Things the site noticed you doing.{" "}
+          {view().secrets.length} of {view().secretsTotal} so far.
+        </p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <For each={view().secrets}>
+            {(secret) => (
+              <div class="flex items-center gap-3.5 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+                <TrophyIcon tier="secret" size={16} />
+                <div class="min-w-0 flex-1">
+                  <p class="flex items-baseline gap-2">
+                    <span class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      {secret.title}
+                    </span>
+                    <RarityTag percent={secret.rarity} />
+                  </p>
+                  <p class="pt-0.5 text-xs leading-snug text-zinc-500">{secret.quip}</p>
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+      </section>
+
+      <Claim />
+    </div>
+  );
+}
+
+/**
+ * Progress is anonymous until claimed. Claiming links this player to a GitHub
+ * account, which is what lets them pick it up again in another browser.
+ */
+function Claim() {
+  const { me, github } = useGame();
+  const [busy, setBusy] = createSignal(false);
+
+  const handleClaim = async () => {
+    setBusy(true);
+    // Leaves the page for GitHub and comes back here, claimed.
+    await authClient.signIn.social({ provider: "github", callbackURL: "/trophies" });
+  };
+
+  const handleSignOut = async () => {
+    setBusy(true);
+    await authClient.signOut();
+    // A different player now (a fresh visitor): everything on the page is stale.
+    window.location.reload();
+  };
+
+  return (
+    <section class="space-y-4">
+      <h2 class="section-title">Keep your progress</h2>
+      <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+        <UserRoundCheck aria-hidden="true" size={22} class="shrink-0 text-zinc-500" />
+        <Show
+          when={me().account}
+          fallback={
+            <>
+              <div class="min-w-0 flex-1 space-y-1">
+                <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  Claim it with GitHub
+                </p>
+                <p class="text-xs leading-relaxed text-zinc-500">
+                  There are no passwords here, so until you claim them your trophies live and
+                  die with a cookie. Claim them and you can carry on in any browser; anything
+                  you find before signing in elsewhere is added to the same case.
+                </p>
+              </div>
+              <Show
+                when={github()}
+                fallback={
+                  <p class="text-xs text-zinc-500">
+                    GitHub sign-in is not set up on this server.
+                  </p>
+                }
+              >
+                <button
+                  type="button"
+                  onClick={handleClaim}
+                  disabled={busy()}
+                  class="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                >
+                  Continue with GitHub
+                </button>
+              </Show>
+            </>
+          }
+        >
+          {(account) => (
+            <>
+              <div class="min-w-0 flex-1 space-y-1">
+                <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  Claimed by {account()}
+                </p>
+                <p class="text-xs leading-relaxed text-zinc-500">
+                  Sign in with the same GitHub account anywhere and this case comes with you.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={busy()}
+                class="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              >
+                Sign out
+              </button>
+            </>
+          )}
+        </Show>
+      </div>
+    </section>
+  );
+}
+
+function Profile(props: { view: TrophyCase }) {
+  const { me, rename } = useGame();
+  const [editing, setEditing] = createSignal(false);
+  const [error, setError] = createSignal<string | null>(null);
+  let field!: HTMLInputElement;
+
+  const handleEdit = () => {
+    setError(null);
+    setEditing(true);
+    queueMicrotask(() => field.focus());
+  };
+
+  const handleCancel = () => {
+    setError(null);
+    setEditing(false);
+  };
+
+  const handleSave = async (event: SubmitEvent) => {
+    event.preventDefault();
+    const problem = await rename(field.value);
+    setError(problem);
+    if (!problem) setEditing(false);
+  };
+
+  const platinum = () => props.view.platinum;
+
+  const [copied, setCopied] = createSignal(false);
+
+  /** A link to the public profile, whose preview image is the trophy card. */
+  const handleShare = async () => {
+    const link = `${window.location.origin}/u/${encodeURIComponent(me().handle)}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.open(link, "_blank", "noopener");
+    }
+  };
+
+  return (
+    <section class="space-y-5">
+      <div class="flex flex-wrap items-center gap-5">
+        {/* Your portrait. The server drew it for you, and only for you. */}
+        <img
+          src="/avatar.png"
+          alt="Your portrait"
+          width={72}
+          height={72}
+          class="pixelated size-18 rounded-2xl border border-zinc-200 dark:border-zinc-800"
+        />
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <p class="eyebrow">Trophy case</p>
+          {/*
+            One row of fixed height, whether showing the name or editing it: the
+            input wears the heading's exact type, so switching modes moves
+            nothing on the page.
+          */}
+          <Show
+            when={editing()}
+            fallback={
+              <div class="flex h-10 min-w-0 items-baseline gap-3">
+                <h1 class="truncate text-3xl leading-10 font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                  {me().handle}
+                </h1>
+                <button
+                  type="button"
+                  onClick={handleEdit}
+                  class="shrink-0 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+                >
+                  {me().named ? "rename" : "pick your own handle"}
+                </button>
+              </div>
+            }
+          >
+            <form onSubmit={handleSave} class="flex h-10 min-w-0 items-baseline gap-3">
+              <input
+                ref={field}
+                type="text"
+                value={me().handle}
+                maxLength={20}
+                autocomplete="off"
+                spellcheck={false}
+                aria-label="Handle"
+                aria-invalid={Boolean(error())}
+                aria-describedby="handle-status"
+                class="handle-input min-w-0 border-b-2 border-dashed border-accent-500/60 bg-transparent text-3xl leading-10 font-semibold tracking-tight text-zinc-900 outline-none focus:border-accent-500 dark:text-zinc-50"
+              />
+              <button
+                type="submit"
+                class="shrink-0 text-xs font-medium text-accent-700 underline underline-offset-2 dark:text-accent-400"
+              >
+                save
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                class="shrink-0 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 dark:decoration-zinc-700"
+              >
+                cancel
+              </button>
+            </form>
+          </Show>
+          {/* A rejected name is reported in place of the stats, not in a new line. */}
+          <p
+            id="handle-status"
+            class="truncate font-mono text-xs tabular-nums"
+            classList={{
+              "text-zinc-500": !error(),
+              "text-rose-600 dark:text-rose-400": Boolean(error()),
+            }}
+            aria-live="polite"
+          >
+            <Show
+              when={error()}
+              fallback={
+                <>
+                  {me().found}/{me().total} flags · {me().score}/{me().maxScore} pts
+                  <Show when={me().rank}> · rank #{me().rank}</Show>
+                </>
+              }
+            >
+              {error()}
+            </Show>
+          </p>
+          <Show when={me().found > 0}>
+            <button
+              type="button"
+              onClick={handleShare}
+              class="inline-flex items-center gap-1.5 text-xs text-zinc-500 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+            >
+              <Share2 size={11} aria-hidden="true" />
+              {copied() ? "Link copied" : "Share your card"}
+            </button>
+          </Show>
+        </div>
+      </div>
+
+      <div
+        class="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-900"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={me().total}
+        aria-valuenow={me().found}
+        aria-label="Flags found"
+      >
+        <div
+          class="h-full rounded-full bg-accent-500 transition-[width] duration-500"
+          style={{ width: `${(me().found / Math.max(1, me().total)) * 100}%` }}
+        />
+      </div>
+
+      <div
+        class="flex items-center gap-4 rounded-2xl border p-4"
+        classList={{
+          "tier-platinum trophy-card": Boolean(platinum()),
+          "border-dashed border-zinc-300 dark:border-zinc-700": !platinum(),
+        }}
+      >
+        <TrophyIcon tier="platinum" size={20} locked={!platinum()} />
+        <div class="min-w-0 flex-1">
+          <p class="flex items-baseline gap-2">
+            <span class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {platinum()?.title ?? "Platinum"}
+            </span>
+            <Show when={platinum()?.rarity}>
+              {(percent) => <RarityTag percent={percent()} />}
+            </Show>
+          </p>
+          <p class="pt-0.5 text-xs text-zinc-500">
+            {platinum()?.quip ??
+              "Awarded for finding every flag on the site. No clues for sale."}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type Found = Extract<Slot, { found: true }>;
+type Locked = Extract<Slot, { found: false }>;
+
+function FoundSlot(props: { slot: Found; index: number }) {
+  const [open, setOpen] = createSignal(false);
+  // Fetched the first time it is opened, and only for a flag you hold.
+  const [writeup] = createResource(open, () => readWriteup({ data: props.index }));
+
+  const handleToggle = (event: Event) =>
+    setOpen((event.currentTarget as HTMLDetailsElement).open);
+
+  return (
+    <div class={`tier-${props.slot.tier} trophy-card space-y-3 rounded-2xl border p-4`}>
+      <div class="flex items-start gap-3.5">
+        <TrophyIcon tier={props.slot.tier} size={18} />
+        <div class="min-w-0 flex-1">
+          <p class="flex flex-wrap items-center gap-x-2 font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+            <span class="trophy-ink">{TIER_LABEL[props.slot.tier]}</span>
+            <span>+{props.slot.points}</span>
+            <span>{day(props.slot.foundAt)}</span>
+            <Show when={props.slot.firstBlood}>
+              <span class="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400">
+                <Droplet size={10} aria-hidden="true" />
+                first blood
+              </span>
+            </Show>
+          </p>
+          <p class="flex items-baseline gap-2 pt-1">
+            <span class="min-w-0 flex-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {props.slot.title}
+            </span>
+            <RarityTag percent={props.slot.rarity} />
+          </p>
+          <p class="pt-0.5 text-xs leading-snug text-zinc-500">{props.slot.quip}</p>
+          <Show when={props.slot.fragment}>
+            {(fragment) => (
+              <p class="pt-2 font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+                fragment {fragment().n}/{fragment().of} ·{" "}
+                <span class="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-900 normal-case dark:bg-zinc-800 dark:text-zinc-100">
+                  {fragment().text}
+                </span>
+              </p>
+            )}
+          </Show>
+        </div>
+      </div>
+      <details onToggle={handleToggle} class="text-sm">
+        <summary class="cursor-pointer text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          How it worked
+        </summary>
+        <div class="pt-2">
+          <Show when={writeup()} fallback={<p class="text-xs text-zinc-500">Fetching…</p>}>
+            {(text) => <Markdown source={text()} />}
+          </Show>
+        </div>
+      </details>
+    </div>
+  );
+}
+
+function LockedSlot(props: {
+  slot: Locked;
+  index: number;
+  onBuy: (index: number) => Promise<void>;
+}) {
+  const [busy, setBusy] = createSignal(false);
+
+  const handleBuy = async () => {
+    setBusy(true);
+    try {
+      await props.onBuy(props.index);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div class="space-y-3 rounded-2xl border border-dashed border-zinc-300 p-4 dark:border-zinc-700">
+      <div class="flex items-start gap-3.5">
+        <TrophyIcon tier={props.slot.tier} size={18} locked />
+        <div class="min-w-0 flex-1">
+          <p class="font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
+            {TIER_LABEL[props.slot.tier]} · pays {props.slot.points}
+            <Show when={props.slot.points < props.slot.full}>
+              {" "}
+              <span class="text-zinc-400 line-through decoration-zinc-400/70 dark:text-zinc-600">
+                {props.slot.full}
+              </span>
+            </Show>{" "}
+            when found
+          </p>
+          <p class="flex items-baseline gap-2 pt-1">
+            <span class="min-w-0 flex-1 text-sm font-semibold text-zinc-400 dark:text-zinc-600">
+              Hidden trophy
+            </span>
+            <RarityTag percent={props.slot.rarity} />
+          </p>
+          <p class="pt-0.5 text-xs text-zinc-500">Still wherever it was hidden.</p>
+        </div>
+      </div>
+
+      <Show when={props.slot.clues.length > 0}>
+        <ol class="space-y-1.5 border-l-2 border-accent-500/50 pl-3">
+          <For each={props.slot.clues}>
+            {(clue) => (
+              <li class="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">{clue}</li>
+            )}
+          </For>
+        </ol>
+      </Show>
+
+      <Show
+        when={props.slot.nextWorth !== null}
+        fallback={
+          <p class="text-xs text-zinc-500">No clues left. You know everything we do.</p>
+        }
+      >
+        <button
+          type="button"
+          onClick={handleBuy}
+          disabled={busy()}
+          title="Your score is not charged. This flag pays less when you find it."
+          class="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+        >
+          {props.slot.clues.length === 0 ? "Buy a clue" : "Buy another"} · this flag then pays{" "}
+          {props.slot.nextWorth}, not {props.slot.points}
+        </button>
+      </Show>
+    </div>
+  );
+}
