@@ -58,8 +58,12 @@ export function memoryStorage(seed: Record<string, string> = {}): StorageAdapter
   };
 }
 
-let active: StorageAdapter =
-  typeof localStorage === "undefined" ? memoryStorage() : browserStorage;
+/*
+ * Test for a window, not for `localStorage` itself: Node 22+ defines a global
+ * `localStorage` whose mere lookup prints an ExperimentalWarning on every
+ * server cold start.
+ */
+let active: StorageAdapter = typeof window === "undefined" ? memoryStorage() : browserStorage;
 
 export const storage: StorageAdapter = {
   get: (key) => active.get(key),
