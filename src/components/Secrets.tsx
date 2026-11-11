@@ -75,7 +75,10 @@ export function Secrets(props: { drawer: Drawer }) {
   };
 
   onMount(() => {
-    console.log(`%c${GREETING}`, "color:#10b981;font-family:monospace");
+    const accent = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-accent-500")
+      .trim();
+    console.log(`%c${GREETING}`, `color:${accent || "#10b981"};font-family:monospace`);
     fileRecords();
     window.addEventListener("keydown", handleKey);
   });

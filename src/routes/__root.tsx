@@ -8,6 +8,7 @@ import { Secrets } from "~/components/Secrets";
 import { SiteFooter } from "~/components/SiteFooter";
 import { SiteHeader } from "~/components/SiteHeader";
 import { TrophyToasts } from "~/components/TrophyToasts";
+import { ACCENT_BOOTSTRAP } from "~/lib/accent";
 import { getShell } from "~/lib/api";
 import { GameProvider } from "~/lib/game";
 import { SITE_TAGLINE } from "~/lib/seo";
@@ -70,6 +71,8 @@ function RootDocument(props: { children: JSX.Element }) {
         {/* Sets the theme class before first paint. Without it, dark-mode
             users get a white flash on every navigation. */}
         <script innerHTML={THEME_BOOTSTRAP} />
+        {/* Deals a first-time visitor an accent palette, before first paint. */}
+        <script innerHTML={ACCENT_BOOTSTRAP} />
         <HydrationScript />
       </head>
       <body>

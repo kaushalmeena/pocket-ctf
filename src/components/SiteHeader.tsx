@@ -2,6 +2,7 @@ import { Link } from "@tanstack/solid-router";
 import { Flag } from "lucide-solid";
 import { createSignal } from "solid-js";
 
+import { AccentPicker } from "~/components/AccentPicker";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { useGame } from "~/lib/game";
 
@@ -69,6 +70,7 @@ export function SiteHeader() {
               {me().score}
             </span>
           </Link>
+          <AccentPicker />
           <ThemeToggle />
         </div>
       </div>

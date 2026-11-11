@@ -15,20 +15,57 @@
 
   /*
    * One accent, used sparingly. A CTF is mostly text; let the text lead. The
-   * only other hues on the site are the trophy metals below, because a
-   * trophy's grade is information.
+   * accent's hue is the visitor's (see the palettes above); the only other
+   * hues on the site are the trophy metals below, because a trophy's grade is
+   * information.
    */
-  --color-accent-50: oklch(0.97 0.02 165);
-  --color-accent-100: oklch(0.93 0.05 165);
-  --color-accent-200: oklch(0.88 0.08 165);
-  --color-accent-300: oklch(0.82 0.11 165);
-  --color-accent-400: oklch(0.75 0.14 165);
-  --color-accent-500: oklch(0.67 0.15 165);
-  --color-accent-600: oklch(0.58 0.14 165);
-  --color-accent-700: oklch(0.5 0.12 165);
-  --color-accent-800: oklch(0.41 0.1 165);
-  --color-accent-900: oklch(0.32 0.07 165);
-  --color-accent-950: oklch(0.22 0.05 165);
+  --color-accent-50: oklch(0.97 calc(0.02 * var(--accent-c)) var(--accent-h));
+  --color-accent-100: oklch(0.93 calc(0.05 * var(--accent-c)) var(--accent-h));
+  --color-accent-200: oklch(0.88 calc(0.08 * var(--accent-c)) var(--accent-h));
+  --color-accent-300: oklch(0.82 calc(0.11 * var(--accent-c)) var(--accent-h));
+  --color-accent-400: oklch(0.75 calc(0.14 * var(--accent-c)) var(--accent-h));
+  --color-accent-500: oklch(0.67 calc(0.15 * var(--accent-c)) var(--accent-h));
+  --color-accent-600: oklch(0.58 calc(0.14 * var(--accent-c)) var(--accent-h));
+  --color-accent-700: oklch(0.5 calc(0.12 * var(--accent-c)) var(--accent-h));
+  --color-accent-800: oklch(0.41 calc(0.1 * var(--accent-c)) var(--accent-h));
+  --color-accent-900: oklch(0.32 calc(0.07 * var(--accent-c)) var(--accent-h));
+  --color-accent-950: oklch(0.22 calc(0.05 * var(--accent-c)) var(--accent-h));
+}
+
+/*
+ * The accent palette. Everything accent-coloured reads these two numbers, so a
+ * palette is just a hue and a chroma factor. ACCENT_BOOTSTRAP in
+ * src/lib/accent.ts sets `data-accent` before first paint; the default below
+ * is what a browser with scripts off sees.
+ */
+:root {
+  --accent-h: 165;
+  --accent-c: 1;
+}
+
+:root[data-accent="sky"] {
+  --accent-h: 235;
+  --accent-c: 0.95;
+}
+
+:root[data-accent="violet"] {
+  --accent-h: 295;
+  --accent-c: 1.1;
+}
+
+:root[data-accent="rose"] {
+  --accent-h: 10;
+  --accent-c: 1.05;
+}
+
+:root[data-accent="amber"] {
+  --accent-h: 75;
+  --accent-c: 1.05;
+}
+
+:root[data-accent="lime"] {
+  --accent-h: 128;
+  --accent-c: 1;
 }
 
 @layer base {
@@ -201,8 +238,8 @@
   .terminal {
     @apply border border-zinc-800 bg-zinc-950 shadow-xl shadow-zinc-950/10;
     box-shadow:
-      0 0 0 1px oklch(0.67 0.15 165 / 0.08),
-      0 24px 48px -24px oklch(0.2 0.05 165 / 0.45);
+      0 0 0 1px oklch(0.67 calc(0.15 * var(--accent-c)) var(--accent-h) / 0.08),
+      0 24px 48px -24px oklch(0.2 calc(0.05 * var(--accent-c)) var(--accent-h) / 0.45);
   }
 
   .terminal-in {
@@ -247,8 +284,8 @@
   }
 
   .tier-secret {
-    --metal: oklch(0.75 0.14 165);
-    --metal-deep: oklch(0.5 0.12 165);
+    --metal: oklch(0.75 calc(0.14 * var(--accent-c)) var(--accent-h));
+    --metal-deep: oklch(0.5 calc(0.12 * var(--accent-c)) var(--accent-h));
   }
 
   .trophy-disc {
@@ -299,13 +336,13 @@
 
   /* The footer light. Dim when off rather than gone, so it reads as a lamp. */
   .status-light {
-    background: oklch(0.67 0.15 165 / 0.22);
+    background: oklch(0.67 calc(0.15 * var(--accent-c)) var(--accent-h) / 0.22);
     transition: none;
   }
 
   .status-light-on {
-    background: oklch(0.75 0.14 165);
-    box-shadow: 0 0 8px 1px oklch(0.75 0.14 165 / 0.7);
+    background: oklch(0.75 calc(0.14 * var(--accent-c)) var(--accent-h));
+    box-shadow: 0 0 8px 1px oklch(0.75 calc(0.14 * var(--accent-c)) var(--accent-h) / 0.7);
   }
 
   /* Up, up, down, down. Scanlines over everything until the code is entered again. */
