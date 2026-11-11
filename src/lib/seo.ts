@@ -15,10 +15,10 @@
  * Absolute origin, needed for canonical URLs and social card images.
  *
  * Defaults to localhost because there is no host to assume. Set
- * `VITE_SITE_URL` for any public deployment, or the canonical tags, the
+ * `SITE_ORIGIN` for any public deployment, or the canonical tags, the
  * sitemap and security.txt will point at a machine nobody else can reach.
  */
-export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000").replace(
+export const SITE_URL = (import.meta.env.SITE_ORIGIN ?? "http://localhost:3000").replace(
   /\/$/,
   "",
 );

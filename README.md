@@ -156,7 +156,7 @@ before they start.
 
 4. Optionally, let players claim their progress with GitHub. Create a GitHub
    OAuth app whose callback URL is `http://localhost:3000/api/auth/callback/github`
-   and add its `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` to `.env`. Without
+   and add its `GITHUB_CLIENT` and `GITHUB_SECRET` to `.env`. Without
    them the trophy case says that claiming is not set up, and everything else
    works.
 
@@ -224,7 +224,7 @@ recognises — Vercel among them, with no configuration file.
 
 Three things need supplying. A hosted build clones the repository, so the
 gitignored answer key is absent and the deploy would ship the demo set: run
-`pnpm gen:env --url=https://your-origin` to write those secrets out and hand
+`pnpm gen:env --url=https://your-origin` to write those secrets to `.env.deploy` and hand
 them to your host. The database connection strings, which the build also uses to
 apply migrations. And Better Auth's secret, plus the GitHub OAuth app if players
 are to claim progress. Full details are in
@@ -232,17 +232,19 @@ are to claim progress. Full details are in
 
 ## Configuration
 
-| Variable                | Default                 | Notes                                                                                                         |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.           |
-| `POCKET_CTF_SEEDS`      | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.       |
-| `VITE_SITE_URL`         | `http://localhost:3000` | Your public origin, used for canonical URLs, the sitemap, `security.txt` and social cards. Set at build time. |
-| `DATABASE_URL`          | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                 |
-| `DATABASE_URL_UNPOOLED` | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.     |
-| `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.         |
-| `BETTER_AUTH_URL`       | the request's origin    | Your public origin, so OAuth callbacks name the real host. Set it in production.                              |
-| `GITHUB_CLIENT_ID`      | `—`                     | The GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.    |
-| `GITHUB_CLIENT_SECRET`  | `—`                     | Its secret.                                                                                                   |
+The project's own variables come in families of similar-length names. The
+`DATABASE_URL` pair keeps the names the Neon CLI writes.
+
+| Variable                | Default                 | Notes                                                                                                                       |
+| ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `SITE_ORIGIN`           | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL.    |
+| `AUTH_SECRET`           | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                       |
+| `CTF_ANSWERS`           | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.                         |
+| `CTF_SUFFIXES`          | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.                     |
+| `GITHUB_CLIENT`         | `—`                     | The client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off. |
+| `GITHUB_SECRET`         | `—`                     | That app's client secret.                                                                                                   |
+| `DATABASE_URL`          | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                               |
+| `DATABASE_URL_UNPOOLED` | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.                   |
 
 ## Documentation
 

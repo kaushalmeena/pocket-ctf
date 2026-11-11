@@ -81,25 +81,40 @@ export function innerOf(flag) {
   return flag.slice(flag.indexOf("{") + 1, flag.lastIndexOf("}"));
 }
 
+/*
+ * The project's own environment variables, named in families and kept to a
+ * similar length so a .env lines up:
+ *
+ *   SITE_ORIGIN    public origin: canonical tags, sitemap, Better Auth's base URL
+ *   AUTH_SECRET    signs Better Auth's session cookies
+ *   CTF_ANSWERS    flags.secret.json, for a host that cannot have the file
+ *   CTF_SUFFIXES   seeds.secret.json, likewise
+ *   GITHUB_CLIENT  GitHub OAuth app client id
+ *   GITHUB_SECRET  GitHub OAuth app client secret
+ *
+ * DATABASE_URL, DATABASE_URL_UNPOOLED and NEON_* are not ours to name: the Neon
+ * CLI writes them under exactly those names and its Vercel integration expects
+ * them.
+ */
+
 /**
  * Environment fallbacks, for building where the gitignored files cannot exist.
  *
  * A hosted build clones the repo, so `flags.secret.json` and
  * `seeds.secret.json` are simply absent. Supplying the same JSON through
  * environment variables is what lets a *real* instance deploy without the
- * answers ever being committed -- see docs/architecture/README.md.
+ * answers ever being committed -- see docs/deployment.md.
  */
-export const KEY_ENV = "POCKET_CTF_FLAGS";
-/** Same width as {@link KEY_ENV}, so values line up in a .env. */
-export const SEEDS_ENV = "POCKET_CTF_SEEDS";
+export const KEY_ENV = "CTF_ANSWERS";
+export const SEEDS_ENV = "CTF_SUFFIXES";
 
 /**
- * The public origin. Not a secret, unlike the two above -- it is read by the
- * browser bundle, which is why it keeps Vite's `VITE_` prefix. Vite only inlines
- * prefixed variables into client code, so renaming it would need `envPrefix` in
- * vite.config.ts and would silently resolve to undefined until that was done.
+ * The public origin. Not a secret, unlike the two above: the browser bundle
+ * reads it, which works because vite.config.ts adds `SITE_` to Vite's
+ * `envPrefix`. Without that it would silently resolve to undefined on the
+ * client.
  */
-export const URL_ENV = "VITE_SITE_URL";
+export const URL_ENV = "SITE_ORIGIN";
 
 /** Prefer the environment, fall back to the file. */
 function readJson(path, envVar) {

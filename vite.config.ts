@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    // SITE_ORIGIN is public and read by the client, so `SITE_` is exposed
+    // alongside Vite's own prefix. Nothing secret may start with either.
+    envPrefix: ["VITE_", "SITE_"],
     server: { port: 3000 },
     resolve: {
       // Mirrors the `~/*` -> `./src/*` alias in tsconfig.json.

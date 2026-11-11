@@ -159,7 +159,7 @@ Being explicit about the boundary:
   that reaches the server directly can supply its own. Behind a host that sets
   the header itself — Vercel does — this is not a concern. Players sharing one
   address, such as a classroom behind one NAT, share its forty free misses.
-- **The development secret is public.** Without `BETTER_AUTH_SECRET` the server
+- **The development secret is public.** Without `AUTH_SECRET` the server
   falls back to a fixed value, so that a clone runs. Anyone who knows it can
   sign a session for any user, which is why production refuses to run
   without a real one.
