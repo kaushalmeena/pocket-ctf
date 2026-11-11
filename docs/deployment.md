@@ -28,8 +28,8 @@ Nitro detects Vercel's build environment and emits serverless functions without
 being asked, so there is no `vercel.json` and nothing to configure beyond the
 environment variables: `POCKET_CTF_URL`, `BETTER_AUTH_SECRET`, the answer key's two
 below, the two database strings, and the GitHub pair if players are to claim
-progress. Neon's Vercel integration can supply the
-database strings for you; make sure they reach the build as well as the
+progress. `pnpm gen:env` writes all of them to one file (below), or Neon's
+Vercel integration can supply the database strings; make sure they reach the build as well as the
 functions, since the build applies migrations. Vercel's own notes are at
 <https://vercel.com/docs/frameworks/full-stack/tanstack-start>.
 
@@ -154,17 +154,29 @@ pnpm gen:env --url=https://ctf.example.com
 It reads the secrets already on your machine, writes a gitignored
 `.env.deploy` -- not `.env`, which holds this machine's Neon connection
 strings -- and reads it back to confirm both values round-trip through
-`JSON.parse`. It also writes a freshly generated `BETTER_AUTH_SECRET` (or the one
-already in your environment) and empty `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` lines
-with the callback URL to register. Paste those
-into your host's environment settings, or hand the file to a CLI that reads one.
-The values are minified and unquoted on purpose: JSON cannot contain a raw
-newline, and leaving it unquoted sidesteps the apostrophe problem, since dotenv
-only strips quotes it finds at the start of a value.
+`JSON.parse`. Alongside the answer key it writes:
 
-That file is your plaintext answer key. Delete it once the host has what it
-needs. It does not include the database strings, which the host's Neon
-integration or your own settings supply.
+- `BETTER_AUTH_SECRET`, freshly generated the first time;
+- the `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` pair, empty the first time,
+  with the callback URL to register;
+- `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for Neon's `production` branch,
+  fetched with `neon connection-string` (`--db-branch=<name>` for another).
+  Never `.env`'s, which point at `dev`.
+
+Rewriting with `--force` keeps the existing file's URL, session secret and
+GitHub pair, unless the environment sets them -- a new session secret would
+sign every player out. Paste the file into your host's environment settings, or
+hand it to a CLI that reads one. The values are minified and unquoted on
+purpose: JSON cannot contain a raw newline, and leaving it unquoted sidesteps
+the apostrophe problem, since dotenv only strips quotes it finds at the start of
+a value.
+
+That file is your plaintext answer key and your production database password.
+Delete it once the host has what it needs.
+
+With the Vercel CLI, after `vercel link`, each line goes in with
+`vercel env add <NAME> production` (the value on stdin), and
+`vercel deploy --prod` builds and ships.
 
 `scripts/bootstrap.mjs` runs on `postinstall` and `prebuild`. It generates from a
 real key when one is reachable — file or environment — and otherwise seeds the
