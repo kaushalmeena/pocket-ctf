@@ -19,7 +19,7 @@ import { fragmentOf } from "./finale";
 import { persist, type Player, variantOf } from "./players";
 import { flagPrior, rarity, recount } from "./rarity";
 import { clues as cluesTable, eggs, players, solves } from "./schema";
-import { runCommand } from "./terminal";
+import { journalUnlockedAt, runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
 
 /**
@@ -233,7 +233,8 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
   ): Promise<Reply> => ({ tone, lines, trophies, clear, me: await standing(player) });
 
   if (!/^pctf\b|^pctf\{/i.test(input)) {
-    const out = await runCommand(player, input);
+    const found = (await solvesOf(player)).size;
+    const out = await runCommand(player, input, { found, total: CHALLENGES.length });
     const trophies = out.egg ? await awardEgg(player, out.egg) : [];
     return reply("info", out.lines, trophies, out.clear);
   }
@@ -326,6 +327,8 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
       ? "That was the last of them."
       : `${me.found} of ${me.total} found. The rest are still where they were.`,
   );
+  const page = journalUnlockedAt(me);
+  if (page) lines.push(`A new file appeared: ${page}`);
   return { tone: "ok", lines, trophies, me };
 }
 

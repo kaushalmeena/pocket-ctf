@@ -49,6 +49,103 @@ const FILES: Record<string, string[]> = {
   ],
 };
 
+/* ------------------------------------------------------------------ *
+ * The journal
+ * ------------------------------------------------------------------ */
+
+/**
+ * A story told in files that appear as the player finds flags: the week of
+ * the sysadmin who was told to remove every flag before an audit, and did not
+ * know where any of them were. The player is doing their job for them.
+ *
+ * Each entry unlocks at a number of flags found; `at: 0` means all of them.
+ * A locked entry does not exist as far as `ls` and `cat` are concerned.
+ */
+type Entry = { at: number; name: string; lines: (handle: string) => string[] };
+
+const JOURNAL: Entry[] = [
+  {
+    at: 1,
+    name: "journal-1.txt",
+    lines: () => [
+      "mon. the auditors arrive friday. the brief: remove every flag from the site.",
+      "small problem: i didn't hide them. my predecessor did, and left no list.",
+      "just a sticky note on the monitor: 'you'll know them when you see them.'",
+      "i do not.",
+    ],
+  },
+  {
+    at: 4,
+    name: "journal-2.txt",
+    lines: (handle) => [
+      "tue. found nothing. the logs say somebody else has found several.",
+      `the logs call them ${handle}.`,
+      "i could block them. or i could let them do my job and take the credit.",
+      "letting them.",
+    ],
+  },
+  {
+    at: 8,
+    name: "journal-3.txt",
+    lines: () => [
+      "wed. recovered some of the predecessor's notes. highlights:",
+      "  'the best hiding place is something the browser was always going to be sent.'",
+      "  'some only open for people who ask in the right way. or the right format.'",
+      "  'some only show up on paper.'",
+      "they were insufferable. they were also right.",
+    ],
+  },
+  {
+    at: 12,
+    name: "journal-4.txt",
+    lines: (handle) => [
+      `thu. the auditors asked for an inventory. i sent them ${handle}'s trophy case.`,
+      `they asked who ${handle} is. i said 'a contractor'. it's not untrue.`,
+      "also found: the predecessor wrote a key in pieces, one on the back of every",
+      "trophy. the pieces open the last one. the last one opens nothing else.",
+    ],
+  },
+  {
+    at: 16,
+    name: "journal-5.txt",
+    lines: () => [
+      "thu, very late. the deploy log says the predecessor shipped everything",
+      "at 3:14 in the morning, every time. the site still remembers. it does",
+      "something different at that minute. i have never been awake to see it.",
+      "also: they left a fake admin login lying around. do not type quotes into it.",
+    ],
+  },
+  {
+    at: 19,
+    name: "journal-6.txt",
+    lines: (handle) => [
+      "fri, 6am. one left. the one made of all the others.",
+      `if ${handle} finds it before nine, i keep my job.`,
+      "no pressure.",
+    ],
+  },
+  {
+    at: 0,
+    name: "journal-7.txt",
+    lines: (handle) => [
+      "fri, 9am. audit passed. every flag accounted for.",
+      `the report's remediation section is one word long. it says '${handle}'.`,
+      "taking the rest of the week off. thanks, whoever you are.",
+      "-- m.",
+    ],
+  },
+];
+
+/** How far into the hunt the player is, which decides what the prompt shows. */
+export type Progress = { found: number; total: number };
+
+const unlocked = (progress: Progress) =>
+  JOURNAL.filter((entry) => progress.found >= (entry.at || progress.total));
+
+/** The entry that this many finds has just unlocked, if any. */
+export const journalUnlockedAt = (progress: Progress) =>
+  JOURNAL.find((entry) => (entry.at || progress.total) === progress.found)?.name ?? null;
+
 const VISIBLE = Object.keys(FILES).filter((name) => !name.startsWith("."));
 
 const QUIPS: Record<string, string[]> = {
@@ -150,7 +247,11 @@ async function bridge(player: Player, step: number, answer: string): Promise<Out
   }
 }
 
-export async function runCommand(player: Player, input: string): Promise<Output> {
+export async function runCommand(
+  player: Player,
+  input: string,
+  progress: Progress,
+): Promise<Output> {
   const line = input.replace(/\s+/g, " ").trim();
   const lower = line.toLowerCase();
   const [command = "", ...args] = lower.split(" ");
@@ -205,13 +306,16 @@ export async function runCommand(player: Player, input: string): Promise<Output>
 
   if (command === "ls" || command === "dir") {
     const all = args.some((a) => /^-\w*a/.test(a));
-    return { lines: [(all ? Object.keys(FILES) : VISIBLE).join("   ")] };
+    const journal = unlocked(progress).map((entry) => entry.name);
+    return { lines: [[...(all ? Object.keys(FILES) : VISIBLE), ...journal].join("   ")] };
   }
 
   if (command === "cat" || command === "less" || command === "more") {
     const name = args[0];
     if (!name) return { lines: ["cat: which file?"] };
-    const file = FILES[name.replace(/^\.\//, "")];
+    const wanted = name.replace(/^\.\//, "");
+    const entry = unlocked(progress).find((e) => e.name === wanted);
+    const file = entry ? entry.lines(player.handle) : FILES[wanted];
     return { lines: file ?? [`cat: ${name}: no such file`] };
   }
 
