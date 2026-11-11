@@ -56,7 +56,7 @@ export function TrophyToasts() {
 
   return (
     <div
-      class="pointer-events-none fixed top-4 right-4 z-50 flex w-[min(24rem,calc(100vw-2rem))] justify-end"
+      class="pointer-events-none fixed top-3 right-3 z-50 flex w-[min(21rem,calc(100vw-1.5rem))] justify-end"
       role="status"
       aria-live="polite"
     >
@@ -65,32 +65,36 @@ export function TrophyToasts() {
           <button
             type="button"
             onClick={handleDismiss}
-            class={`trophy-toast tier-${toast.tier} pointer-events-auto flex w-full items-center gap-3.5 rounded-2xl p-3 pr-5 text-left`}
+            title={toast.quip}
+            class={`trophy-toast tier-${toast.tier} pointer-events-auto flex w-full items-center gap-3 rounded-xl py-2 pr-4 pl-2.5 text-left`}
             classList={{ "trophy-toast-leaving": leaving() }}
           >
-            <TrophyIcon tier={toast.tier} size={22} />
+            <TrophyIcon tier={toast.tier} size={14} />
             <span class="min-w-0 flex-1">
-              <span class="flex items-center gap-2 font-mono text-[0.65rem] tracking-widest text-zinc-400 uppercase">
-                <span class="trophy-ink">{TIER_LABEL[toast.tier]} trophy</span>
+              <span class="flex items-center gap-2 font-mono text-[0.6rem] tracking-widest text-zinc-400 uppercase">
+                <span class="trophy-ink">{TIER_LABEL[toast.tier]}</span>
                 <Show when={toast.points !== undefined}>
                   <span>+{toast.points}</span>
                 </Show>
                 <Show when={toast.firstBlood}>
                   <span class="text-rose-400">first blood</span>
                 </Show>
+                <Show when={toast.fragment}>
+                  {(fragment) => (
+                    <span class="ml-auto shrink-0 text-zinc-500">
+                      {fragment().n}/{fragment().of}{" "}
+                      <span class="trophy-ink normal-case">{fragment().text}</span>
+                    </span>
+                  )}
+                </Show>
               </span>
-              <span class="block truncate pt-0.5 text-[0.95rem] font-semibold text-white">
+              <span class="block truncate text-sm leading-tight font-semibold text-white">
                 {toast.title}
               </span>
-              <span class="block pt-0.5 text-xs leading-snug text-zinc-400">{toast.quip}</span>
-              <Show when={toast.fragment}>
-                {(fragment) => (
-                  <span class="block pt-1.5 font-mono text-[0.65rem] tracking-widest text-zinc-500 uppercase">
-                    fragment {fragment().n}/{fragment().of} ·{" "}
-                    <span class="trophy-ink normal-case">{fragment().text}</span>
-                  </span>
-                )}
-              </Show>
+              {/* One line here; the full quip is the tooltip and lives in the case. */}
+              <span class="block truncate text-xs leading-snug text-zinc-400">
+                {toast.quip}
+              </span>
             </span>
           </button>
         )}
