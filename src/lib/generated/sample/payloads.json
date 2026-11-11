@@ -1,6 +1,38 @@
 {
   "$generated": "pnpm gen -- do not edit by hand",
   "$note": "Server-only. Contains no plaintext flags, hints or writeups. See docs/build-pipeline.md.",
+  "bridge-keeper": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "b5614bc0b6ec28f2b956b20432b8ffe1",
+          "iv": "ff76f535688bea9110336876",
+          "ct": "d60a27d09214e41ed67fffa2954e2735373bb36ea3138a882e952bb4b297b0951f13d09ccf162a7e1a86d0cf4bfe6f326bc0a72e66"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "af3f64216db86571c3dc82c13808a7e2",
+          "iv": "52ba55340cc1ef92305e6c69",
+          "ct": "573c501c2290275824594bf021f788bb235b7669d038f6b08fb562b37c810cf32c2be9bc02ff9fa575d2e39eb3de747ffc55074f60f9"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "ba0f64f36db3db6d43a3082081f690dd",
+          "iv": "1eeb6273cec893cd3f4d2019",
+          "ct": "8ac20ea108ee2f3257ea9a42d88ae74261a082a76ad0e81ea265e9592ecc05123504232e82981c75c1e6289f2d06d9082fea20c512a6"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "6e2a60d15adb0e093d4d05a45ea7dd6e",
+          "iv": "3aa0f3eed3bc02f1b8904a20",
+          "ct": "952f46332d45169bc82ffeefa218365b74452306f0c6bd5e79b1d57c67786b89aa20922ef97387588c98fca2a48c4ac5b7b39ebb2ba3"
+        }
+      }
+    ]
+  },
   "chromatic-aberration": {
     "variants": [
       {
@@ -29,30 +61,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "adcb5286500b8c688654cd7c28d2d930",
-          "iv": "6fb9c942fb9f36656ebfc138",
-          "ct": "3879a8c02a49f0ca6301e3a226aadec1fea72843bc6327314b7524d9138d06c67b2acb4ac70f350eb4cb3711a22c83c3eb0d"
+          "salt": "51250c499678a0b0bab443d97f3ba143",
+          "iv": "af064e6fc5e5604ddd193c48",
+          "ct": "0c45c35e6210abe6be2d3f1fbf55c2bd013f783dcd1959ae94f014fa4bea3716bd204a5a3fc86ab5a64b14a1aca91f8ccb04"
         }
       },
       {
         "sealed": {
-          "salt": "d8b4d0fee555c58a8031883c3fdba684",
-          "iv": "7fd9b1d47d2e82017f224e81",
-          "ct": "abc0804b0dd695ab2ac41c22390ffdff736a2d7b24bfbf0058bfbde22976c0109951da2765799e14ea793c874549cecb07ba52"
+          "salt": "28429f75bc146eb6aaac92c3aa4cfe8e",
+          "iv": "4e442afb2357baa664451db5",
+          "ct": "8ef192da81188844e7eb84367dd35b5d908fb358947731b8a9ee4137d8f488120d253a014319947110f95078adaed22c1f3f37"
         }
       },
       {
         "sealed": {
-          "salt": "c52df51898d720d8fa8f29739330eed8",
-          "iv": "63b17c5bd0f3e8d2bf0f3b72",
-          "ct": "f966ec9309bd6b9b2e7a218b0d2eb830ad0428d6e3b02b4834cc59d4551b722819ae7df233b308c9d6dfa9eb1ca855fa524d69"
+          "salt": "1f7217a8ae97de7ad7d8b0d901f7beef",
+          "iv": "30c9642c0291886efe9cc21c",
+          "ct": "e73d4c100002ebb0417da3b9fdee07ea006a1a2d41486615028eb323eb6b370a680e57a2696128a80d8ad0b9a93098f1453248"
         }
       },
       {
         "sealed": {
-          "salt": "39a661119f4351705ac3a5de20261242",
-          "iv": "50f25011edc3cab42d3edf6f",
-          "ct": "a8e075a77e3c7f4621b9b1e045af62f53ea4489a6882d99d11d963be501b5662cb77e8b2a505589ce7f6161974f108920184b3"
+          "salt": "13d2dbe6acbd1fb3ece99d8114704393",
+          "iv": "9a39abe5b16f89e664278d67",
+          "ct": "f16a86588c27d90aa340a1cf76a2c93c9d2a0ad5b079a161ad1be2c43a8b02a321abbc378ded1bfd1f657d03f02d622b145829"
         }
       }
     ]
@@ -2573,30 +2605,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "f0c03e8be240fc32a5ce485629e7fcf0",
-          "iv": "040f6cf48909e91f7dfa1ba2",
-          "ct": "3e4de082a63bbd260db73e9f8b2180f4b2256199d78d17f990f1e5960bb3983db54cfef2bf08489633dd4831823dddfcc591"
+          "salt": "76faf243266e24e34869c2bc7661dde3",
+          "iv": "7756344fe8b11cb5e8eaedb5",
+          "ct": "0b7623399a5201199cfa3dc5ec21b2de83b32b4d161919eb311ad7b2a9227f10540cc3245c9cce761b6890075b0e0ed1b497"
         }
       },
       {
         "sealed": {
-          "salt": "8b7bf0f1b858cd4c7fdf855540080c58",
-          "iv": "98bd1208561ddf133276486c",
-          "ct": "83062f13c1c7b16532caa71be7d4ae7c5d6305cdc28344b237ece5f4fa7fb348d2c6985bc60ec3719b9fc2ce1223f503103d7f"
+          "salt": "92eb0198dbbc5f50ce47b702680c9e5b",
+          "iv": "2d31541b9ce0ef8b2cad1d3e",
+          "ct": "ab5113791962e6686f182d1da4b1924c2b919b3f5f68543e4ff6e89c6f1add69b75606badc3d134e89c26df0802734c0a2062a"
         }
       },
       {
         "sealed": {
-          "salt": "2765482c3763b6f22f734bddaa9ee9f1",
-          "iv": "8e9e7cdce4de827549ef00ba",
-          "ct": "2dfa067fbacaaea6cdb1dadfc91f2b4cac3867bd0adec753a894a3d5040ba5297afec770c5225bc26ab0fb8f6403ec2e64a711"
+          "salt": "950491623fdc9f9bacdacd0a35493f65",
+          "iv": "120bbc63122995813e1e80e4",
+          "ct": "14c0d09a320bf48555e5a9d3171d500f337ffa2750f434ed2299ddd6a4f8d2d72411351754d136373a38037d4ed68d1b0281e1"
         }
       },
       {
         "sealed": {
-          "salt": "8d848d2ba2bb3ebb095d0b1a91173a4f",
-          "iv": "6e73093735d230cc46423d1a",
-          "ct": "a39bec2a589ea89da7e8b4786130429106168733a17249b4e7e2c30948ac35b3a88ec4ca3afa491b5ae10c923dd9de7b3a3fc4"
+          "salt": "da8a60c26d0457a6e24b90ee1ec2006d",
+          "iv": "14a2fd4db5a6c6f76aec4344",
+          "ct": "7fb7dbb820368764831078d8fd0b4b87b2eec912ee2e183f8c9354eadd551636ffdb7308c57d6e6e74ef9f00bc2d4f24347dc5"
         }
       }
     ]
@@ -2669,30 +2701,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "e23b9222d15e624cfd2aafb468761403",
-          "iv": "29ce5e4da3d22e1f0b2034b2",
-          "ct": "4a3ebefed7b81972af5491e4df4e055139e3c425dedab2f2a966140adc29a7c83e6c807da160d63d64f15222ed5dae89fa589a"
+          "salt": "b1b28a34ebf1d717e188439056586131",
+          "iv": "f16711a1ed4bb6d41482836b",
+          "ct": "f111b9b51590a9471d25ed26489b3c675ddeba449e5846092dbb7712d53ffb0dbb5cd490689c51e64ba81679fb10259bd3a4ab"
         }
       },
       {
         "sealed": {
-          "salt": "aaf396405593904eb8da27fdf7a2ed17",
-          "iv": "6dbf1d2c2dbff6f6a788be5d",
-          "ct": "b8b117d1ebb510b8bad927de054f863ec67aef27aeb3cdb1cef47a5cb53f6bd9d484e886fabb2208ef88868951da436ce515e468"
+          "salt": "9da88489675f4b788ab516cb72967cb4",
+          "iv": "8bad9406a50096bb2c2e59c2",
+          "ct": "d0b1cf0ee66dac826c081450374f7a41e9d82d929ba7a59be49ef9f5796de60ffba174cf1d49e779fce4bcb764286a4b9e82b045"
         }
       },
       {
         "sealed": {
-          "salt": "6d0dbb837dbd50bb3e339aabb51bc366",
-          "iv": "ad2e103cb43c24d70ee7797c",
-          "ct": "b55ba81dfebaf2c043a6bba76d750af56f2a8b5ed4479cdefe4bb83db7af542f266c758c5fd9297ed4e4385adce4805af69f3ac4"
+          "salt": "0e08cf8f980678d135b26d130836d672",
+          "iv": "4c47f531392c62333dff6498",
+          "ct": "02156bb2db2d079c12cdd9b4c52667e3bcd6eb2df60235570ac9f982fe4fa86a659572b1823e336f3887ff5628f88af1835fd8f8"
         }
       },
       {
         "sealed": {
-          "salt": "411d95c71707fc093b2271b220e809b2",
-          "iv": "2c44fc73e0506a4b0c0057bd",
-          "ct": "1b7d83d71df6a49a1615448967dfdbbee8bc50b3b2290c18a7804f709b450c63ca1de038ac06e5f07ad3b38ee0a5475586b320f2"
+          "salt": "6768ebbd24c4476d1d1d2256f61f817d",
+          "iv": "5db963d434df524f80e1301c",
+          "ct": "82c84fc1ca766ba8397685ba920fcf0983d259fa357b484c09ad77cc685408993c7594f9f397642807bfd5aaf895ea39175c44e9"
         }
       }
     ]
@@ -2917,30 +2949,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "d96c96f2ae761c1b59d6c3f439d723dc",
-          "iv": "c03a7bc983bac7b32834f84e",
-          "ct": "220b1e39a762f7884513688551852f5c14aff7976bd3cec439455e6813f8cb3b3a8d853951f1e2b63f01404a237fdddb4d"
+          "salt": "a77ebc3eeee46d8f6fd01b3f5a458270",
+          "iv": "e48115176600f8406a031b19",
+          "ct": "3e881af99ce7956921156dbab3c02b4c371b8ee836c1a25a6bba1867fa05cc8e5f368d06cb1856dbd4980fe765ee478245"
         }
       },
       {
         "sealed": {
-          "salt": "e6b8457b5e5ac1f130acee42c4317791",
-          "iv": "a91da89a6e18529687399862",
-          "ct": "9139e5537c23a35b6f6d13996c15d5ac388e301712bdd32932cbd15b7ce8e0511ef7e238bdb7c6e2bd198bc684fc67c0d423"
+          "salt": "9d9f90c59317f33f4e611744ee127591",
+          "iv": "c7c63438931edfc90464a9a1",
+          "ct": "6a3bc28d4bfb6dbf10b9b018012d9465722bd77e2ca991e1a32996aed4df6dd554b962439e4ab6d8de3d3f5ac529de7e798d"
         }
       },
       {
         "sealed": {
-          "salt": "7332a9fec1deb846a0602a2d440d79d9",
-          "iv": "1b739239250f80301efa8b43",
-          "ct": "cb3f55a1c939b16f2921585a6d06cc3761979f012970f04f599e01cc2cb2cb0f0afbc4c2e410a828c9fa06ee4a8a1f530ec5"
+          "salt": "518a17c7733327831a5775dd4f515cac",
+          "iv": "3fdf5730b3a3f79824d2d01b",
+          "ct": "25881c9ee7e3c1732732a363d5268a4204cb434f77bd44178312d1199c232ca95ba50ec019718a257fb35821198ee7ec5fba"
         }
       },
       {
         "sealed": {
-          "salt": "78336b032957e370bef0786b2ab457bd",
-          "iv": "cb1d91cc6c8ff2f9831bac80",
-          "ct": "06a3d76b3082787eba6d06502d53509a75886b5eb36a8c63eac801a5ab0c5b09b0e293bc3481939f5b7006c67b1cb376d3b8"
+          "salt": "81710bed20b1d68feb57228448f4fbba",
+          "iv": "976ff1788daea72535d801ef",
+          "ct": "b96170175c115ff1b3552bbd6774b153983d32ab05a7753cb0645944c4cd383977e90d9667dd346030d0434efe613a26b070"
         }
       }
     ]
@@ -2978,6 +3010,38 @@
       {
         "blob": "T05EVUM2TFBLVkhXT1RDTElGWlc0TVNCT1ZHSFNPSlFOWkVUU1pTTkpKRVdVU1pTSEZUVTJTU0ZHNUdXQ1JMWE9CSEQyUEk9",
         "layers": 5
+      }
+    ]
+  },
+  "simon-says": {
+    "variants": [
+      {
+        "sealed": {
+          "salt": "ee08e0ff321faf00238b6e877fe59dfc",
+          "iv": "9c757abfaed48e44f934f6aa",
+          "ct": "4faba25b16bc3be28aa326fecc97bd8bbcebd4cd9f1453435794fb356ccd327f068fd995dbd994519a31e3e3"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "d0445c9b6c381135800058e743a24755",
+          "iv": "bd0050f0ed0ccccd1ca2a30a",
+          "ct": "880b73f090fdd6e28394487e121161fa13de4539dcee360f6658cb0407daa7b0b975918c4ce67fab415b36d5a1"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "fc5da82e79a8596aa890686d47dbc472",
+          "iv": "f7bed4963ff5438517fb2297",
+          "ct": "093ed1b0b5e5c68ae334cd315c543c17815f614c8dcff0975d21bbccb8b7b0c8f96e3f83352351e51afe346fea"
+        }
+      },
+      {
+        "sealed": {
+          "salt": "fb2dd301a687b54631166dad372f9ffd",
+          "iv": "ff55691a31377bee6085c6ba",
+          "ct": "605e1faf66ef46293f53a767e8be4b44947d2c52b427cc877ba349c0f05d152bdba58c98c6fb9008a6da6de913"
+        }
       }
     ]
   },
@@ -3033,30 +3097,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "e53faef918cd92c927c6f5430290bd05",
-          "iv": "d4689b6641ce6a8aec313be9",
-          "ct": "7309c379f846cacec14a3904882750b2976f00b6a7469e301c006c7b0d1f341b0d8cd917e82fac7f3f80afb639ba"
+          "salt": "7be009ddae357b227da2c42f5cad5fd7",
+          "iv": "b269fa761003c8b7539104f7",
+          "ct": "4f648bc40052d837507300aa820b685ec5d8461ac135c18b7c577af87003f985c2c9ca0c260d039afb60cde48789"
         }
       },
       {
         "sealed": {
-          "salt": "26d100402d7bb0a057a6832ebc629421",
-          "iv": "a9b55eec967ee1f3cc8c5580",
-          "ct": "306ee0f2ef7951810ef0398a2580ae300f843330a3890d058a6e6b1f7c117c82f1335064117e549ca9e0794ecf112c"
+          "salt": "a4207e77527bc3cb6059f1cea089f237",
+          "iv": "43ff2afb6c5d76620e7f14be",
+          "ct": "f1a8c9e46c1b1d4e4897d44d47b575ce30ab70beb6585b10f8cc905098beac77b6524a419804e0776fa303a1dcef1c"
         }
       },
       {
         "sealed": {
-          "salt": "fbe50698b7e922077c3a299cc6ce6808",
-          "iv": "acc2e2531ef84b6774428c32",
-          "ct": "91198fbc1a08edf80fb82d4dd1404a37c2ab9ed474ec73e1ecdc047f616e2b9c49d4f81ecf5c00324406ea3c22e228"
+          "salt": "3449d0a5061748b99b8fe1c854991879",
+          "iv": "cffce3723f7cb9369ee6a07f",
+          "ct": "6361f74ec0d68113b528726188a71cc29e8a3e9b9e42d8a5aab6c3ee2e487f878242975e81afdd2debbae925afe44d"
         }
       },
       {
         "sealed": {
-          "salt": "e378a76c77689581d6777b5628368b6e",
-          "iv": "a7ba072e9bada6c9b12de7fd",
-          "ct": "f26c642c62fe24eb8e730a4139840cedc932055ae2ebb9a2d506851541b59e731bb2e4913de825a3242570f9ccf4c7"
+          "salt": "5c27b416c54911045234cffa4de1feec",
+          "iv": "4611d72d694163907721dde1",
+          "ct": "56d8bc12f335204879374864fd96c3ed66252eb959fdb408e1e53d7a437564c6086bc80b19c8145f3fbc5879e54e8c"
         }
       }
     ]
@@ -3093,30 +3157,30 @@
     "variants": [
       {
         "sealed": {
-          "salt": "180925952325cfe4a0b0794fda118404",
-          "iv": "58d6d748e69632c110cac4e3",
-          "ct": "b55ac0b03e9d2143ae40c9e3dfdacd5857d86da74c56004f22328858f829f785171eaeb7b5807d19d6eb2a9329"
+          "salt": "5d7e9b1522264521a93abbac6fb03a4d",
+          "iv": "5546b24f947219dc99bcca5a",
+          "ct": "b0e158ce541bdc4b672177535ab7533bed8960074f427c58fc34cb9029ba2bd8bf23cee3ee7cef3dddff759afa"
         }
       },
       {
         "sealed": {
-          "salt": "8776be72b9105d112e38884c62c36d8d",
-          "iv": "38f3828f078cd8ee4cfe2d33",
-          "ct": "48504e56675ca8dedc3349e00bbc187d2ba108daae54f77bf22f43ff8f18e219bfa750b62006fbbe672dcee0aa40"
+          "salt": "0e86e074cd84f1f8cc6e39cd07fd4e54",
+          "iv": "7ed9ed92f318d7cd723a36a1",
+          "ct": "062eb63c2f65c354c7fcffb3bb7eddf5c11f1fada463ee9fe18e2ed56ec3be55a067d676955d9d4816c56c1d8b37"
         }
       },
       {
         "sealed": {
-          "salt": "0f595043db50d62ab0cffa9d1f5b4444",
-          "iv": "11317fffb4d7966f29f4e0b9",
-          "ct": "3c79fe9ef54d73e934bf751f963c35b6389c699975139f9e18cbae6e0cbf55284008231139a7b4ed2b6bd78e338d"
+          "salt": "f4ea2125bdc1f63bd7bebaf920e7545c",
+          "iv": "bdc8b49fd665f793ce397f76",
+          "ct": "1beb54ea1539e3faba3a7f7d81c4081045f279375d237fbf81acbae7a81e723eb54fbb6cd9a861d59bb85bf36ac0"
         }
       },
       {
         "sealed": {
-          "salt": "6720547a852c6cb64874f5ac70276069",
-          "iv": "bdd78ba555d2ecaf9f59ffd9",
-          "ct": "3c169fa1f861defe886b00bd0dc3c88ce258edbc71ad2efa37b7a353cd2da7de44e03d9d69b100d80c57b1e61909"
+          "salt": "124bd4d387f9e2c215a304dd0a647004",
+          "iv": "d27f912fd050fb640ac3ca27",
+          "ct": "018694bc7a6e093eebe110faa00f5f2801ae9544fbb8844cd1f4adcb5120bc971dc54759d04de41230bd0dc1180b"
         }
       }
     ]

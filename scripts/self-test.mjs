@@ -214,6 +214,40 @@ const HUNT = {
     return { found: (await (await visit(`${path}${known}`)).json()).flag };
   },
 
+  // Named in todo.txt. Obey only what Simon says, and nothing else.
+  "simon-says": async () => {
+    const path = (await say("cat todo.txt")).lines.join(" ").match(/\/api\/[a-z]+/)?.[0];
+    const ask = async (ticket, init = {}) =>
+      (await visit(ticket ? `${path}?ticket=${ticket}` : path, init)).json();
+    const real = (reply) => reply.says.find((line) => line.startsWith("Simon says"));
+
+    let reply = await ask(null);
+    for (let round = 0; round < 6 && !reply.flag; round++) {
+      const order = real(reply) ?? "";
+      if (!reply.simon) throw new Error(`Simon reset the game: ${reply.says.join(" ")}`);
+      if (/X-Simon/i.test(order))
+        reply = await ask(reply.ticket, { headers: { "x-simon": "please" } });
+      else if (/wait five seconds/.test(order)) {
+        await new Promise((done) => setTimeout(done, 5200));
+        reply = await ask(reply.ticket);
+      } else if (/PUT/.test(order)) reply = await ask(reply.ticket, { method: "PUT" });
+      else reply = await ask(reply.ticket);
+    }
+    return { found: reply.flag };
+  },
+
+  // A hidden file about a bridge, and a keeper with three questions.
+  "bridge-keeper": async () => {
+    const note = (await say("cat .bridge")).lines.join(" ");
+    const start = note.match(/cross bridge/)?.[0];
+    const handle = (await say("whoami")).lines[0];
+    await say(start);
+    await say(handle);
+    await say("to find the flags");
+    const last = await say("african or european?");
+    return { found: last.lines.join(" ").match(/pctf\{[a-z0-9_]+\}/)?.[0] };
+  },
+
   // The Link header on every response.
   "instruction-set": async () => {
     const link = (await visit("/")).headers.get("link")?.match(/<([^>]+)>/)?.[1];

@@ -287,3 +287,102 @@ export async function vault(key: string) {
   if (key !== finaleKey(player)) return null;
   return { flag: (await vaultFlag(FINALE, variantOf(player, FINALE))) ?? "" };
 }
+
+/* ------------------------------------------------------------------ *
+ * Simon says
+ * ------------------------------------------------------------------ */
+
+const SIMON_WAIT_MS = 5000;
+const TICKET_TTL_MS = 10 * 60_000;
+
+type SimonReply = { status: number; body: Record<string, unknown> };
+
+/*
+ * A ticket is `step-issuedAt-mac`, signed with the player's own seed. The
+ * server keeps no memory of how far anyone has got: the ticket says it, and
+ * cannot be forged or carried to another player.
+ */
+const simonMac = (player: Player, step: number, at: number) =>
+  secretOf(player, `simon/${step}/${at}`, 12);
+
+function ticketFor(player: Player, step: number) {
+  const at = Date.now();
+  return `${step}-${at}-${simonMac(player, step, at)}`;
+}
+
+function readTicket(player: Player, ticket: string) {
+  const [step, at, mac] = ticket.split("-");
+  const [n, issued] = [Number(step), Number(at)];
+  if (!Number.isInteger(n) || !Number.isFinite(issued) || !mac) return null;
+  if (mac !== simonMac(player, n, issued) || Date.now() - issued > TICKET_TTL_MS) return null;
+  return { step: n, issued };
+}
+
+/** Two instructions, one real. Which comes first varies, so order is no tell. */
+const pair = (real: string, decoy: string, realFirst: boolean) =>
+  realFirst ? [`Simon says: ${real}`, decoy] : [decoy, `Simon says: ${real}`];
+
+const reset = (why: string): SimonReply => ({
+  status: 400,
+  body: { simon: false, says: [why, "Back to the start. Ask again without a ticket."] },
+});
+
+/**
+ * An endpoint that only answers to instructions prefixed "Simon says". Every
+ * reply carries one real instruction and one tempting one; following the
+ * wrong one, or anything else, sends the caller back to the start.
+ */
+export async function simon(method: string, ticket: string | null, polite: boolean) {
+  const player = await currentPlayer();
+  const next = (step: number, says: string[]): SimonReply => ({
+    status: 200,
+    body: { simon: true, says, ticket: ticketFor(player, step) },
+  });
+
+  if (!ticket) {
+    if (method !== "GET") return reset("Simon didn't say to do that.");
+    return next(
+      1,
+      pair("ask me again, and bring your ticket.", "Clap twice and give up.", true),
+    );
+  }
+
+  const held = readTicket(player, ticket);
+  if (!held) return reset("That ticket isn't one of Simon's. Or it went stale.");
+
+  switch (held.step) {
+    case 1:
+      if (method !== "GET") return reset("Simon didn't say to change verbs.");
+      return next(
+        2,
+        pair(
+          "ask again with the header X-Simon: please",
+          "Now ask again, but with POST.",
+          false,
+        ),
+      );
+    case 2:
+      if (method !== "GET") return reset("Simon didn't say POST. Simon never says POST.");
+      if (!polite) return reset("Simon said please. You didn't.");
+      return next(
+        3,
+        pair("wait five seconds, then ask again.", "Hurry! Ask again right now!", false),
+      );
+    case 3:
+      if (method !== "GET") return reset("Simon didn't say to change verbs.");
+      if (Date.now() - held.issued < SIMON_WAIT_MS) {
+        return reset("Simon didn't say hurry. Patience was the whole instruction.");
+      }
+      return next(
+        4,
+        pair("ask again with PUT.", "Touch your nose, then ask with PATCH.", true),
+      );
+    case 4: {
+      if (method !== "PUT") return reset("Simon didn't say touch your nose.");
+      const flag = await vaultFlag("simon-says", variantOf(player, "simon-says"));
+      return { status: 200, body: { simon: true, says: ["Simon says: well played."], flag } };
+    }
+    default:
+      return reset("Simon has never issued that ticket.");
+  }
+}

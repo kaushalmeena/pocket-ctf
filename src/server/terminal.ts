@@ -1,4 +1,7 @@
-import type { Player } from "./players";
+import { deleteCookie, getCookie } from "@tanstack/solid-start/server";
+
+import { vaultFlag } from "./catalogue";
+import { leave, type Player, secretOf, variantOf } from "./players";
 
 /**
  * What the prompt says to anything that is not a flag.
@@ -27,11 +30,17 @@ const FILES: Record<string, string[]> = {
     "[x] stop listing the challenges on the front page",
     "[ ] take the X-Flag header out before launch",
     "[ ] stop leaving notes in dotfiles",
+    "[ ] /api/simon only listens when simon says so. teach it some manners",
   ],
   "door.txt": [
     "the back door: /api/door?code=______",
     "six digits. it checks them one at a time, left to right, very carefully,",
     "and gives up at the first one it does not like. it is not a fast door.",
+  ],
+  ".bridge": [
+    "an old rope bridge over a very deep gorge, east of the prompt.",
+    "a keeper stands at the near end. he asks everyone three questions.",
+    "to try your luck: cross bridge",
   ],
   ".radio": [
     "shortwave log, kept for no one",
@@ -53,19 +62,87 @@ const QUIPS: Record<string, string[]> = {
   hello: ["Hello. The flags are not in here, if that's what you were hoping."],
   hi: ["Hello. The flags are not in here, if that's what you were hoping."],
   xyzzy: ["Nothing happens."],
-  "42": ["Correct, but that's a different question."],
+
   flag: ["If it were that easy the trophies would be made of cardboard."],
   flags: ["If it were that easy the trophies would be made of cardboard."],
   hint: ["Hints live in the trophy case, and they cost points. Looking is free."],
   hints: ["Hints live in the trophy case, and they cost points. Looking is free."],
   man: ["No manual. That is rather the point of the place."],
-  "rm -rf /": ["Deleting everything… just kidding. Your flags are safe. So are ours."],
+
   "make me a sandwich": ["What? Make it yourself."],
   "sudo make me a sandwich": ["Okay."],
   date: [new Date().toUTCString()],
   uname: ["PocketOS 1.0 (it's a web form)"],
   history: ["Yours, mostly. Scroll up."],
 };
+
+/* ------------------------------------------------------------------ *
+ * The bridge
+ * ------------------------------------------------------------------ */
+
+const BRIDGE_COOKIE = "bridge";
+
+/*
+ * Each line typed at the prompt is its own request, so the keeper remembers
+ * which question he asked in a cookie -- signed with the player's seed, so it
+ * cannot be set to "question three" by hand.
+ */
+const bridgeMac = (player: Player, step: number) => secretOf(player, `bridge/${step}`, 16);
+
+function bridgeStep(player: Player) {
+  const [step, mac] = (getCookie(BRIDGE_COOKIE) ?? "").split(".");
+  const n = Number(step);
+  return n >= 1 && n <= 3 && mac === bridgeMac(player, n) ? n : 0;
+}
+
+const askNext = (player: Player, step: number, lines: string[]): Output => {
+  leave(BRIDGE_COOKIE, `${step}.${bridgeMac(player, step)}`);
+  return { lines };
+};
+
+const gorge = (why: string): Output => {
+  deleteCookie(BRIDGE_COOKIE, { path: "/" });
+  return {
+    lines: [
+      why,
+      "You are cast into the gorge. When you climb back out, the keeper is waiting.",
+    ],
+  };
+};
+
+async function bridge(player: Player, step: number, answer: string): Promise<Output> {
+  if (answer === "leave" || answer === "run away") {
+    deleteCookie(BRIDGE_COOKIE, { path: "/" });
+    return { lines: ["You run away. Bravely."] };
+  }
+  switch (step) {
+    case 1:
+      if (answer !== player.handle.toLowerCase()) {
+        return gorge("That is not what this site calls you. (It is always watching.)");
+      }
+      return askNext(player, 2, ["Right.", "What is your quest?"]);
+    case 2:
+      if (!/flag/.test(answer)) return gorge("That is nobody's quest. Not here.");
+      return askNext(player, 3, [
+        "Right.",
+        "What is the airspeed velocity of an unladen swallow?",
+      ]);
+    default: {
+      if (!/african/.test(answer) || !/european/.test(answer)) {
+        return gorge("A confident answer. Also a wrong one.");
+      }
+      deleteCookie(BRIDGE_COOKIE, { path: "/" });
+      const flag = await vaultFlag("bridge-keeper", variantOf(player, "bridge-keeper"));
+      return {
+        lines: [
+          "What? I... I don't know that.",
+          "The keeper is flung into the gorge by forces nobody can explain.",
+          `Pinned to the post on the far side: ${flag}`,
+        ],
+      };
+    }
+  }
+}
 
 export async function runCommand(player: Player, input: string): Promise<Output> {
   const line = input.replace(/\s+/g, " ").trim();
@@ -74,6 +151,37 @@ export async function runCommand(player: Player, input: string): Promise<Output>
 
   if (lower === "") return { lines: [] };
   if (lower === "clear" || lower === "cls") return { lines: [], clear: true };
+
+  // Mid-conversation, everything typed is an answer to the keeper.
+  const atBridge = bridgeStep(player);
+  if (atBridge > 0) return bridge(player, atBridge, lower);
+
+  if (lower === "cross bridge" || lower === "cross the bridge") {
+    return askNext(player, 1, [
+      "A keeper stands at the near end of a rope bridge.",
+      "Anyone who would cross must first answer three questions. (Type leave to give up.)",
+      "",
+      "What is your name?",
+    ]);
+  }
+
+  /*
+   * Secret trophies the prompt hands out. Pop culture, mostly, and none of it
+   * worth a point.
+   */
+  if (lower === "hello there") return { lines: ["General Kenobi."], egg: "kenobi" };
+  if (lower === "42") {
+    return { lines: ["Correct. Now all you need is the question."], egg: "towel" };
+  }
+  if ([":q", ":q!", ":wq", ":x", ":qa!"].includes(lower)) {
+    return { lines: ["You escaped vim. Most people never do."], egg: "vim" };
+  }
+  if (/^(sudo )?rm -rf \/\*?$/.test(lower)) {
+    return {
+      lines: ["Deleting everything… just kidding. Your flags are safe. So are ours."],
+      egg: "nuke",
+    };
+  }
 
   if (lower === "help" || lower === "?") {
     return {

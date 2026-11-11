@@ -18,7 +18,9 @@
     "not-modified": "pctf{demo_conditional_get}",
     "forged": "pctf{demo_weak_signing_key}",
     "tick-tock": "pctf{demo_slow_compare}",
-    "last-word": "pctf{demo_all_the_fragments}"
+    "last-word": "pctf{demo_all_the_fragments}",
+    "simon-says": "pctf{demo_simon_said}",
+    "bridge-keeper": "pctf{demo_african_or_european}"
   },
   "hints": {},
   "writeups": {},

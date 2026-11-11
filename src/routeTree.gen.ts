@@ -27,6 +27,7 @@ import { Route as DotwellKnownSecurityDottxtRouteImport } from './routes/[.]well
 import { Route as ApiDoorRouteImport } from './routes/api/door'
 import { Route as ApiFlagRouteImport } from './routes/api/flag'
 import { Route as ApiPulseRouteImport } from './routes/api/pulse'
+import { Route as ApiSimonRouteImport } from './routes/api/simon'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as GoHopRouteImport } from './routes/go/$hop'
 import { Route as VaultKeyRouteImport } from './routes/vault/$key'
@@ -125,6 +126,11 @@ const ApiPulseRoute = ApiPulseRouteImport.update({
   path: '/api/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSimonRoute = ApiSimonRouteImport.update({
+  id: '/api/simon',
+  path: '/api/simon',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStatusRoute = ApiStatusRouteImport.update({
   id: '/api/status',
   path: '/api/status',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/simon': typeof ApiSimonRoute
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/simon': typeof ApiSimonRoute
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/api/door': typeof ApiDoorRoute
   '/api/flag': typeof ApiFlagRoute
   '/api/pulse': typeof ApiPulseRoute
+  '/api/simon': typeof ApiSimonRoute
   '/api/status': typeof ApiStatusRoute
   '/go/$hop': typeof GoHopRoute
   '/vault/$key': typeof VaultKeyRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/simon'
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/simon'
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/api/door'
     | '/api/flag'
     | '/api/pulse'
+    | '/api/simon'
     | '/api/status'
     | '/go/$hop'
     | '/vault/$key'
@@ -335,6 +347,7 @@ export interface RootRouteChildren {
   ApiDoorRoute: typeof ApiDoorRoute
   ApiFlagRoute: typeof ApiFlagRoute
   ApiPulseRoute: typeof ApiPulseRoute
+  ApiSimonRoute: typeof ApiSimonRoute
   ApiStatusRoute: typeof ApiStatusRoute
   GoHopRoute: typeof GoHopRoute
   VaultKeyRoute: typeof VaultKeyRoute
@@ -471,6 +484,13 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof ApiPulseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/simon': {
+      id: '/api/simon'
+      path: '/api/simon'
+      fullPath: '/api/simon'
+      preLoaderRoute: typeof ApiSimonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/status': {
       id: '/api/status'
       path: '/api/status'
@@ -535,6 +555,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDoorRoute: ApiDoorRoute,
   ApiFlagRoute: ApiFlagRoute,
   ApiPulseRoute: ApiPulseRoute,
+  ApiSimonRoute: ApiSimonRoute,
   ApiStatusRoute: ApiStatusRoute,
   GoHopRoute: GoHopRoute,
   VaultKeyRoute: VaultKeyRoute,
