@@ -74,10 +74,34 @@ const EGGS: Record<string, { title: string; quip: string }> = {
     title: "Percussive Maintenance",
     quip: "Seven taps on the logo. It was working fine before you did that.",
   },
+  away: {
+    title: "Out of Sight",
+    quip: "You left the tab. The tab noticed. The tab wrote you a little note.",
+  },
+  disco: {
+    title: "Light Switch Rave",
+    quip: "Eight theme flips in a few seconds. Your retinas have filed a complaint.",
+  },
+  kenobi: {
+    title: "General Kenobi",
+    quip: "You said hello. The prompt said the only thing it could have said.",
+  },
+  towel: {
+    title: "Don't Panic",
+    quip: "The answer, without the question. Bring a towel next time.",
+  },
+  vim: {
+    title: "Escape Artist",
+    quip: "You typed :q into something that is not vim. Old habits.",
+  },
+  nuke: {
+    title: "Scorched Earth",
+    quip: "You tried to delete the root filesystem of a web page. Bold. Ineffective.",
+  },
 };
 
 /** The ones the browser may ask for by name. The rest are awarded server-side. */
-const CLAIMABLE = new Set(["konami", "logo"]);
+const CLAIMABLE = new Set(["konami", "logo", "away", "disco"]);
 
 const PLATINUM: Trophy = {
   tier: "platinum",

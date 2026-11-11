@@ -1,5 +1,6 @@
 import { Moon, Sun } from "lucide-solid";
 
+import { useGame } from "~/lib/game";
 import { useTheme } from "~/lib/theme";
 
 /**
@@ -18,14 +19,30 @@ import { useTheme } from "~/lib/theme";
  * `aria-checked` and `title` still come from the signal: they aren't painted, so
  * being correct immediately after hydration is soon enough.
  */
+/** Flips within the window that count as a rave rather than indecision. */
+const RAVE_FLIPS = 8;
+const RAVE_WINDOW_MS = 4000;
+
 export function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { claim } = useGame();
   const dark = () => theme() === "dark";
+  let flips: number[] = [];
+
+  const handleToggle = () => {
+    toggle();
+    const now = Date.now();
+    flips = [...flips.filter((at) => now - at < RAVE_WINDOW_MS), now];
+    if (flips.length >= RAVE_FLIPS) {
+      flips = [];
+      void claim("disco");
+    }
+  };
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={handleToggle}
       role="switch"
       aria-checked={dark()}
       aria-label="Dark mode"

@@ -17,6 +17,18 @@ const KONAMI = [
   "a",
 ];
 
+/** What the tab says to an empty chair, one line every couple of seconds. */
+const AWAY_TITLES = [
+  "Come back…",
+  "We hid something while you were gone",
+  "(not really)",
+  "(or did we)",
+  "Still here. Still hiding things.",
+];
+
+/** Long enough to count as leaving rather than a stray alt-tab. */
+const AWAY_MS = 4000;
+
 const GREETING = `
    |>
    |      pocket/ctf
@@ -74,6 +86,30 @@ export function Secrets(props: { drawer: Drawer }) {
     }
   };
 
+  /*
+   * Leave the tab and its title starts talking to you. Come back after a few
+   * seconds and the site notices that too.
+   */
+  let original = "";
+  let leftAt = 0;
+  let nag: ReturnType<typeof setInterval> | undefined;
+
+  const handleVisibility = () => {
+    if (document.hidden) {
+      original = document.title;
+      leftAt = Date.now();
+      let line = 0;
+      nag = setInterval(() => {
+        document.title = AWAY_TITLES[line++ % AWAY_TITLES.length]!;
+      }, 2000);
+      return;
+    }
+    clearInterval(nag);
+    if (original) document.title = original;
+    if (leftAt && Date.now() - leftAt >= AWAY_MS) void claim("away");
+    leftAt = 0;
+  };
+
   onMount(() => {
     const accent = getComputedStyle(document.documentElement)
       .getPropertyValue("--color-accent-500")
@@ -81,10 +117,14 @@ export function Secrets(props: { drawer: Drawer }) {
     console.log(`%c${GREETING}`, `color:${accent || "#10b981"};font-family:monospace`);
     fileRecords();
     window.addEventListener("keydown", handleKey);
+    document.addEventListener("visibilitychange", handleVisibility);
   });
 
   onCleanup(() => {
-    if (typeof window !== "undefined") window.removeEventListener("keydown", handleKey);
+    clearInterval(nag);
+    if (typeof window === "undefined") return;
+    window.removeEventListener("keydown", handleKey);
+    document.removeEventListener("visibilitychange", handleVisibility);
   });
 
   return (
