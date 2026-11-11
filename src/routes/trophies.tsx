@@ -3,6 +3,7 @@ import { Droplet, Share2, UserRoundCheck } from "lucide-solid";
 import { createResource, createSignal, For, Match, Show, Switch } from "solid-js";
 
 import { Markdown } from "~/components/Markdown";
+import { RarityTag } from "~/components/RarityTag";
 import { TIER_LABEL, TrophyIcon } from "~/components/TrophyIcon";
 import { getTrophyCase, readWriteup, takeClue } from "~/lib/api";
 import { authClient } from "~/lib/auth";
@@ -64,9 +65,12 @@ function Trophies() {
             {(secret) => (
               <div class="flex items-center gap-3.5 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
                 <TrophyIcon tier="secret" size={16} />
-                <div class="min-w-0">
-                  <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    {secret.title}
+                <div class="min-w-0 flex-1">
+                  <p class="flex items-baseline gap-2">
+                    <span class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      {secret.title}
+                    </span>
+                    <RarityTag percent={secret.rarity} />
                   </p>
                   <p class="pt-0.5 text-xs leading-snug text-zinc-500">{secret.quip}</p>
                 </div>
@@ -327,9 +331,14 @@ function Profile(props: { view: TrophyCase }) {
         }}
       >
         <TrophyIcon tier="platinum" size={20} locked={!platinum()} />
-        <div>
-          <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            {platinum()?.title ?? "Platinum"}
+        <div class="min-w-0 flex-1">
+          <p class="flex items-baseline gap-2">
+            <span class="min-w-0 flex-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {platinum()?.title ?? "Platinum"}
+            </span>
+            <Show when={platinum()?.rarity}>
+              {(percent) => <RarityTag percent={percent()} />}
+            </Show>
           </p>
           <p class="pt-0.5 text-xs text-zinc-500">
             {platinum()?.quip ??
@@ -368,8 +377,11 @@ function FoundSlot(props: { slot: Found; index: number }) {
               </span>
             </Show>
           </p>
-          <p class="pt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            {props.slot.title}
+          <p class="flex items-baseline gap-2 pt-1">
+            <span class="min-w-0 flex-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              {props.slot.title}
+            </span>
+            <RarityTag percent={props.slot.rarity} />
           </p>
           <p class="pt-0.5 text-xs leading-snug text-zinc-500">{props.slot.quip}</p>
           <Show when={props.slot.fragment}>
@@ -429,8 +441,11 @@ function LockedSlot(props: {
             </Show>{" "}
             when found
           </p>
-          <p class="pt-1 text-sm font-semibold text-zinc-400 dark:text-zinc-600">
-            Hidden trophy
+          <p class="flex items-baseline gap-2 pt-1">
+            <span class="min-w-0 flex-1 text-sm font-semibold text-zinc-400 dark:text-zinc-600">
+              Hidden trophy
+            </span>
+            <RarityTag percent={props.slot.rarity} />
           </p>
           <p class="pt-0.5 text-xs text-zinc-500">Still wherever it was hidden.</p>
         </div>

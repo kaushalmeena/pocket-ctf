@@ -3,6 +3,7 @@ import { createEffect, createSignal, on, onCleanup, Show } from "solid-js";
 import { chime } from "~/lib/chime";
 import { type Toast, useGame } from "~/lib/game";
 
+import { RarityTag } from "./RarityTag";
 import { TIER_LABEL, TrophyIcon } from "./TrophyIcon";
 
 /** How long a trophy holds the corner before making way for the next. */
@@ -88,8 +89,13 @@ export function TrophyToasts() {
                   )}
                 </Show>
               </span>
-              <span class="block truncate text-sm leading-tight font-semibold text-white">
-                {toast.title}
+              <span class="flex items-baseline gap-2">
+                <span class="min-w-0 flex-1 truncate text-sm leading-tight font-semibold text-white">
+                  {toast.title}
+                </span>
+                <Show when={toast.rarity}>
+                  {(percent) => <RarityTag percent={percent()} />}
+                </Show>
               </span>
               {/* One line here; the full quip is the tooltip and lives in the case. */}
               <span class="block truncate text-xs leading-snug text-zinc-400">

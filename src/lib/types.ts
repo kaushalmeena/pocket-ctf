@@ -17,6 +17,8 @@ export type Trophy = {
   /** Nobody on this deployment had found it before. */
   firstBlood?: boolean;
   fragment?: Fragment;
+  /** Share of hunters holding it, as a percentage. See src/server/rarity.ts. */
+  rarity?: number;
 };
 
 /**
@@ -62,6 +64,7 @@ export type Slot =
       foundAt: number;
       firstBlood: boolean;
       fragment?: Fragment;
+      rarity: number;
     }
   | {
       found: false;
@@ -74,12 +77,13 @@ export type Slot =
       cluesLeft: number;
       /** What it would pay after one more clue. */
       nextWorth: number | null;
+      rarity: number;
     };
 
 export type TrophyCase = {
   me: Me;
   slots: Slot[];
-  secrets: { title: string; quip: string; foundAt: number }[];
+  secrets: { title: string; quip: string; foundAt: number; rarity: number }[];
   secretsTotal: number;
   platinum: Trophy | null;
 };

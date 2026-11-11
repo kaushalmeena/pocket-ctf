@@ -17,6 +17,7 @@ import {
 import { db } from "./db";
 import { fragmentOf } from "./finale";
 import { persist, type Player, variantOf } from "./players";
+import { flagPrior, rarity, recount } from "./rarity";
 import { clues as cluesTable, eggs, players, solves } from "./schema";
 import { runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
@@ -49,54 +50,67 @@ const clueCount = (slug: string) => 1 + hintCount(slug);
  * be claimed from the browser, and a score anyone can award themselves is not
  * a score.
  */
-const EGGS: Record<string, { title: string; quip: string }> = {
+/** `prior` is the guessed share of hunters who find it; see rarity.ts. */
+const EGGS: Record<string, { title: string; quip: string; prior: number }> = {
   decoy: {
     title: "Curious Cat",
     quip: "You submitted a flag you found lying around. It was lying around on purpose.",
+    prior: 0.35,
   },
   borrowed: {
     title: "Receiving Stolen Goods",
     quip: "A real flag, dealt to somebody else. We're not angry. We're just disappointed.",
+    prior: 0.06,
   },
   sudo: {
     title: "Nice Try",
     quip: "This incident will be reported. (It won't. There is nobody to report it to.)",
+    prior: 0.2,
   },
   teapot: {
     title: "Short and Stout",
     quip: "HTTP 418. The joke is older than some of the people who find it.",
+    prior: 0.1,
   },
   konami: {
     title: "Thirty Lives",
     quip: "Up, up, down, down. Some muscle memory outlives the muscles.",
+    prior: 0.08,
   },
   logo: {
     title: "Percussive Maintenance",
     quip: "Seven taps on the logo. It was working fine before you did that.",
+    prior: 0.05,
   },
   away: {
     title: "Out of Sight",
     quip: "You left the tab. The tab noticed. The tab wrote you a little note.",
+    prior: 0.25,
   },
   disco: {
     title: "Light Switch Rave",
     quip: "Eight theme flips in a few seconds. Your retinas have filed a complaint.",
+    prior: 0.04,
   },
   kenobi: {
     title: "General Kenobi",
     quip: "You said hello. The prompt said the only thing it could have said.",
+    prior: 0.12,
   },
   towel: {
     title: "Don't Panic",
     quip: "The answer, without the question. Bring a towel next time.",
+    prior: 0.1,
   },
   vim: {
     title: "Escape Artist",
     quip: "You typed :q into something that is not vim. Old habits.",
+    prior: 0.1,
   },
   nuke: {
     title: "Scorched Earth",
     quip: "You tried to delete the root filesystem of a web page. Bold. Ineffective.",
+    prior: 0.08,
   },
 };
 
@@ -113,13 +127,16 @@ const PLATINUM: Trophy = {
 export async function awardEgg(player: Player, egg: string): Promise<Trophy[]> {
   const known = EGGS[egg];
   if (!known) return [];
+  const { title, quip, prior } = known;
   await persist(player);
   const inserted = await db()
     .insert(eggs)
     .values({ playerId: player.id, egg, foundAt: Date.now() })
     .onConflictDoNothing()
     .returning({ egg: eggs.egg });
-  return inserted.length > 0 ? [{ tier: "secret", ...known }] : [];
+  if (inserted.length === 0) return [];
+  recount();
+  return [{ tier: "secret", title, quip, rarity: (await rarity()).egg(egg, prior) }];
 }
 
 export async function claimEgg(player: Player, egg: string): Promise<Trophy[]> {
@@ -282,6 +299,8 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     return reply("info", [`Already in your case: ${challenge.title}. It only counts once.`]);
   }
   await forgive(player);
+  recount();
+  const rare = await rarity();
 
   const trophies: Trophy[] = [
     {
@@ -291,10 +310,11 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
       points,
       firstBlood,
       fragment: fragmentOf(player, hit.slug),
+      rarity: rare.flag(hit.slug, flagPrior(challenge.points)),
     },
   ];
   const me = await standing(player);
-  if (me.found === me.total) trophies.push(PLATINUM);
+  if (me.found === me.total) trophies.push({ ...PLATINUM, rarity: rare.platinum() });
 
   const lines = [`Flag accepted: ${challenge.title}. +${points} points.`];
   if (firstBlood) lines.push("First blood. Nobody on this server had found that one.");
@@ -327,15 +347,17 @@ async function revealedClues(player: Player, slug: string, taken: number) {
 }
 
 export async function trophyCase(player: Player): Promise<TrophyCase> {
-  const [owned, clues, me] = [
-    await solvesOf(player),
-    await cluesOf(player),
-    await standing(player),
-  ];
+  const [owned, clues, me, rare] = await Promise.all([
+    solvesOf(player),
+    cluesOf(player),
+    standing(player),
+    rarity(),
+  ]);
 
   const slots: Slot[] = [];
   for (const challenge of CHALLENGES) {
     const solve = owned.get(challenge.slug);
+    const rarityOf = rare.flag(challenge.slug, flagPrior(challenge.points));
     if (solve) {
       slots.push({
         found: true,
@@ -347,6 +369,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
         foundAt: solve.solvedAt,
         firstBlood: solve.firstBlood,
         fragment: fragmentOf(player, challenge.slug),
+        rarity: rarityOf,
       });
       continue;
     }
@@ -360,6 +383,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
       clues: await revealedClues(player, challenge.slug, taken),
       cluesLeft: left,
       nextWorth: left > 0 ? worth(challenge.points, taken + 1) : null,
+      rarity: rarityOf,
     });
   }
 
@@ -376,9 +400,12 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
     slots,
     secrets: found
       .filter((row) => EGGS[row.egg])
-      .map((row) => ({ ...EGGS[row.egg]!, foundAt: row.foundAt })),
+      .map((row) => {
+        const { title, quip, prior } = EGGS[row.egg]!;
+        return { title, quip, foundAt: row.foundAt, rarity: rare.egg(row.egg, prior) };
+      }),
     secretsTotal: Object.keys(EGGS).length,
-    platinum: me.found === me.total ? PLATINUM : null,
+    platinum: me.found === me.total ? { ...PLATINUM, rarity: rare.platinum() } : null,
   };
 }
 
