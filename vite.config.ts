@@ -18,9 +18,14 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    // SITE_ORIGIN is public and read by the client, so `SITE_` is exposed
-    // alongside Vite's own prefix. Nothing secret may start with either.
-    envPrefix: ["VITE_", "SITE_"],
+    /*
+     * The one project variable the client may see, handed over by name. Not
+     * via `envPrefix`: every POCKET_CTF_ variable would follow it into the
+     * bundle, the answer key included.
+     */
+    define: {
+      "import.meta.env.POCKET_CTF_URL": JSON.stringify(process.env.POCKET_CTF_URL ?? ""),
+    },
     server: { port: 3000 },
     resolve: {
       // Mirrors the `~/*` -> `./src/*` alias in tsconfig.json.

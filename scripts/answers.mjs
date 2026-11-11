@@ -82,15 +82,22 @@ export function innerOf(flag) {
 }
 
 /*
- * The project's own environment variables, named in families and kept to a
- * similar length so a .env lines up:
+ * The project's own environment variables, each prefixed with the domain it
+ * configures. The two domain prefixes are kept to nearly the same length so a
+ * .env reads as two aligned groups:
  *
- *   SITE_ORIGIN    public origin: canonical tags, sitemap, Better Auth's base URL
- *   AUTH_SECRET    signs Better Auth's session cookies
- *   CTF_ANSWERS    flags.secret.json, for a host that cannot have the file
- *   CTF_SUFFIXES   seeds.secret.json, likewise
- *   GITHUB_CLIENT  GitHub OAuth app client id
- *   GITHUB_SECRET  GitHub OAuth app client secret
+ *   POCKET_CTF_URL             public origin: canonical tags, sitemap, and in
+ *                              production Better Auth's base URL
+ *   POCKET_CTF_FLAGS           flags.secret.json, for a host that cannot have it
+ *   POCKET_CTF_SEEDS           seeds.secret.json, likewise
+ *
+ *   BETTER_AUTH_SECRET         signs session cookies
+ *   BETTER_AUTH_GITHUB_ID      GitHub OAuth app client id
+ *   BETTER_AUTH_GITHUB_SECRET  GitHub OAuth app client secret
+ *
+ * There is deliberately no BETTER_AUTH_URL: Better Auth would read it on its
+ * own, in development too, and a local .env pointing it at the live site would
+ * send every sign-in there. POCKET_CTF_URL covers it, in production only.
  *
  * DATABASE_URL, DATABASE_URL_UNPOOLED and NEON_* are not ours to name: the Neon
  * CLI writes them under exactly those names and its Vercel integration expects
@@ -105,16 +112,16 @@ export function innerOf(flag) {
  * environment variables is what lets a *real* instance deploy without the
  * answers ever being committed -- see docs/deployment.md.
  */
-export const KEY_ENV = "CTF_ANSWERS";
-export const SEEDS_ENV = "CTF_SUFFIXES";
+export const KEY_ENV = "POCKET_CTF_FLAGS";
+export const SEEDS_ENV = "POCKET_CTF_SEEDS";
 
 /**
  * The public origin. Not a secret, unlike the two above: the browser bundle
- * reads it, which works because vite.config.ts adds `SITE_` to Vite's
- * `envPrefix`. Without that it would silently resolve to undefined on the
- * client.
+ * reads it. It is handed to the client by name through `define` in
+ * vite.config.ts -- never by adding `POCKET_CTF_` to Vite's `envPrefix`, which
+ * would put the answer key in the bundle too.
  */
-export const URL_ENV = "SITE_ORIGIN";
+export const URL_ENV = "POCKET_CTF_URL";
 
 /** Prefer the environment, fall back to the file. */
 function readJson(path, envVar) {

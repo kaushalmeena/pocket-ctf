@@ -36,9 +36,9 @@ import {
   URL_ENV,
 } from "./answers.mjs";
 
-const AUTH_ENV = "AUTH_SECRET";
-const GITHUB_ID_ENV = "GITHUB_CLIENT";
-const GITHUB_SECRET_ENV = "GITHUB_SECRET";
+const AUTH_ENV = "BETTER_AUTH_SECRET";
+const GITHUB_ID_ENV = "BETTER_AUTH_GITHUB_ID";
+const GITHUB_SECRET_ENV = "BETTER_AUTH_GITHUB_SECRET";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -185,7 +185,7 @@ const gitignored = readFileSync(join(ROOT, ".gitignore"), "utf8")
   .split("\n")
   .some((rule) => rule.trim() === ".env.*" || rule.trim() === show(out));
 
-const row = (name, value) => console.log(`    ${name.padEnd(15)}${value}`);
+const row = (name, value) => console.log(`    ${name.padEnd(27)}${value}`);
 
 console.log(`✔ ${show(out)}`);
 row(URL_ENV, origin);

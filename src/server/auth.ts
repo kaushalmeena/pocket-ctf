@@ -23,8 +23,8 @@ import * as schema from "./schema";
  */
 
 const GITHUB = {
-  clientId: process.env.GITHUB_CLIENT ?? "",
-  clientSecret: process.env.GITHUB_SECRET ?? "",
+  clientId: process.env.BETTER_AUTH_GITHUB_ID ?? "",
+  clientSecret: process.env.BETTER_AUTH_GITHUB_SECRET ?? "",
 };
 
 /** Claiming is offered only when the server can actually do it. */
@@ -35,10 +35,12 @@ export const GITHUB_ENABLED = Boolean(GITHUB.clientId && GITHUB.clientSecret);
  * anyone holding it can mint a session for any user.
  */
 function secret() {
-  const configured = process.env.AUTH_SECRET;
+  const configured = process.env.BETTER_AUTH_SECRET;
   if (configured) return configured;
   if (process.env.NODE_ENV === "production") {
-    throw new Error("AUTH_SECRET is not set. Generate one with `openssl rand -base64 32`.");
+    throw new Error(
+      "BETTER_AUTH_SECRET is not set. Generate one with `openssl rand -base64 32`.",
+    );
   }
   return "pocket-ctf-development-secret-do-not-deploy";
 }
@@ -53,7 +55,7 @@ const makeOptions = () =>
      * Better Auth on a laptop would send every GitHub sign-in back to the live
      * site; in development it reads the origin off each request instead.
      */
-    baseURL: process.env.NODE_ENV === "production" ? process.env.SITE_ORIGIN : undefined,
+    baseURL: process.env.NODE_ENV === "production" ? process.env.POCKET_CTF_URL : undefined,
     database: drizzleAdapter(db(), { provider: "pg", schema }),
     socialProviders: GITHUB_ENABLED ? { github: GITHUB } : {},
     session: {

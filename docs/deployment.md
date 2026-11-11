@@ -26,7 +26,7 @@ instead.
 
 Nitro detects Vercel's build environment and emits serverless functions without
 being asked, so there is no `vercel.json` and nothing to configure beyond the
-environment variables: `SITE_ORIGIN`, `AUTH_SECRET`, the answer key's two
+environment variables: `POCKET_CTF_URL`, `BETTER_AUTH_SECRET`, the answer key's two
 below, the two database strings, and the GitHub pair if players are to claim
 progress. Neon's Vercel integration can supply the
 database strings for you; make sure they reach the build as well as the
@@ -112,23 +112,25 @@ Claiming progress with GitHub is optional, and switched on by configuring it:
    `<origin>/api/auth/callback/github` — for local development,
    `http://localhost:3000/api/auth/callback/github`. GitHub allows one callback
    per app, so use one app per environment.
-2. Set `GITHUB_CLIENT` (its client ID) and `GITHUB_SECRET` from it.
+2. Set `BETTER_AUTH_GITHUB_ID` (its client ID) and `BETTER_AUTH_GITHUB_SECRET` from it.
 
 Without both, the trophy case says claiming is not set up, and nothing else
 changes.
 
-| Variable        | Notes                                                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
-| `SITE_ORIGIN`   | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
-| `GITHUB_CLIENT` | The OAuth app's client ID                                                                                                 |
-| `GITHUB_SECRET` | The OAuth app's client secret                                                                                             |
+| Variable                    | Notes                                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`        | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
+| `POCKET_CTF_URL`            | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
+| `BETTER_AUTH_GITHUB_ID`     | The OAuth app's client ID                                                                                                 |
+| `BETTER_AUTH_GITHUB_SECRET` | The OAuth app's client secret                                                                                             |
 
-`SITE_ORIGIN` is deliberately ignored by Better Auth outside production: a local
-`.env` usually carries the deployed origin for canonical tags, and using it on a
-laptop would send every GitHub sign-in back to the live site.
+`POCKET_CTF_URL` is deliberately ignored by Better Auth outside production: a
+local `.env` usually carries the deployed origin for canonical tags, and using it
+on a laptop would send every GitHub sign-in back to the live site. For the same
+reason there is no `BETTER_AUTH_URL`; Better Auth would read that by itself,
+everywhere.
 
-Changing `AUTH_SECRET` signs everybody out. Anonymous players then have no
+Changing `BETTER_AUTH_SECRET` signs everybody out. Anonymous players then have no
 way back to their progress; players who claimed sign in with GitHub again.
 
 ### Supplying the answer key to a hosted build
@@ -137,11 +139,11 @@ The wrinkle, on any host: a hosted build clones the repository, so the gitignore
 answer key is absent and the deploy would ship the **demo** set. Supply the same
 JSON through environment variables instead:
 
-| Variable       | Contents                                         |
-| -------------- | ------------------------------------------------ |
-| `CTF_ANSWERS`  | the whole of your `flags.secret.json`            |
-| `CTF_SUFFIXES` | the whole of your `seeds.secret.json`            |
-| `SITE_ORIGIN`  | your real origin, e.g. `https://ctf.example.com` |
+| Variable           | Contents                                         |
+| ------------------ | ------------------------------------------------ |
+| `POCKET_CTF_FLAGS` | the whole of your `flags.secret.json`            |
+| `POCKET_CTF_SEEDS` | the whole of your `seeds.secret.json`            |
+| `POCKET_CTF_URL`   | your real origin, e.g. `https://ctf.example.com` |
 
 Rather than minify that JSON by hand, generate the file:
 
@@ -152,8 +154,8 @@ pnpm gen:env --url=https://ctf.example.com
 It reads the secrets already on your machine, writes a gitignored
 `.env.deploy` -- not `.env`, which holds this machine's Neon connection
 strings -- and reads it back to confirm both values round-trip through
-`JSON.parse`. It also writes a freshly generated `AUTH_SECRET` (or the one
-already in your environment) and empty `GITHUB_CLIENT` / `GITHUB_SECRET` lines
+`JSON.parse`. It also writes a freshly generated `BETTER_AUTH_SECRET` (or the one
+already in your environment) and empty `BETTER_AUTH_GITHUB_ID` / `BETTER_AUTH_GITHUB_SECRET` lines
 with the callback URL to register. Paste those
 into your host's environment settings, or hand the file to a CLI that reads one.
 The values are minified and unquoted on purpose: JSON cannot contain a raw
@@ -169,7 +171,7 @@ real key when one is reachable — file or environment — and otherwise seeds t
 demo set. So `pnpm build` does the right thing locally and on any host without a
 second command.
 
-**Both** secret variables are needed. With only `CTF_ANSWERS`, the generator
+**Both** secret variables are needed. With only `POCKET_CTF_FLAGS`, the generator
 mints fresh suffixes it cannot persist, so every deploy changes every flag
 nobody has found yet. It warns when it detects this.
 
@@ -177,8 +179,9 @@ These are build-time inputs. The flags and seeds are consumed by the generator
 and are not needed by the running server, which reads the database and sign-in
 variables. The build needs the database variables too, to apply migrations.
 
-`SITE_ORIGIN` is not secret -- `vite.config.ts` exposes the `SITE_` prefix to
-the client for it, so nothing secret may use that prefix -- but leaving it unset means the canonical tag, the
+`POCKET_CTF_URL` is not secret -- `vite.config.ts` hands that one variable to
+the client by name, never the whole `POCKET_CTF_` prefix, which would ship the
+answer key -- but leaving it unset means the canonical tag, the
 sitemap and — less forgivably — the contact address in `security.txt` all
 advertise `http://localhost:3000`.
 
