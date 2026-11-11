@@ -11,6 +11,10 @@ dist
 # startup and derives every player's flags and puzzles from it.
 flags.secret.json
 
+# Left over from the build-time generator. Unused, but still secret.
+seeds.secret.json
+ANSWERS.secret.md
+
 .output
 .vercel
 # Neon CLI's link to this project; `neon init` recreates it.
