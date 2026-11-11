@@ -17,5 +17,8 @@ export function build({ flag }) {
     const codePoint = `\\${ch.codePointAt(0).toString(16).padStart(4, "0")}`;
     return `.${classFor(i)}::after {\n  content: "${codePoint}";\n  order: ${i};\n}`;
   });
-  return { stylesheet: shuffle(rules, 0xcabba9e).join("\n\n"), ruleCount: rules.length };
+  // The empty elements each page carries for these rules to fill, in class
+  // order -- which says nothing the stylesheet's own `order` does not.
+  const slots = [...flag].map((_, i) => classFor(i)).sort();
+  return { stylesheet: shuffle(rules, 0xcabba9e).join("\n\n"), slots };
 }

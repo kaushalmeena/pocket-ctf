@@ -27,19 +27,14 @@ import {
 export async function shell() {
   const player = await currentPlayer();
   const drawer = dealt(player, "local-records");
-  const ruleCount: number = dealt(player, "hard-copy").ruleCount;
   return {
     me: await standing(player),
     sample: IS_SAMPLE,
     github: GITHUB_ENABLED,
     // Written into IndexedDB by every page, and never displayed.
     drawer: { name: drawer.dbName, store: drawer.store, records: drawer.records },
-    // Empty elements for the print stylesheet to fill. Same formula as
-    // classFor() in src/challenges/hard-copy/build.mjs; numeric order, which
-    // says nothing the stylesheet's own `order` does not.
-    print: Array.from({ length: ruleCount }, (_, i) => (i * 37 + 11) % 97)
-      .sort((a, b) => a - b)
-      .map((n) => `hc-${n}`),
+    // Empty elements for the print stylesheet to fill on paper.
+    print: dealt(player, "hard-copy").slots as string[],
   };
 }
 

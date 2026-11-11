@@ -17,8 +17,5 @@ export const rarityGrade = (percent: number) =>
 export const rarityPercent = (percent: number) =>
   percent < 1 ? "<1%" : percent < 10 ? `${percent.toFixed(1)}%` : `${Math.round(percent)}%`;
 
-export const rarityText = (percent: number) =>
-  `${rarityGrade(percent)} · ${rarityPercent(percent)}`;
-
 /** Ultra rare gets the gold ink; the rest stay quiet. */
 export const isUltraRare = (percent: number) => percent < GRADES[0].below;

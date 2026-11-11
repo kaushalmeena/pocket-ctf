@@ -1,6 +1,6 @@
 import { count, gte, inArray } from "drizzle-orm";
 
-import { CHALLENGES } from "./catalogue";
+import { BY_SLUG, CHALLENGES } from "./catalogue";
 import { db } from "./db";
 import { eggs, players, solves } from "./schema";
 
@@ -57,16 +57,15 @@ async function take(): Promise<Census> {
   };
 }
 
-async function census() {
+/**
+ * Pass `fresh` straight after writing a find, so the toast for it counts it.
+ * Everything else reads a count up to a minute old.
+ */
+async function census(fresh: boolean) {
   const cached = holder.pocketCtfCensus;
-  if (cached && Date.now() - cached.at < TTL_MS) return cached;
+  if (!fresh && cached && Date.now() - cached.at < TTL_MS) return cached;
   holder.pocketCtfCensus = await take();
   return holder.pocketCtfCensus;
-}
-
-/** Something was just found: the next reader should count it. */
-export function recount() {
-  holder.pocketCtfCensus = undefined;
 }
 
 /** A percentage, one decimal place. */
@@ -77,20 +76,23 @@ const blend = (found: number, hunters: number, prior: number) =>
  * The guess for a flag nobody has counted yet: cheap flags are common, and the
  * curve falls away so the 250-point finale starts out around one in twenty.
  */
-export const flagPrior = (points: number) => 0.75 * Math.exp(-(points - 25) / 90);
+const flagPrior = (points: number) => 0.75 * Math.exp(-(points - 25) / 90);
 
-export const PLATINUM_PRIOR = 0.02;
+const PLATINUM_PRIOR = 0.02;
 
 export type Rarity = {
-  flag: (slug: string, prior: number) => number;
+  /** A flag, by slug. Its prior comes from its points. */
+  flag: (slug: string) => number;
+  /** A secret trophy. Its prior is the caller's guess, kept beside its quip. */
   egg: (name: string, prior: number) => number;
   platinum: () => number;
 };
 
-export async function rarity(): Promise<Rarity> {
-  const c = await census();
+export async function rarity({ fresh = false } = {}): Promise<Rarity> {
+  const c = await census(fresh);
   return {
-    flag: (slug, prior) => blend(c.flags.get(slug) ?? 0, c.hunters, prior),
+    flag: (slug) =>
+      blend(c.flags.get(slug) ?? 0, c.hunters, flagPrior(BY_SLUG.get(slug)?.points ?? 100)),
     egg: (name, prior) => blend(c.eggs.get(name) ?? 0, c.hunters, prior),
     platinum: () => blend(c.platinum, c.hunters, PLATINUM_PRIOR),
   };

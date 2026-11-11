@@ -147,7 +147,7 @@ unlocked at 1, 4, 8, 12, 16 and 19 flags and at the platinum, telling the week
 of the sysadmin told to remove every flag before an audit. The player is doing
 their job for them, and is named in it. Entries hint at the newer hiding places
 and the secret trophies; the last one is the epilogue. It lives in
-`src/server/terminal.ts`, and finding a flag that unlocks an entry says so.
+`src/server/journal.ts`, a pure module the prompt asks per command, and finding a flag that unlocks an entry says so.
 
 The logo still wobbles after seven taps, and the tab title still talks to an
 empty chair; neither is a trophy any more.
@@ -258,6 +258,7 @@ src/routes/*[.]*.ts        robots.txt, sitemap.xml, humans.txt, print.css, sw.js
                            avatar.png, .well-known/security.txt
 src/start.ts               headers, plus the text/plain front page and the cloak
 src/server/rarity.ts       trophy rarity: a prior, outvoted by real finds
+src/server/journal.ts      the prompt's journal, unlocked by progress
 ```
 
 ---

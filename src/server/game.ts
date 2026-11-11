@@ -16,10 +16,11 @@ import {
 } from "./catalogue";
 import { db } from "./db";
 import { fragmentOf } from "./finale";
+import { newPage } from "./journal";
 import { persist, type Player, variantOf } from "./players";
-import { flagPrior, rarity, recount } from "./rarity";
+import { rarity } from "./rarity";
 import { clues as cluesTable, eggs, players, solves } from "./schema";
-import { journalUnlockedAt, runCommand } from "./terminal";
+import { runCommand } from "./terminal";
 import { forgive, lockedFor, noteMiss } from "./throttle";
 
 /**
@@ -135,8 +136,8 @@ export async function awardEgg(player: Player, egg: string): Promise<Trophy[]> {
     .onConflictDoNothing()
     .returning({ egg: eggs.egg });
   if (inserted.length === 0) return [];
-  recount();
-  return [{ tier: "secret", title, quip, rarity: (await rarity()).egg(egg, prior) }];
+  const rare = await rarity({ fresh: true });
+  return [{ tier: "secret", title, quip, rarity: rare.egg(egg, prior) }];
 }
 
 export async function claimEgg(player: Player, egg: string): Promise<Trophy[]> {
@@ -318,8 +319,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
     return reply("info", [`Already in your case: ${challenge.title}. It only counts once.`]);
   }
   await forgive(player);
-  recount();
-  const rare = await rarity();
+  const rare = await rarity({ fresh: true });
 
   const trophies: Trophy[] = [
     {
@@ -329,7 +329,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
       points,
       firstBlood,
       fragment: fragmentOf(player, hit.slug),
-      rarity: rare.flag(hit.slug, flagPrior(challenge.points)),
+      rarity: rare.flag(hit.slug),
     },
   ];
   const me = await standing(player);
@@ -345,7 +345,7 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
       ? "That was the last of them."
       : `${me.found} of ${me.total} found. The rest are still where they were.`,
   );
-  const page = journalUnlockedAt(me);
+  const page = newPage(me);
   if (page) lines.push(`A new file appeared: ${page}`);
   return { tone: "ok", lines, trophies, me };
 }
@@ -378,7 +378,7 @@ export async function trophyCase(player: Player): Promise<TrophyCase> {
   const slots: Slot[] = [];
   for (const challenge of CHALLENGES) {
     const solve = owned.get(challenge.slug);
-    const rarityOf = rare.flag(challenge.slug, flagPrior(challenge.points));
+    const rarityOf = rare.flag(challenge.slug);
     if (solve) {
       slots.push({
         found: true,
