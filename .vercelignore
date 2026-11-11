@@ -1,0 +1,20 @@
+# What `vercel deploy` must never upload. The CLI reads this file instead of
+# .gitignore, so it repeats every secret listed there. The hosted build gets
+# the answer key and the database from environment variables.
+.env
+.env.*
+flags.secret.json
+seeds.secret.json
+ANSWERS.secret.md
+src/lib/generated/registry.json
+src/lib/generated/payloads.json
+.neon
+
+# Local output and dependencies; the build makes its own.
+node_modules
+dist
+.output
+.nitro
+.tanstack
+*.local
+.DS_Store
