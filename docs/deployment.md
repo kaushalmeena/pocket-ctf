@@ -112,17 +112,17 @@ Claiming progress with GitHub is optional, and switched on by configuring it:
    `<origin>/api/auth/callback/github` — for local development,
    `http://localhost:3000/api/auth/callback/github`. GitHub allows one callback
    per app, so use one app per environment.
-2. Set `BETTER_AUTH_GITHUB_ID` (its client ID) and `BETTER_AUTH_GITHUB_SECRET` from it.
+2. Set `GITHUB_CLIENT_ID` (its client ID) and `GITHUB_CLIENT_SECRET` from it.
 
 Without both, the trophy case says claiming is not set up, and nothing else
 changes.
 
-| Variable                    | Notes                                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `BETTER_AUTH_SECRET`        | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
-| `POCKET_CTF_URL`            | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
-| `BETTER_AUTH_GITHUB_ID`     | The OAuth app's client ID                                                                                                 |
-| `BETTER_AUTH_GITHUB_SECRET` | The OAuth app's client secret                                                                                             |
+| Variable               | Notes                                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`   | Signs session cookies. `openssl rand -base64 32`. In production the server refuses every request without it               |
+| `POCKET_CTF_URL`       | Your public origin. In production it is also Better Auth's base URL; in development Better Auth reads it off each request |
+| `GITHUB_CLIENT_ID`     | The OAuth app's client ID                                                                                                 |
+| `GITHUB_CLIENT_SECRET` | The OAuth app's client secret                                                                                             |
 
 `POCKET_CTF_URL` is deliberately ignored by Better Auth outside production: a
 local `.env` usually carries the deployed origin for canonical tags, and using it
@@ -155,7 +155,7 @@ It reads the secrets already on your machine, writes a gitignored
 `.env.deploy` -- not `.env`, which holds this machine's Neon connection
 strings -- and reads it back to confirm both values round-trip through
 `JSON.parse`. It also writes a freshly generated `BETTER_AUTH_SECRET` (or the one
-already in your environment) and empty `BETTER_AUTH_GITHUB_ID` / `BETTER_AUTH_GITHUB_SECRET` lines
+already in your environment) and empty `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` lines
 with the callback URL to register. Paste those
 into your host's environment settings, or hand the file to a CLI that reads one.
 The values are minified and unquoted on purpose: JSON cannot contain a raw

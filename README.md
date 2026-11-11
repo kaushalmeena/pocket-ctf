@@ -160,7 +160,7 @@ before they start.
 
 4. Optionally, let players claim their progress with GitHub. Create a GitHub
    OAuth app whose callback URL is `http://localhost:3000/api/auth/callback/github`
-   and add its `BETTER_AUTH_GITHUB_ID` and `BETTER_AUTH_GITHUB_SECRET` to `.env`. Without
+   and add its `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` to `.env`. Without
    them the trophy case says that claiming is not set up, and everything else
    works.
 
@@ -237,20 +237,20 @@ are to claim progress. Full details are in
 ## Configuration
 
 Each of the project's own variables is prefixed with the domain it configures:
-`POCKET_CTF_` for the app and `BETTER_AUTH_` for sign-in, two prefixes of
-nearly the same length. The `DATABASE_URL` pair keeps the names the Neon CLI
-writes.
+`POCKET_CTF_` for the app, `BETTER_AUTH_` for sessions and `GITHUB_CLIENT_`
+for the OAuth app players claim progress with. The `DATABASE_URL` pair keeps the
+names the Neon CLI writes.
 
-| Variable                    | Default                 | Notes                                                                                                                    |
-| --------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `POCKET_CTF_URL`            | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. |
-| `POCKET_CTF_FLAGS`          | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.                      |
-| `POCKET_CTF_SEEDS`          | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.                  |
-| `BETTER_AUTH_SECRET`        | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                    |
-| `BETTER_AUTH_GITHUB_ID`     | `—`                     | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.  |
-| `BETTER_AUTH_GITHUB_SECRET` | `—`                     | That app's client secret.                                                                                                |
-| `DATABASE_URL`              | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                            |
-| `DATABASE_URL_UNPOOLED`     | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.                |
+| Variable                | Default                 | Notes                                                                                                                    |
+| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `POCKET_CTF_URL`        | `http://localhost:3000` | Your public origin: canonical URLs, the sitemap, `security.txt`, social cards, and in production Better Auth's base URL. |
+| `POCKET_CTF_FLAGS`      | `—`                     | The whole of `flags.secret.json`, for hosted builds. Without it a deploy ships the public demo set.                      |
+| `POCKET_CTF_SEEDS`      | `—`                     | The whole of `seeds.secret.json`. **Required** alongside the above, or every deploy changes your flags.                  |
+| `BETTER_AUTH_SECRET`    | a development value     | Signs session cookies. **Required in production**, where the server refuses every request without it.                    |
+| `GITHUB_CLIENT_ID`      | `—`                     | Client ID of the GitHub OAuth app players claim progress with. Without both GitHub variables, claiming is switched off.  |
+| `GITHUB_CLIENT_SECRET`  | `—`                     | That app's client secret.                                                                                                |
+| `DATABASE_URL`          | `—`                     | **Required.** Postgres, pooled. What the running server connects with. `neon init` writes it.                            |
+| `DATABASE_URL_UNPOOLED` | `—`                     | Postgres, direct. Used by migrations, which a pooled connection cannot run. Falls back to `DATABASE_URL`.                |
 
 Do not set `BETTER_AUTH_URL`. Better Auth reads it by itself, in development
 too; `POCKET_CTF_URL` stands in for it in production only.

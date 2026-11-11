@@ -23,8 +23,8 @@ import * as schema from "./schema";
  */
 
 const GITHUB = {
-  clientId: process.env.BETTER_AUTH_GITHUB_ID ?? "",
-  clientSecret: process.env.BETTER_AUTH_GITHUB_SECRET ?? "",
+  clientId: process.env.GITHUB_CLIENT_ID ?? "",
+  clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
 };
 
 /** Claiming is offered only when the server can actually do it. */

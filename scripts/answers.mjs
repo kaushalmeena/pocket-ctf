@@ -83,8 +83,7 @@ export function innerOf(flag) {
 
 /*
  * The project's own environment variables, each prefixed with the domain it
- * configures. The two domain prefixes are kept to nearly the same length so a
- * .env reads as two aligned groups:
+ * configures: this project, Better Auth, and the GitHub OAuth app.
  *
  *   POCKET_CTF_URL             public origin: canonical tags, sitemap, and in
  *                              production Better Auth's base URL
@@ -92,8 +91,9 @@ export function innerOf(flag) {
  *   POCKET_CTF_SEEDS           seeds.secret.json, likewise
  *
  *   BETTER_AUTH_SECRET         signs session cookies
- *   BETTER_AUTH_GITHUB_ID      GitHub OAuth app client id
- *   BETTER_AUTH_GITHUB_SECRET  GitHub OAuth app client secret
+ *
+ *   GITHUB_CLIENT_ID           GitHub OAuth app client id
+ *   GITHUB_CLIENT_SECRET       GitHub OAuth app client secret
  *
  * There is deliberately no BETTER_AUTH_URL: Better Auth would read it on its
  * own, in development too, and a local .env pointing it at the live site would

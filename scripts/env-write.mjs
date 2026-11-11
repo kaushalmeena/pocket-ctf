@@ -37,8 +37,8 @@ import {
 } from "./answers.mjs";
 
 const AUTH_ENV = "BETTER_AUTH_SECRET";
-const GITHUB_ID_ENV = "BETTER_AUTH_GITHUB_ID";
-const GITHUB_SECRET_ENV = "BETTER_AUTH_GITHUB_SECRET";
+const GITHUB_ID_ENV = "GITHUB_CLIENT_ID";
+const GITHUB_SECRET_ENV = "GITHUB_CLIENT_SECRET";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
