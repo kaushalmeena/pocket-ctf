@@ -215,6 +215,10 @@ function chunk(type: string, data: Buffer) {
   return out;
 }
 
+/** Written into every card. A pointer, not a flag. */
+const CARD_NOTE =
+  "Drawn by hand for humans. Search engines are shown a different front page; ask as one.";
+
 /** 8-bit RGB, no interlace, filter type 0 on every scanline. */
 function encode(canvas: Canvas) {
   const header = Buffer.alloc(13);
@@ -231,6 +235,8 @@ function encode(canvas: Canvas) {
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk("IHDR", header),
+    // Metadata nothing displays. `strings` or exiftool will.
+    chunk("tEXt", Buffer.from(`Comment\0${CARD_NOTE}`, "latin1")),
     chunk("IDAT", deflateSync(raw)),
     chunk("IEND", Buffer.alloc(0)),
   ]);

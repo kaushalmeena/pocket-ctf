@@ -77,21 +77,6 @@ const EGGS: Record<string, { title: string; quip: string; prior: number }> = {
     quip: "Up, up, down, down. Some muscle memory outlives the muscles.",
     prior: 0.08,
   },
-  logo: {
-    title: "Percussive Maintenance",
-    quip: "Seven taps on the logo. It was working fine before you did that.",
-    prior: 0.05,
-  },
-  away: {
-    title: "Out of Sight",
-    quip: "You left the tab. The tab noticed. The tab wrote you a little note.",
-    prior: 0.25,
-  },
-  disco: {
-    title: "Light Switch Rave",
-    quip: "Eight theme flips in a few seconds. Your retinas have filed a complaint.",
-    prior: 0.04,
-  },
   kenobi: {
     title: "General Kenobi",
     quip: "You said hello. The prompt said the only thing it could have said.",
@@ -107,15 +92,30 @@ const EGGS: Record<string, { title: string; quip: string; prior: number }> = {
     quip: "You typed :q into something that is not vim. Old habits.",
     prior: 0.1,
   },
-  nuke: {
-    title: "Scorched Earth",
-    quip: "You tried to delete the root filesystem of a web page. Bold. Ineffective.",
-    prior: 0.08,
+  bobby: {
+    title: "Little Bobby Tables",
+    quip: "You typed a quote into a login form. The form has met your mother.",
+    prior: 0.09,
+  },
+  robot: {
+    title: "I Am Not a Robot",
+    quip: "You told the site you were a search engine. It lied to you right back.",
+    prior: 0.05,
+  },
+  offline: {
+    title: "Touch Grass",
+    quip: "You went offline in the middle of a web hunt, and came back. Healthy.",
+    prior: 0.04,
+  },
+  pi: {
+    title: "Pi O'Clock",
+    quip: "3:14 on the clock and this page open. Either dedication or insomnia.",
+    prior: 0.03,
   },
 };
 
 /** The ones the browser may ask for by name. The rest are awarded server-side. */
-const CLAIMABLE = new Set(["konami", "logo", "away", "disco"]);
+const CLAIMABLE = new Set(["konami", "offline", "pi"]);
 
 const PLATINUM: Trophy = {
   tier: "platinum",
@@ -217,6 +217,21 @@ const MISSES = [
   "Wrong. The site remains unimpressed, but it admires the confidence.",
 ];
 
+const ordinal = (n: number) => {
+  const tens = n % 100;
+  const suffix = tens >= 11 && tens <= 13 ? "th" : (["th", "st", "nd", "rd"][n % 10] ?? "th");
+  return `${n}${suffix}`;
+};
+
+/** Said after every decoy: misery loves a headcount. */
+async function hallOfShame() {
+  const [row] = await db().select({ n: count() }).from(eggs).where(eq(eggs.egg, "decoy"));
+  const n = Math.max(1, row?.n ?? 1);
+  return n === 1
+    ? "You are the first hunter on this server to fall for one. Someone had to be."
+    : `You are the ${ordinal(n)} hunter on this server to fall for one of these.`;
+}
+
 /**
  * Everything typed at the prompt arrives here: flags, and anything else.
  *
@@ -256,7 +271,10 @@ export async function transmit(player: Player, raw: string): Promise<Reply> {
   const digest = await flagDigest(flag, PEPPER);
 
   const decoy = DECOYS.get(digest);
-  if (decoy) return reply("err", [decoy], await awardEgg(player, "decoy"));
+  if (decoy) {
+    const trophies = await awardEgg(player, "decoy");
+    return reply("err", [decoy, await hallOfShame()], trophies);
+  }
 
   const hit = FLAGS.get(digest);
   if (!hit) {

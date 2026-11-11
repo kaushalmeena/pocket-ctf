@@ -10,12 +10,12 @@ import { useGame } from "~/lib/game";
 const TAPS = 7;
 
 export function SiteHeader() {
-  const { me, claim } = useGame();
+  const { me } = useGame();
   const [wobble, setWobble] = createSignal(false);
   let taps = 0;
   let reset: ReturnType<typeof setTimeout> | undefined;
 
-  /** Seven quick taps on the flag. There is no reason to do this, which is the reason. */
+  /** Seven quick taps and the flag shakes. No trophy: some jokes are just jokes. */
   const handleLogoClick = () => {
     taps += 1;
     clearTimeout(reset);
@@ -24,7 +24,6 @@ export function SiteHeader() {
     taps = 0;
     setWobble(true);
     setTimeout(() => setWobble(false), 900);
-    void claim("logo");
   };
 
   return (

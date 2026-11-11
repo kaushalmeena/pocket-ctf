@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AvatarDotpngRouteImport } from './routes/avatar[.]png'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as DeadDropRouteImport } from './routes/dead-drop'
@@ -21,6 +22,7 @@ import { Route as RadioRouteImport } from './routes/radio'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StaffRouteImport } from './routes/staff'
+import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
 import { Route as TeapotRouteImport } from './routes/teapot'
 import { Route as TrophiesRouteImport } from './routes/trophies'
 import { Route as DotwellKnownSecurityDottxtRouteImport } from './routes/[.]well-known/security[.]txt'
@@ -38,6 +40,11 @@ import { Route as UHandleCardDotpngRouteImport } from './routes/u/$handle/card[.
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AvatarDotpngRoute = AvatarDotpngRouteImport.update({
@@ -93,6 +100,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwDotjsRoute = SwDotjsRouteImport.update({
+  id: '/sw.js',
+  path: '/sw.js',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeapotRoute = TeapotRouteImport.update({
@@ -164,6 +176,7 @@ const UHandleCardDotpngRoute = UHandleCardDotpngRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
@@ -175,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/sw.js': typeof SwDotjsRoute
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
@@ -191,6 +205,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
@@ -202,6 +217,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/sw.js': typeof SwDotjsRoute
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
@@ -219,6 +235,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/avatar.png': typeof AvatarDotpngRoute
   '/board': typeof BoardRoute
   '/dead-drop': typeof DeadDropRoute
@@ -230,6 +247,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/staff': typeof StaffRoute
+  '/sw.js': typeof SwDotjsRoute
   '/teapot': typeof TeapotRoute
   '/trophies': typeof TrophiesRoute
   '/.well-known/security.txt': typeof DotwellKnownSecurityDottxtRoute
@@ -248,6 +266,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
@@ -259,6 +278,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/staff'
+    | '/sw.js'
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
@@ -275,6 +295,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
@@ -286,6 +307,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/staff'
+    | '/sw.js'
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
@@ -302,6 +324,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/avatar.png'
     | '/board'
     | '/dead-drop'
@@ -313,6 +336,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/staff'
+    | '/sw.js'
     | '/teapot'
     | '/trophies'
     | '/.well-known/security.txt'
@@ -330,6 +354,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AvatarDotpngRoute: typeof AvatarDotpngRoute
   BoardRoute: typeof BoardRoute
   DeadDropRoute: typeof DeadDropRoute
@@ -341,6 +366,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StaffRoute: typeof StaffRoute
+  SwDotjsRoute: typeof SwDotjsRoute
   TeapotRoute: typeof TeapotRoute
   TrophiesRoute: typeof TrophiesRoute
   DotwellKnownSecurityDottxtRoute: typeof DotwellKnownSecurityDottxtRoute
@@ -363,6 +389,13 @@ declare module '@tanstack/solid-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/avatar.png': {
@@ -440,6 +473,13 @@ declare module '@tanstack/solid-router' {
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sw.js': {
+      id: '/sw.js'
+      path: '/sw.js'
+      fullPath: '/sw.js'
+      preLoaderRoute: typeof SwDotjsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teapot': {
@@ -538,6 +578,7 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AvatarDotpngRoute: AvatarDotpngRoute,
   BoardRoute: BoardRoute,
   DeadDropRoute: DeadDropRoute,
@@ -549,6 +590,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StaffRoute: StaffRoute,
+  SwDotjsRoute: SwDotjsRoute,
   TeapotRoute: TeapotRoute,
   TrophiesRoute: TrophiesRoute,
   DotwellKnownSecurityDottxtRoute: DotwellKnownSecurityDottxtRoute,

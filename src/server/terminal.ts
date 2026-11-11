@@ -286,7 +286,6 @@ export async function runCommand(
   if (/^(sudo )?rm -rf \/\*?$/.test(lower)) {
     return {
       lines: ["Deleting everything… just kidding. Your flags are safe. So are ours."],
-      egg: "nuke",
     };
   }
 

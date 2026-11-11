@@ -21,6 +21,9 @@ Disallow: /api/
 # Staff only. Nothing to see. Certainly nothing to index.
 Disallow: /staff
 
+# Legacy admin panel. Scheduled for removal. Do not touch.
+Disallow: /admin
+
 Sitemap: ${SITE_URL}/sitemap.xml
 `;
 

@@ -26,8 +26,11 @@ const AWAY_TITLES = [
   "Still here. Still hiding things.",
 ];
 
-/** Long enough to count as leaving rather than a stray alt-tab. */
-const AWAY_MS = 4000;
+/** Set by the service worker's offline page; read here once the network is back. */
+const OFFLINE_MARK = "pctf-offline";
+
+/** 3:14, morning or afternoon, on the visitor's own clock. */
+const isPiOClock = (now = new Date()) => now.getHours() % 12 === 3 && now.getMinutes() === 14;
 
 const GREETING = `
    |>
@@ -41,7 +44,8 @@ const GREETING = `
  * The things every page does quietly.
  *
  * It says hello in the console, files a few records in the browser's own
- * storage without mentioning it, and listens for one very old cheat code.
+ * storage without mentioning it, listens for one very old cheat code, keeps
+ * an eye on the clock, and installs a service worker for when the network goes.
  */
 export function Secrets(props: { drawer: Drawer }) {
   const { claim } = useGame();
@@ -86,18 +90,13 @@ export function Secrets(props: { drawer: Drawer }) {
     }
   };
 
-  /*
-   * Leave the tab and its title starts talking to you. Come back after a few
-   * seconds and the site notices that too.
-   */
+  /** Leave the tab and its title starts talking to you. */
   let original = "";
-  let leftAt = 0;
   let nag: ReturnType<typeof setInterval> | undefined;
 
   const handleVisibility = () => {
     if (document.hidden) {
       original = document.title;
-      leftAt = Date.now();
       let line = 0;
       nag = setInterval(() => {
         document.title = AWAY_TITLES[line++ % AWAY_TITLES.length]!;
@@ -106,8 +105,29 @@ export function Secrets(props: { drawer: Drawer }) {
     }
     clearInterval(nag);
     if (original) document.title = original;
-    if (leftAt && Date.now() - leftAt >= AWAY_MS) void claim("away");
-    leftAt = 0;
+  };
+
+  /**
+   * A service worker whose only job is the page you get with no network. That
+   * page leaves a mark in localStorage; the next page with a network claims it.
+   */
+  const watchForOffline = () => {
+    try {
+      if (localStorage.getItem(OFFLINE_MARK)) {
+        localStorage.removeItem(OFFLINE_MARK);
+        void claim("offline");
+      }
+    } catch {
+      /* storage blocked */
+    }
+    navigator.serviceWorker?.register("/sw.js").catch(() => {});
+  };
+
+  let clock: ReturnType<typeof setInterval> | undefined;
+  const checkClock = () => {
+    if (!isPiOClock()) return;
+    clearInterval(clock);
+    void claim("pi");
   };
 
   onMount(() => {
@@ -116,12 +136,16 @@ export function Secrets(props: { drawer: Drawer }) {
       .trim();
     console.log(`%c${GREETING}`, `color:${accent || "#10b981"};font-family:monospace`);
     fileRecords();
+    watchForOffline();
+    checkClock();
+    clock = setInterval(checkClock, 20_000);
     window.addEventListener("keydown", handleKey);
     document.addEventListener("visibilitychange", handleVisibility);
   });
 
   onCleanup(() => {
     clearInterval(nag);
+    clearInterval(clock);
     if (typeof window === "undefined") return;
     window.removeEventListener("keydown", handleKey);
     document.removeEventListener("visibilitychange", handleVisibility);

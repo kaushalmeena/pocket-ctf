@@ -165,6 +165,66 @@ export async function teapot() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Cloaking, as a courtesy
+ * ------------------------------------------------------------------ */
+
+/**
+ * The page a search engine is shown instead of the real one -- the oldest
+ * trick in bad SEO, played on whoever claims to be one. Only a request that
+ * already carries this site's cookies gets here, which no real crawler does.
+ */
+export async function forCrawlers() {
+  const player = await currentPlayer();
+  await awardEgg(player, "robot");
+  return `<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pocket CTF | Best CTF | Free CTF | Capture The Flag Online 2026 | CTF Near Me</title>
+<meta name="keywords" content="ctf, capture the flag, flags, free flags, best flags, flag near me, hacking, cyber, synergy">
+<style>body{font:16px/1.6 system-ui,sans-serif;max-width:40rem;margin:3rem auto;padding:0 1rem}</style>
+<h1>Welcome, esteemed crawler.</h1>
+<p>This is the version of the front page we show to search engines. It is much better.
+It has keywords. Capture the flag. Free capture the flag. Capture the flag near me.</p>
+<p>Humans get a different page. You, we are told, are not a human.</p>
+<p>Although: search engines do not usually arrive carrying our cookies. If you are a
+person who changed their User-Agent to see what would happen, there is a secret trophy
+in your case now. Change it back and come home.</p>
+</html>`;
+}
+
+/* ------------------------------------------------------------------ *
+ * The admin login, which logs nobody in
+ * ------------------------------------------------------------------ */
+
+/** The usual openings of an injection: a quote that closes, then SQL. */
+const INJECTION =
+  /['"`]\s*(\)\s*)?(or|and|union|;|--|#|\/\*)|\b(or|and)\s+['"\d\w]+\s*=\s*['"\d\w]+|;\s*(drop|delete|insert|update|select)\b|\bunion\b.+\bselect\b|--\s*$/i;
+
+const REFUSALS = [
+  "Invalid credentials. There are no valid credentials.",
+  "Access denied. This form has never let anybody in, and it is not starting with you.",
+  "Wrong. Also: please don't type real passwords into strange login forms.",
+  "Nope. The admin is on holiday, and took the password with them.",
+];
+
+/**
+ * A login form left lying around, with nothing behind it. What is typed is
+ * matched against a pattern and dropped: nothing is stored, logged or
+ * compared with anything.
+ */
+export async function adminLogin(username: string, password: string, attempt: number) {
+  if (INJECTION.test(username) || INJECTION.test(password)) {
+    const player = await currentPlayer();
+    return {
+      line: "Did you really name your son Robert'); DROP TABLE Students;-- ? There are no tables here to drop. There is barely a login.",
+      trophies: await awardEgg(player, "bobby"),
+    };
+  }
+  return { line: REFUSALS[attempt % REFUSALS.length]!, trophies: [] };
+}
+
+/* ------------------------------------------------------------------ *
  * The scenic route
  * ------------------------------------------------------------------ */
 

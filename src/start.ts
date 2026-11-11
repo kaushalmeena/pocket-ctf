@@ -1,6 +1,6 @@
 import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/solid-start";
 
-import { plainFrontPage } from "~/server/plants";
+import { forCrawlers, plainFrontPage } from "~/server/plants";
 
 /**
  * Headers every response carries.
@@ -50,6 +50,36 @@ const plainText = createMiddleware().server(async ({ request, next }) => {
   return next();
 });
 
+const CRAWLER = /googlebot|bingbot|duckduckbot|yandex(bot)?|baiduspider|applebot|slurp/i;
+
+/** This site's own cookies: the deal every visitor gets, or a session. */
+const knownHere = (cookie: string | null) =>
+  Boolean(cookie && /(^|;\s*)(pctf_deal|[\w.-]*session_token)=/.test(cookie));
+
+/**
+ * Pages served to anything claiming to be a search engine are a different,
+ * worse page. Real crawlers carry no cookies and are left alone; a person who
+ * changed their User-Agent carries ours.
+ */
+const cloaking = createMiddleware().server(async ({ request, next }) => {
+  const accept = request.headers.get("accept") ?? "";
+  const path = new URL(request.url).pathname;
+  if (
+    request.method === "GET" &&
+    // Pages only: not the API, server functions or files.
+    !/^\/(api|_)/.test(path) &&
+    !/\.[a-z0-9]+$/i.test(path) &&
+    /text\/html|\*\/\*/.test(accept) &&
+    CRAWLER.test(request.headers.get("user-agent") ?? "") &&
+    knownHere(request.headers.get("cookie"))
+  ) {
+    return new Response(await forCrawlers(), {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
+  }
+  return next();
+});
+
 /*
  * Server functions are same-origin RPC: the prompt, clue purchases, renames
  * and recovery all go through them. This refuses any that arrive from another
@@ -59,5 +89,5 @@ const plainText = createMiddleware().server(async ({ request, next }) => {
 const csrf = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [csrf, responseHeaders, plainText],
+  requestMiddleware: [csrf, responseHeaders, plainText, cloaking],
 }));

@@ -76,6 +76,18 @@ export const getProfile = createServerFn({ method: "GET" })
   .validator(text(40))
   .handler(({ data }) => profileOf(data));
 
+/** The admin login. It takes nothing from what is typed but a yes or no. */
+export const tryAdmin = createServerFn({ method: "POST" })
+  .validator((input: unknown) => {
+    const form = (input ?? {}) as Record<string, unknown>;
+    return {
+      username: text(200)(form.username),
+      password: text(200)(form.password),
+      attempt: index(form.attempt) || 0,
+    };
+  })
+  .handler(({ data }) => plants.adminLogin(data.username, data.password, data.attempt));
+
 export const getVault = createServerFn({ method: "GET" })
   .validator(text(80))
   .handler(({ data }) => plants.vault(data));
